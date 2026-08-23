@@ -17,9 +17,9 @@ export const RoleSwitcherHub: React.FC = () => {
     {
       id: 'client',
       name: 'Cliente',
-      icon: <ShoppingBag className="w-8 h-8 text-blue-600" />,
+      icon: <ShoppingBag className="w-8 h-8 text-emerald-600" />,
       logo: '🛒',
-      color: 'bg-blue-50/90 border-blue-200 hover:border-blue-400 text-slate-900',
+      color: 'bg-emerald-50/90 border-emerald-200 hover:border-emerald-400 text-slate-900',
       badge: 'Usuario Final'
     },
     {
@@ -43,7 +43,7 @@ export const RoleSwitcherHub: React.FC = () => {
   return (
     <div className="w-full max-w-4xl mx-auto py-6 px-4 bg-white">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold uppercase tracking-wider mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold uppercase tracking-wider mb-3">
           <Sparkles className="w-3.5 h-3.5" /> Portal Multi-Rol
         </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -64,7 +64,7 @@ export const RoleSwitcherHub: React.FC = () => {
               onClick={() => handleSelectRole(item.id)}
               className={`relative flex flex-col items-center justify-center text-center p-5 rounded-2xl border transition-all duration-200 cursor-pointer shadow-xs ${item.color} ${
                 isSelected
-                  ? 'ring-2 ring-blue-600 shadow-lg shadow-blue-500/15 scale-[1.02]'
+                  ? 'ring-2 ring-[#00D222] shadow-lg shadow-emerald-500/15 scale-[1.02]'
                   : 'hover:scale-[1.01] hover:shadow-md'
               }`}
             >
@@ -85,7 +85,7 @@ export const RoleSwitcherHub: React.FC = () => {
               </span>
 
               {isSelected && (
-                <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs">
+                <div className="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-emerald-600 text-white text-xs">
                   ✓
                 </div>
               )}
@@ -96,3 +96,4 @@ export const RoleSwitcherHub: React.FC = () => {
     </div>
   );
 };
+

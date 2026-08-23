@@ -17,9 +17,9 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     {
       id: 'client',
       name: 'Cliente',
-      icon: <ShoppingBag className="w-7 h-7 text-blue-600" />,
+      icon: <ShoppingBag className="w-7 h-7 text-emerald-600" />,
       logo: '🛒',
-      color: 'bg-blue-50 border-blue-200 hover:border-blue-400'
+      color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400'
     },
     {
       id: 'seller',
@@ -57,7 +57,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -73,7 +73,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
                 onClick={() => handleSelectRole(item.id)}
                 className={`relative flex flex-col items-center justify-center text-center p-4 rounded-2xl border transition-all duration-200 cursor-pointer shadow-xs ${item.color} ${
                   isSelected
-                    ? 'ring-2 ring-blue-600 shadow-md shadow-blue-500/20 scale-[1.02]'
+                    ? 'ring-2 ring-[#00D222] shadow-md shadow-emerald-500/20 scale-[1.02]'
                     : 'hover:scale-[1.01]'
                 }`}
               >
@@ -89,7 +89,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
                 </span>
 
                 {isSelected && (
-                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-bold">
+                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">
                     ✓
                   </span>
                 )}
@@ -97,6 +97,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
             );
           })}
         </div>
+
 
         <button
           onClick={onClose}

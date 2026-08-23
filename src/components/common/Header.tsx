@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { PulsoLogo } from './PulsoLogo';
 import {
   MapPin,
   LocateFixed,
@@ -39,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
       case 'seller':
         return { name: 'Vendedor', icon: <Store className="w-4 h-4 text-emerald-600" />, color: 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' };
       default:
-        return { name: 'Cliente', icon: <User className="w-4 h-4 text-blue-600" />, color: 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100' };
+        return { name: 'Cliente', icon: <User className="w-4 h-4 text-emerald-600" />, color: 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' };
     }
   };
 
@@ -50,20 +51,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 md:gap-4">
         
         {/* Left: Brand & Role Switcher */}
-        <div className="flex items-center gap-2 md:gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xl font-black text-white shadow-md shadow-blue-500/20">
-              ⚡
-            </div>
-            <div className="hidden sm:block">
-              <span className="text-base md:text-lg font-black tracking-tight text-slate-900">
-                Pulso
-              </span>
-              <span className="block text-[10px] text-blue-600 font-semibold leading-none">
-                Farmacias & Restaurantes
-              </span>
-            </div>
-          </div>
+        <div className="flex items-center gap-2 md:gap-4">
+          <PulsoLogo size="md" />
 
           {/* Role Pill Button */}
           <button
@@ -81,16 +70,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           <button
             onClick={detectUserLocation}
             disabled={isLocating}
-            className="w-full flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs text-slate-700 transition-all text-left shadow-xs"
+            className="w-full flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs text-slate-700 transition-all text-left shadow-xs cursor-pointer"
             title="Actualizar mi ubicación GPS"
           >
             <div className="flex items-center gap-1.5 min-w-0">
-              <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-[#00D222] shrink-0" />
               <span className="truncate text-slate-900 font-medium text-[11px] md:text-xs">
                 {userAddressLabel}
               </span>
             </div>
-            <LocateFixed className={`w-3.5 h-3.5 text-slate-400 hover:text-blue-600 shrink-0 ${isLocating ? 'animate-spin text-blue-600' : ''}`} />
+            <LocateFixed className={`w-3.5 h-3.5 text-slate-400 hover:text-emerald-600 shrink-0 ${isLocating ? 'animate-spin text-emerald-600' : ''}`} />
           </button>
         </div>
 
@@ -99,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           {/* WhatsApp shortcut */}
           <button
             onClick={() => openWhatsAppWithPrompt()}
-            className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs"
+            className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             title="Asistente WhatsApp"
           >
             <MessageCircle className="w-4 h-4 text-emerald-600" />
@@ -110,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           {!isAppInstalled && (
             <button
               onClick={installPWA}
-              className="hidden lg:flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs"
+              className="hidden lg:flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Instalar App</span>
@@ -121,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           {currentRole === 'client' && (
             <button
               onClick={onOpenCart}
-              className="relative p-2 md:px-3.5 md:py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/25 transition-all active:scale-95"
+              className="relative p-2 md:px-3.5 md:py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/25 transition-all active:scale-95 cursor-pointer"
               aria-label="Ver carrito"
             >
               <ShoppingBag className="w-4 h-4" />
@@ -138,3 +127,4 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
     </header>
   );
 };
+

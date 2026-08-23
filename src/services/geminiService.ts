@@ -159,9 +159,9 @@ function fallbackLocalMatcher(
   const offerBiz = businesses.find(b => b.id === offerProduct.businessId) || businesses[0];
 
   return {
-    messageText: `🔥 ¡Oferta destacada de hoy en Marketplace!\n*${offerProduct.name}* a solo *$${offerProduct.price} MXN* (Antes $${offerProduct.originalPrice || offerProduct.price + 50}) en *${offerBiz.name}*.\n\nEscribe qué necesitas o explora en el mapa interactivo:`,
+    messageText: `🔥 ¡Oferta destacada de hoy en Pulso!\n*${offerProduct.name}* a solo *$${offerProduct.price} MXN* (Antes $${offerProduct.originalPrice || offerProduct.price + 50}) en *${offerBiz.name}*.\n\nEscribe qué necesitas o explora en el mapa interactivo:`,
     foundProducts: [offerProduct],
     recommendedBusinesses: [offerBiz],
-    deepLink: `https://marketplace.app/?view=business&id=${offerBiz.id}&product=${offerProduct.id}`
+    deepLink: `https://pulso.app/?view=business&id=${offerBiz.id}&product=${offerProduct.id}`
   };
 }

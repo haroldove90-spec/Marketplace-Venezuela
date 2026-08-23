@@ -22,9 +22,9 @@ export const MyOrdersView: React.FC = () => {
       case 'preparing':
         return { step: 1, label: 'En Preparación 👨‍🍳', color: 'text-amber-700 bg-amber-50 border-amber-200' };
       case 'ready':
-        return { step: 2, label: 'Listo para Entrega 📦', color: 'text-blue-700 bg-blue-50 border-blue-200' };
+        return { step: 2, label: 'Listo para Entrega 📦', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
       case 'on_the_way':
-        return { step: 3, label: 'En Camino 🛵', color: 'text-purple-700 bg-purple-50 border-purple-200' };
+        return { step: 3, label: 'En Camino 🛵', color: 'text-teal-700 bg-teal-50 border-teal-200' };
       case 'delivered':
         return { step: 4, label: 'Entregado ✓', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
       default:
@@ -41,7 +41,7 @@ export const MyOrdersView: React.FC = () => {
         </div>
         <button
           onClick={() => setActiveClientTab('explore')}
-          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+          className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
         >
           + Nuevo Pedido
         </button>
@@ -56,7 +56,7 @@ export const MyOrdersView: React.FC = () => {
           </p>
           <button
             onClick={() => setActiveClientTab('explore')}
-            className="mt-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+            className="mt-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
           >
             Explorar en el Mapa
           </button>
@@ -80,7 +80,7 @@ export const MyOrdersView: React.FC = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-bold text-blue-600">
+                        <span className="font-mono text-xs font-bold text-emerald-600">
                           #{order.id}
                         </span>
                         <span className="text-slate-500 text-xs">· {order.createdAt}</span>
@@ -113,7 +113,7 @@ export const MyOrdersView: React.FC = () => {
                           <div
                             className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-1 transition-all ${
                               isPassed
-                                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/30'
                                 : 'bg-slate-100 text-slate-400 border border-slate-200'
                             }`}
                           >
@@ -138,7 +138,7 @@ export const MyOrdersView: React.FC = () => {
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between items-center text-slate-700">
                         <span>
-                          <span className="text-blue-600 font-bold mr-1.5">{item.quantity}x</span>
+                          <span className="text-emerald-600 font-bold mr-1.5">{item.quantity}x</span>
                           {item.product.name}
                         </span>
                         <span className="font-semibold text-slate-900">

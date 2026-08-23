@@ -276,7 +276,7 @@ export const SuperAdminDashboard: React.FC = () => {
               <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Sellers Activos
               </span>
-              <p className="text-xl md:text-2xl font-black text-blue-600">
+              <p className="text-xl md:text-2xl font-black text-emerald-600">
                 {activeSellersCount} Negocios
               </p>
               <span className="text-[10px] text-slate-400 block">
@@ -396,12 +396,12 @@ export const SuperAdminDashboard: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div
                         className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm border-2 border-white"
-                        style={{ backgroundColor: biz.customPinColor || '#2563eb' }}
+                        style={{ backgroundColor: biz.customPinColor || '#00D222' }}
                       >
                         {biz.logo}
                       </div>
                       <div>
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-blue-700 border border-slate-200">
+                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                           {biz.category}
                         </span>
                         <h4 className="font-bold text-slate-900 text-sm line-clamp-1 mt-0.5">
@@ -584,7 +584,7 @@ export const SuperAdminDashboard: React.FC = () => {
             {/* Deep Link Generator */}
             <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Link className="w-4 h-4 text-blue-600" />
+                <Link className="w-4 h-4 text-emerald-600" />
                 Generador Automático de Deep Links
               </h3>
               <p className="text-xs text-slate-500">
@@ -600,7 +600,7 @@ export const SuperAdminDashboard: React.FC = () => {
                     <select
                       value={deepLinkBizId}
                       onChange={(e) => setDeepLinkBizId(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-600 cursor-pointer"
+                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-600 cursor-pointer"
                     >
                       {businesses.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -617,7 +617,7 @@ export const SuperAdminDashboard: React.FC = () => {
                     <select
                       value={deepLinkProdId}
                       onChange={(e) => setDeepLinkProdId(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-600 cursor-pointer"
+                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-emerald-600 cursor-pointer"
                     >
                       <option value="">Todo el Catálogo</option>
                       {products
@@ -631,11 +631,11 @@ export const SuperAdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 font-mono text-[11px] text-blue-700">
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 font-mono text-[11px] text-emerald-700">
                   <span className="truncate">{generatedDeepLink}</span>
                   <button
                     onClick={handleCopyDeepLink}
-                    className="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
+                    className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
                   >
                     {copiedDeepLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedDeepLink ? 'Copiado' : 'Copiar'}</span>
@@ -720,7 +720,7 @@ export const SuperAdminDashboard: React.FC = () => {
       {activeAdminTab === 'map' && (
         <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs max-w-3xl">
           <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-            <Layers className="w-5 h-5 text-blue-600" />
+            <Layers className="w-5 h-5 text-emerald-600" />
             Configuración de Capas del Mapa & Navegación Externa
           </h3>
 
@@ -761,7 +761,7 @@ export const SuperAdminDashboard: React.FC = () => {
                     Límite en kilómetros para mostrar negocios y calcular envíos
                   </p>
                 </div>
-                <span className="font-black text-blue-600 text-sm">15 KM</span>
+                <span className="font-black text-emerald-600 text-sm">15 KM</span>
               </div>
             </div>
           </div>

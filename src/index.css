@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --pulso-green: #00D222;
+    --pulso-green-dark: #00a81b;
+    --pulso-green-light: #e6fced;
+    --pulso-navy: #0B132B;
+  }
+
   * {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
@@ -40,3 +47,23 @@
 .animate-pulse-ring {
   animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+.bg-pulso-green {
+  background-color: #00D222;
+}
+.hover\:bg-pulso-green-dark:hover {
+  background-color: #00b31d;
+}
+.text-pulso-green {
+  color: #00a81b;
+}
+.text-pulso-vibrant {
+  color: #00D222;
+}
+.border-pulso-green {
+  border-color: #00D222;
+}
+.bg-pulso-light {
+  background-color: #eafbee;
+}
+

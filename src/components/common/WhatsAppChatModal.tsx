@@ -280,7 +280,7 @@ export const WhatsAppChatModal: React.FC = () => {
                         className="w-full mt-2 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all shadow"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Abrir en Marketplace PWA</span>
+                        <span>Abrir en Pulso PWA</span>
                         <ExternalLink className="w-3 h-3" />
                       </button>
                     </div>

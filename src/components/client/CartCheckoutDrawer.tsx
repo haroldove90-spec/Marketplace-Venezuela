@@ -86,7 +86,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
         businessId: targetBusiness.id,
         businessName: targetBusiness.name,
         businessLogo: targetBusiness.logo,
-        customerName: customerName.trim() || 'Cliente Marketplace',
+        customerName: customerName.trim() || 'Cliente Pulso',
         customerPhone: customerPhone.trim() || '+52 55 0000 0000',
         items: [...cart],
         subtotal: cartSubtotal,
@@ -124,7 +124,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
         {/* Header */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center font-bold">
               🛒
             </div>
             <div>
@@ -155,7 +155,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
             </p>
             <button
               onClick={onClose}
-              className="mt-5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+              className="mt-5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
             >
               Explorar Tiendas
             </button>
@@ -189,7 +189,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                     <h5 className="font-semibold text-slate-900 text-xs truncate">
                       {item.product.name}
                     </h5>
-                    <span className="text-xs text-blue-600 font-bold">
+                    <span className="text-xs text-emerald-600 font-bold">
                       ${item.product.price} MXN
                     </span>
                   </div>
@@ -225,20 +225,20 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   onClick={() => setDeliveryType('delivery')}
                   className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     deliveryType === 'delivery'
-                      ? 'bg-blue-50 border-blue-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   <span className="text-lg">🛵</span>
                   <span className="text-xs font-bold">Envío a Domicilio</span>
-                  <span className="text-[10px] text-blue-600 font-semibold">+$35 MXN</span>
+                  <span className="text-[10px] text-emerald-700 font-semibold">+$35 MXN</span>
                 </button>
 
                 <button
                   onClick={() => setDeliveryType('pickup')}
                   className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     deliveryType === 'pickup'
-                      ? 'bg-blue-50 border-blue-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
@@ -254,7 +254,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
               <div className="space-y-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
                     Dirección de Entrega
                   </span>
                 </div>
@@ -265,7 +265,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                     onClick={() => setAddressChoice('current_gps')}
                     className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs ${
                       addressChoice === 'current_gps'
-                        ? 'bg-white border-blue-500 text-slate-900 shadow-xs'
+                        ? 'bg-white border-emerald-500 text-slate-900 shadow-xs'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -273,7 +273,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                       type="radio"
                       checked={addressChoice === 'current_gps'}
                       onChange={() => setAddressChoice('current_gps')}
-                      className="accent-blue-600"
+                      className="accent-emerald-600"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold truncate">📍 Mi posición GPS actual</p>
@@ -287,7 +287,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                       onClick={() => setAddressChoice('saved')}
                       className={`flex items-start gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs ${
                         addressChoice === 'saved'
-                          ? 'bg-white border-blue-500 text-slate-900 shadow-xs'
+                          ? 'bg-white border-emerald-500 text-slate-900 shadow-xs'
                           : 'bg-white border-slate-200 text-slate-700'
                       }`}
                     >
@@ -295,7 +295,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                         type="radio"
                         checked={addressChoice === 'saved'}
                         onChange={() => setAddressChoice('saved')}
-                        className="accent-blue-600 mt-1"
+                        className="accent-emerald-600 mt-1"
                       />
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold">Direcciones Frecuentes</p>
@@ -305,7 +305,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                             setSelectedSavedAddrId(e.target.value);
                             setAddressChoice('saved');
                           }}
-                          className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900"
+                          className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
                         >
                           {savedAddresses.map((addr) => (
                             <option key={addr.id} value={addr.id}>
@@ -322,7 +322,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                     onClick={() => setAddressChoice('custom')}
                     className={`flex items-start gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs ${
                       addressChoice === 'custom'
-                        ? 'bg-white border-blue-500 text-slate-900 shadow-xs'
+                        ? 'bg-white border-emerald-500 text-slate-900 shadow-xs'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -330,7 +330,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                       type="radio"
                       checked={addressChoice === 'custom'}
                       onChange={() => setAddressChoice('custom')}
-                      className="accent-blue-600 mt-1"
+                      className="accent-emerald-600 mt-1"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold">Enviar a otra ubicación (Terceros, Oficina)</p>
@@ -340,7 +340,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                           value={customAddress}
                           onChange={(e) => setCustomAddress(e.target.value)}
                           placeholder="Calle, número, colonia, referencias..."
-                          className="mt-1.5 w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
+                          className="mt-1.5 w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
                         />
                       )}
                     </div>
@@ -359,11 +359,11 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   onClick={() => setPaymentMethod('card')}
                   className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'bg-blue-50 border-blue-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 text-blue-600" />
+                  <CreditCard className="w-4 h-4 text-emerald-600" />
                   <span className="text-[11px] font-bold">Tarjeta Online</span>
                 </button>
 
@@ -383,11 +383,11 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   onClick={() => setPaymentMethod('pos_terminal')}
                   className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'pos_terminal'
-                      ? 'bg-purple-50 border-purple-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <SmartphoneNfc className="w-4 h-4 text-purple-600" />
+                  <SmartphoneNfc className="w-4 h-4 text-emerald-600" />
                   <span className="text-[11px] font-bold">Terminal POS</span>
                 </button>
               </div>
@@ -401,7 +401,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500"
                 />
               </div>
               <div>
@@ -410,7 +410,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   type="text"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
@@ -422,7 +422,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
                 placeholder="Ej. Timbre 402, sin cebolla, etc."
-                className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900"
+                className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
               />
             </div>
           </div>
@@ -451,7 +451,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
             <button
               onClick={handlePlaceOrder}
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-blue-600/25 text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-600/25 text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">

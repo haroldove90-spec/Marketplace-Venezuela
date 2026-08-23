@@ -1,6 +1,6 @@
 {
-  "name": "Marketplace",
-  "description": "Marketplace geolocalizado para Farmacias y Restaurantes con PWA móvil, WhatsApp Chatbot IA y gestión multi-rol.",
+  "name": "Pulso",
+  "description": "Plataforma geolocalizada Pulso para Farmacias y Restaurantes con PWA móvil, WhatsApp Chatbot IA y gestión multi-rol.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

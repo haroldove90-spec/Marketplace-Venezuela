@@ -16,7 +16,7 @@ import { SellerDashboard } from './components/seller/SellerDashboard';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { Business } from './types';
 
-const MarketplaceContent: React.FC = () => {
+const PulsoAppContent: React.FC = () => {
   const {
     currentRole,
     activeClientTab,
@@ -37,7 +37,7 @@ const MarketplaceContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
       
       {/* Top PWA Install Banner */}
       <PWAInstallBanner />
@@ -112,7 +112,7 @@ const MarketplaceContent: React.FC = () => {
 export default function App() {
   return (
     <AppProvider>
-      <MarketplaceContent />
+      <PulsoAppContent />
     </AppProvider>
   );
 }
