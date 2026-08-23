@@ -17,7 +17,8 @@ import {
   INITIAL_ORDERS,
   INITIAL_CAMPAIGNS,
   INITIAL_CHATBOT_CONFIG,
-  INITIAL_SAVED_ADDRESSES
+  INITIAL_SAVED_ADDRESSES,
+  DATA_VERSION
 } from '../data/mockData';
 
 interface AppContextType {
@@ -30,6 +31,9 @@ interface AppContextType {
   setActiveSellerTab: (tab: string) => void;
   activeAdminTab: string;
   setActiveAdminTab: (tab: string) => void;
+
+  // Mock Data
+  injectMockData: () => void;
 
   // Businesses
   businesses: Business[];
@@ -111,8 +115,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Business State
   const [businesses, setBusinesses] = useState<Business[]>(() => {
+    const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_businesses');
-    return saved ? JSON.parse(saved) : INITIAL_BUSINESSES;
+    if (savedVersion === DATA_VERSION && saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_BUSINESSES.length) {
+          return parsed;
+        }
+      } catch (e) {}
+    }
+    return INITIAL_BUSINESSES;
   });
 
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>(INITIAL_BUSINESSES[0].id);
@@ -120,8 +133,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Products State
   const [products, setProducts] = useState<Product[]>(() => {
+    const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    if (savedVersion === DATA_VERSION && saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCTS.length) {
+          return parsed;
+        }
+      } catch (e) {}
+    }
+    return INITIAL_PRODUCTS;
   });
 
   // Orders State
@@ -129,6 +151,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem('mk_orders');
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
+
+  // Function to forcefully inject or restore rich test data
+  const injectMockData = () => {
+    setBusinesses(INITIAL_BUSINESSES);
+    setProducts(INITIAL_PRODUCTS);
+    setOrders(INITIAL_ORDERS);
+    setCampaigns(INITIAL_CAMPAIGNS);
+    setSavedAddresses(INITIAL_SAVED_ADDRESSES);
+    setChatbotConfig(INITIAL_CHATBOT_CONFIG);
+    localStorage.setItem('mk_businesses', JSON.stringify(INITIAL_BUSINESSES));
+    localStorage.setItem('mk_products', JSON.stringify(INITIAL_PRODUCTS));
+    localStorage.setItem('mk_orders', JSON.stringify(INITIAL_ORDERS));
+    localStorage.setItem('mk_campaigns', JSON.stringify(INITIAL_CAMPAIGNS));
+    localStorage.setItem('mk_saved_addresses', JSON.stringify(INITIAL_SAVED_ADDRESSES));
+    localStorage.setItem('mk_chatbot_config', JSON.stringify(INITIAL_CHATBOT_CONFIG));
+    localStorage.setItem('mk_data_version', DATA_VERSION);
+  };
+
+  // Ensure current data version is registered
+  useEffect(() => {
+    localStorage.setItem('mk_data_version', DATA_VERSION);
+  }, []);
 
   // Cart State
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -470,6 +514,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveSellerTab,
         activeAdminTab,
         setActiveAdminTab,
+
+        injectMockData,
 
         businesses,
         setBusinesses,

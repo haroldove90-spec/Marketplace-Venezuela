@@ -1,5 +1,7 @@
 import { Business, Product, Order, WhatsAppCampaign, ChatbotConfig, SavedAddress } from '../types';
 
+export const DATA_VERSION = 'pulso_mock_v3';
+
 export const INITIAL_BUSINESSES: Business[] = [
   {
     id: 'biz-farmacia-1',
@@ -19,7 +21,7 @@ export const INITIAL_BUSINESSES: Business[] = [
     customPinColor: '#10b981',
     deliveryTime: '15-25 min',
     minOrder: 100,
-    tags: ['farmacia', 'medicamentos', 'urgencias', 'salud', 'paracetamol', 'antigripal']
+    tags: ['farmacia', 'medicamentos', 'urgencias', 'salud', 'paracetamol', 'antigripal', 'dolor']
   },
   {
     id: 'biz-farmacia-2',
@@ -39,7 +41,47 @@ export const INITIAL_BUSINESSES: Business[] = [
     customPinColor: '#059669',
     deliveryTime: '20-30 min',
     minOrder: 150,
-    tags: ['dermocosmetica', 'vitaminas', 'suplementos', 'pediatria', 'analgesico']
+    tags: ['dermocosmetica', 'vitaminas', 'suplementos', 'pediatria', 'analgesico', 'bloqueador', 'skincare']
+  },
+  {
+    id: 'biz-farmacia-3',
+    name: 'Farmacia Familiar & Pediátrica San Lucas',
+    category: 'farmacia',
+    logo: '🍼',
+    bannerImage: 'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 4433 2211',
+    address: 'Av. Coyoacán 810, Col. Del Valle Sur',
+    coordinates: { lat: 19.3750, lng: -99.1710 },
+    openingHours: '07:00 AM - 11:00 PM',
+    rating: 4.9,
+    reviewsCount: 165,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 8,
+    customPinColor: '#0ea5e9',
+    deliveryTime: '20-35 min',
+    minOrder: 120,
+    tags: ['pediatria', 'bebes', 'panales', 'leche', 'termometro', 'infantil', 'salud']
+  },
+  {
+    id: 'biz-farmacia-4',
+    name: 'Farmacia Botica Natural VerdeVida',
+    category: 'farmacia',
+    logo: '🍃',
+    bannerImage: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 9988 7766',
+    address: 'Av. Tamaulipas 64, Col. Condesa',
+    coordinates: { lat: 19.4110, lng: -99.1730 },
+    openingHours: '09:00 AM - 09:00 PM',
+    rating: 4.7,
+    reviewsCount: 84,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 8,
+    customPinColor: '#16a34a',
+    deliveryTime: '25-40 min',
+    minOrder: 130,
+    tags: ['natural', 'homeopatia', 'propoleo', 'colageno', 'herbolaria', 'te', 'suplementos']
   },
   {
     id: 'biz-resto-1',
@@ -59,7 +101,7 @@ export const INITIAL_BUSINESSES: Business[] = [
     customPinColor: '#f97316',
     deliveryTime: '25-40 min',
     minOrder: 120,
-    tags: ['hamburguesas', 'alitas', 'papas', 'comida rapida', 'cena', 'bbq']
+    tags: ['hamburguesas', 'alitas', 'papas', 'comida rapida', 'cena', 'bbq', 'tocino']
   },
   {
     id: 'biz-resto-2',
@@ -79,7 +121,7 @@ export const INITIAL_BUSINESSES: Business[] = [
     customPinColor: '#ef4444',
     deliveryTime: '30-45 min',
     minOrder: 180,
-    tags: ['pizza', 'artesanal', 'italiana', 'pasta', 'lasagna', 'cena']
+    tags: ['pizza', 'artesanal', 'italiana', 'pasta', 'lasagna', 'cena', 'pepperoni']
   },
   {
     id: 'biz-resto-3',
@@ -99,12 +141,112 @@ export const INITIAL_BUSINESSES: Business[] = [
     customPinColor: '#eab308',
     deliveryTime: '15-30 min',
     minOrder: 80,
-    tags: ['tacos', 'pastor', 'birria', 'consome', 'antojitos', 'cena']
+    tags: ['tacos', 'pastor', 'birria', 'consome', 'antojitos', 'cena', 'quesadillas']
+  },
+  {
+    id: 'biz-resto-4',
+    name: 'Sushi Roll Master & Poke Bar',
+    category: 'restaurante',
+    logo: '🍣',
+    bannerImage: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 6677 8899',
+    address: 'Calle Michoacán 42, Col. Condesa',
+    coordinates: { lat: 19.4125, lng: -99.1705 },
+    openingHours: '12:30 PM - 10:30 PM',
+    rating: 4.8,
+    reviewsCount: 189,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 11,
+    customPinColor: '#ec4899',
+    deliveryTime: '25-35 min',
+    minOrder: 150,
+    tags: ['sushi', 'poke', 'salmon', 'japonesa', 'rollos', 'mariscos', 'tempura']
+  },
+  {
+    id: 'biz-resto-5',
+    name: 'Café & Panadería Artesanal La Toscana',
+    category: 'restaurante',
+    logo: '☕',
+    bannerImage: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 5544 3322',
+    address: 'Av. Sonora 140, Parque México',
+    coordinates: { lat: 19.4140, lng: -99.1680 },
+    openingHours: '07:30 AM - 09:00 PM',
+    rating: 4.9,
+    reviewsCount: 278,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 9,
+    customPinColor: '#8b5cf6',
+    deliveryTime: '15-25 min',
+    minOrder: 90,
+    tags: ['cafe', 'panaderia', 'croissant', 'desayunos', 'postres', 'latte', 'sandwiches']
+  },
+  {
+    id: 'biz-resto-6',
+    name: 'Pollo Asado Campestre & Parrilla',
+    category: 'restaurante',
+    logo: '🍗',
+    bannerImage: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 1199 8844',
+    address: 'Calzada de Tlalpan 920, Benito Juárez',
+    coordinates: { lat: 19.3890, lng: -99.1430 },
+    openingHours: '11:00 AM - 08:00 PM',
+    rating: 4.6,
+    reviewsCount: 195,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 10,
+    customPinColor: '#d97706',
+    deliveryTime: '20-35 min',
+    minOrder: 110,
+    tags: ['pollo', 'asado', 'parrillada', 'frijoles', 'comida casera', 'familiar']
+  },
+  {
+    id: 'biz-resto-7',
+    name: 'Dulce Tentación & Gelato Italiano',
+    category: 'restaurante',
+    logo: '🍨',
+    bannerImage: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 8822 6644',
+    address: 'Calle Amsterdam 102, Col. Hipódromo',
+    coordinates: { lat: 19.4115, lng: -99.1660 },
+    openingHours: '11:30 AM - 10:00 PM',
+    rating: 4.9,
+    reviewsCount: 312,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 10,
+    customPinColor: '#06b6d4',
+    deliveryTime: '15-25 min',
+    minOrder: 95,
+    tags: ['helados', 'gelato', 'crepas', 'waffles', 'postres', 'malteadas', 'dulce']
+  },
+  {
+    id: 'biz-resto-8',
+    name: 'Burritos & Quesadillas Norteñas',
+    category: 'restaurante',
+    logo: '🌯',
+    bannerImage: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&auto=format&fit=crop&q=60',
+    phone: '+52 55 7711 2233',
+    address: 'Calle Río Lerma 88, Col. Cuauhtémoc',
+    coordinates: { lat: 19.4270, lng: -99.1670 },
+    openingHours: '11:00 AM - 11:00 PM',
+    rating: 4.7,
+    reviewsCount: 140,
+    isVerified: true,
+    isActive: true,
+    commissionRate: 10,
+    customPinColor: '#b45309',
+    deliveryTime: '20-30 min',
+    minOrder: 100,
+    tags: ['burritos', 'quesadillas', 'machaca', 'arrachera', 'guacamole', 'norteno']
   }
 ];
 
 export const INITIAL_PRODUCTS: Product[] = [
-  // Farmacia San Rafael
+  // 1. Farmacia San Rafael
   {
     id: 'prod-1',
     businessId: 'biz-farmacia-1',
@@ -161,7 +303,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     isOfferOfTheDay: false
   },
 
-  // Farmacia Vitalis
+  // 2. Farmacia Vitalis
   {
     id: 'prod-5',
     businessId: 'biz-farmacia-2',
@@ -173,7 +315,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=500&auto=format&fit=crop&q=60',
     inStock: true,
     stockCount: 30,
-    tags: ['bloqueador', 'solar', 'protector', 'piel', 'crema', 'dermatologia'],
+    tags: ['bloqueador', 'solar', 'protector', 'piel', 'crema', 'dermatologia', 'skincare'],
     isOfferOfTheDay: true
   },
   {
@@ -189,8 +331,82 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['vitaminas', 'zinc', 'vitamina c', 'defensas', 'energia', 'suplemento'],
     isOfferOfTheDay: false
   },
+  {
+    id: 'prod-6b',
+    businessId: 'biz-farmacia-2',
+    name: 'Serum Ácido Hialurónico Hidratación Profunda',
+    description: 'Fórmula concentrada antiarrugas para rejuvenecimiento y luminosidad facial.',
+    price: 380,
+    originalPrice: 460,
+    category: 'Dermatología',
+    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 25,
+    tags: ['serum', 'acido hialuronico', 'antiarrugas', 'hidratante', 'skincare'],
+    isOfferOfTheDay: true
+  },
 
-  // Burger Craft
+  // 3. Farmacia Pediátrica San Lucas
+  {
+    id: 'prod-ped-1',
+    businessId: 'biz-farmacia-3',
+    name: 'Fórmula Infantil Etapa 1 (Lata 800g)',
+    description: 'Nutrición balanceada con probióticos, DHA y ARA para bebés de 0 a 6 meses.',
+    price: 395,
+    originalPrice: 450,
+    category: 'Nutrición Infantil',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 40,
+    tags: ['formula', 'leche', 'bebe', 'infantil', 'lactancia', 'pediatria'],
+    isOfferOfTheDay: true
+  },
+  {
+    id: 'prod-ped-2',
+    businessId: 'biz-farmacia-3',
+    name: 'Termómetro Digital Infrarrojo Sin Contacto',
+    description: 'Lectura ultra rápida en 1 segundo con pantalla LCD a color para fiebre.',
+    price: 320,
+    originalPrice: 410,
+    category: 'Equipos Médicos',
+    image: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 28,
+    tags: ['termometro', 'fiebre', 'digital', 'bebe', 'temperatura', 'equipo'],
+    isOfferOfTheDay: false
+  },
+
+  // 4. Botica Natural VerdeVida
+  {
+    id: 'prod-nat-1',
+    businessId: 'biz-farmacia-4',
+    name: 'Extracto de Propóleo & Miel 100% Puro (Gotero)',
+    description: 'Antibiótico natural para garganta irritada, defensas y vías respiratorias.',
+    price: 135,
+    originalPrice: 165,
+    category: 'Herbolaria',
+    image: 'https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 50,
+    tags: ['propoleo', 'miel', 'garganta', 'tos', 'natural', 'defensas'],
+    isOfferOfTheDay: true
+  },
+  {
+    id: 'prod-nat-2',
+    businessId: 'biz-farmacia-4',
+    name: 'Colágeno Hidrolizado + Biotina & Vitamina E',
+    description: 'Polvo 500g sabor frutos rojos para articulaciones, piel, cabello y uñas.',
+    price: 310,
+    originalPrice: 380,
+    category: 'Suplementos',
+    image: 'https://images.unsplash.com/photo-1577401239170-897942555fb3?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 35,
+    tags: ['colageno', 'biotina', 'cabello', 'articulaciones', 'suplemento', 'belleza'],
+    isOfferOfTheDay: false
+  },
+
+  // 5. Burger Craft
   {
     id: 'prod-7',
     businessId: 'biz-resto-1',
@@ -219,7 +435,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     isOfferOfTheDay: false
   },
 
-  // Pizzería Napolitana
+  // 6. Pizzería Bella Forno
   {
     id: 'prod-9',
     businessId: 'biz-resto-2',
@@ -234,8 +450,22 @@ export const INITIAL_PRODUCTS: Product[] = [
     tags: ['pizza', 'pepperoni', 'queso', 'italiana', 'cena', 'horno'],
     isOfferOfTheDay: true
   },
+  {
+    id: 'prod-9b',
+    businessId: 'biz-resto-2',
+    name: 'Lasagna Boloñesa al Horno de Leña',
+    description: 'Capas de pasta artesanal con ragú de res y cerdo, salsa bechamel cremosa y queso gratinado.',
+    price: 175,
+    originalPrice: 210,
+    category: 'Pastas',
+    image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 20,
+    tags: ['lasagna', 'pasta', 'queso', 'italiana', 'cena', 'horno'],
+    isOfferOfTheDay: false
+  },
 
-  // Tacos Los Compadres
+  // 7. Tacos Los Compadres
   {
     id: 'prod-10',
     businessId: 'biz-resto-3',
@@ -248,6 +478,125 @@ export const INITIAL_PRODUCTS: Product[] = [
     inStock: true,
     stockCount: 120,
     tags: ['tacos', 'pastor', 'taqueria', 'mexicana', 'antojitos', 'salsa'],
+    isOfferOfTheDay: true
+  },
+  {
+    id: 'prod-10b',
+    businessId: 'biz-resto-3',
+    name: 'Consomé & 3 Quesabirrias Doraditas',
+    description: 'Birria estilo Jalisco cocinada a fuego lento con queso Oaxaca derretido en tortilla dorada.',
+    price: 145,
+    category: 'Especialidades',
+    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 70,
+    tags: ['quesabirria', 'birria', 'consome', 'mexicana', 'tacos', 'queso'],
+    isOfferOfTheDay: false
+  },
+
+  // 8. Sushi Roll Master
+  {
+    id: 'prod-sush-1',
+    businessId: 'biz-resto-4',
+    name: 'Dragon Roll Especial (10 piezas)',
+    description: 'Relleno de camarón empanizado y queso crema, forrado en aguacate fresco con salsa de anguila y ajonjolí.',
+    price: 195,
+    originalPrice: 240,
+    category: 'Sushi Rolls',
+    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 45,
+    tags: ['sushi', 'dragon roll', 'camaron', 'aguacate', 'japonesa', 'rollos'],
+    isOfferOfTheDay: true
+  },
+  {
+    id: 'prod-sush-2',
+    businessId: 'biz-resto-4',
+    name: 'Poke Bowl Salmón Fresco & Mango',
+    description: 'Base de arroz de sushi, salmón fresco en cubos, edamames, aguacate, pepino, mango y aderezo ponzu.',
+    price: 215,
+    category: 'Poke Bowls',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 30,
+    tags: ['poke', 'salmon', 'bowl', 'saludable', 'mango', 'arroz'],
+    isOfferOfTheDay: false
+  },
+
+  // 9. Café & Panadería La Toscana
+  {
+    id: 'prod-cafe-1',
+    businessId: 'biz-resto-5',
+    name: 'Combo Desayuno: Croissant Relleno + Cappuccino Vainilla',
+    description: 'Croissant artesanal hojaldrado con jamón de pavo y queso gouda + Café cappuccino caliente 12oz.',
+    price: 125,
+    originalPrice: 160,
+    category: 'Desayunos & Combos',
+    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 60,
+    tags: ['croissant', 'cafe', 'cappuccino', 'desayuno', 'panaderia', 'combo'],
+    isOfferOfTheDay: true
+  },
+  {
+    id: 'prod-cafe-2',
+    businessId: 'biz-resto-5',
+    name: 'Tarta de Frutos Rojos & Crema Pastelera',
+    description: 'Base de masa sablé crujiente con fresas, frambuesas y moras frescas de temporada.',
+    price: 85,
+    category: 'Postres',
+    image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 25,
+    tags: ['tarta', 'frutos rojos', 'postre', 'pastel', 'dulce'],
+    isOfferOfTheDay: false
+  },
+
+  // 10. Pollo Asado Campestre
+  {
+    id: 'prod-pol-1',
+    businessId: 'biz-resto-6',
+    name: 'Paquete Familiar 1 Pollo Entero al Carbón + Guarniciones',
+    description: 'Pollo marinado con receta secreta campestre, incluye arroz, frijoles charros, tortillas y salsas.',
+    price: 260,
+    originalPrice: 320,
+    category: 'Paquetes Familiares',
+    image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 40,
+    tags: ['pollo', 'asado', 'familiar', 'frijoles', 'comida', 'arroz'],
+    isOfferOfTheDay: true
+  },
+
+  // 11. Dulce Tentación & Gelato
+  {
+    id: 'prod-hel-1',
+    businessId: 'biz-resto-7',
+    name: 'Waffle Belga con Helado de Nutella & Fresas',
+    description: 'Waffle caliente recién horneado con 2 bolas de gelato artesanal italiano, fresas y chocolate.',
+    price: 135,
+    originalPrice: 170,
+    category: 'Waffles & Crepas',
+    image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 50,
+    tags: ['waffle', 'helado', 'gelato', 'nutella', 'postre', 'dulce', 'fresas'],
+    isOfferOfTheDay: true
+  },
+
+  // 12. Burritos & Quesadillas Norteñas
+  {
+    id: 'prod-bur-1',
+    businessId: 'biz-resto-8',
+    name: 'Mega Burrito de Arrachera Norteña con Queso y Frijoles',
+    description: 'Tortilla de harina de 30cm rellena de arrachera asada, queso asadero fundido, frijoles y guacamole.',
+    price: 155,
+    originalPrice: 190,
+    category: 'Burritos',
+    image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 65,
+    tags: ['burrito', 'arrachera', 'queso', 'guacamole', 'norteno', 'carne'],
     isOfferOfTheDay: true
   }
 ];
@@ -262,12 +611,12 @@ export const INITIAL_ORDERS: Order[] = [
     customerPhone: '+52 55 8912 3456',
     items: [
       {
-        product: INITIAL_PRODUCTS[6], // Burger combo
+        product: INITIAL_PRODUCTS[8], // Burger combo
         quantity: 2,
         businessId: 'biz-resto-1'
       },
       {
-        product: INITIAL_PRODUCTS[7], // Wings
+        product: INITIAL_PRODUCTS[9], // Wings
         quantity: 1,
         businessId: 'biz-resto-1'
       }
@@ -303,39 +652,108 @@ export const INITIAL_ORDERS: Order[] = [
       }
     ],
     subtotal: 200,
-    deliveryFee: 0,
-    total: 200,
-    deliveryType: 'pickup',
-    deliveryAddress: 'Recoger en Sucursal: Av. Central 452',
+    deliveryFee: 25,
+    total: 225,
+    deliveryType: 'delivery',
+    deliveryAddress: 'Av. Coyoacán 1230, Col. Del Valle',
+    deliveryCoordinates: { lat: 19.3900, lng: -99.1670 },
     paymentMethod: 'cash_on_delivery',
+    status: 'delivered',
+    createdAt: 'Hace 45 min'
+  },
+  {
+    id: 'ORD-9819',
+    businessId: 'biz-resto-2',
+    businessName: 'Pizzería Napolitana Bella Forno',
+    businessLogo: '🍕',
+    customerName: 'Roberto Garza',
+    customerPhone: '+52 55 2211 4455',
+    items: [
+      {
+        product: INITIAL_PRODUCTS[10], // Pizza
+        quantity: 1,
+        businessId: 'biz-resto-2'
+      }
+    ],
+    subtotal: 230,
+    deliveryFee: 0,
+    total: 230,
+    deliveryType: 'pickup',
+    deliveryAddress: 'Recojo en local - Mostrador',
+    deliveryCoordinates: { lat: 19.4165, lng: -99.1600 },
+    paymentMethod: 'card',
     status: 'ready',
-    createdAt: 'Hace 30 min',
-    notes: 'Pagaré en efectivo en mostrador'
+    createdAt: 'Hace 20 min'
+  },
+  {
+    id: 'ORD-9818',
+    businessId: 'biz-resto-4',
+    businessName: 'Sushi Roll Master & Poke Bar',
+    businessLogo: '🍣',
+    customerName: 'Alejandra Ruiz',
+    customerPhone: '+52 55 9900 1122',
+    items: [
+      {
+        product: INITIAL_PRODUCTS[14], // Dragon roll
+        quantity: 2,
+        businessId: 'biz-resto-4'
+      }
+    ],
+    subtotal: 390,
+    deliveryFee: 30,
+    total: 420,
+    deliveryType: 'delivery',
+    deliveryAddress: 'Calle Mazatlán 78, Col. Condesa',
+    deliveryCoordinates: { lat: 19.4130, lng: -99.1720 },
+    paymentMethod: 'card',
+    status: 'preparing',
+    createdAt: 'Hace 10 min'
+  }
+];
+
+export const INITIAL_SAVED_ADDRESSES: SavedAddress[] = [
+  {
+    id: 'addr-1',
+    label: 'Casa 🏠',
+    address: 'Av. Insurgentes Sur 950, Depto 402, Benito Juárez, CDMX',
+    coordinates: { lat: 19.3820, lng: -99.1760 }
+  },
+  {
+    id: 'addr-2',
+    label: 'Oficina 💼',
+    address: 'Paseo de la Reforma 222, Piso 14, Cuauhtémoc, CDMX',
+    coordinates: { lat: 19.4280, lng: -99.1610 }
+  },
+  {
+    id: 'addr-3',
+    label: 'Depa Roma 🏙️',
+    address: 'Calle Orizaba 45, Col. Roma Norte, CDMX',
+    coordinates: { lat: 19.4210, lng: -99.1600 }
   }
 ];
 
 export const INITIAL_CAMPAIGNS: WhatsAppCampaign[] = [
   {
     id: 'camp-1',
-    title: 'Flash Promo Fin de Semana: 30% OFF en Pizzas & Burgers',
-    message: '🔥 ¡Hola! Aprovecha este fin de semana con 30% de descuento en tus restaurantes favoritos usando el código MARKET30. Pide aquí: https://marketplace.app/deals',
-    targetAudience: 'food_users',
+    title: '🔥 Fin de Semana de Pizzas & Burgers 30% OFF',
+    message: '¡Hola! 🎉 Este fin de semana disfruta 30% de descuento en tus restaurantes favoritos en Pulso. Ordena directo en: https://pulso.app/?filter=offers',
+    targetAudience: 'all',
     status: 'sent',
-    sentCount: 3450,
+    sentCount: 1420,
     openRate: 94.2,
     clickRate: 38.5,
-    date: '2026-08-20'
+    date: '2026-08-22'
   },
   {
     id: 'camp-2',
-    title: 'Botiquín de Emergencia 24/7 en tu zona',
-    message: '💊 ¿Necesitas medicamentos urgentes? Encuentra la farmacia de guardia más cercana a tu ubicación en segundos.',
-    targetAudience: 'all',
+    title: '💊 Farmacias Express: Medicamentos y Antigripales 24 Horas',
+    message: '¿Te sientes indispuesto? Recibe medicamentos y sueros en menos de 25 minutos directo a tu puerta con Pulso: https://pulso.app/?filter=farmacia',
+    targetAudience: 'farmacias_users',
     status: 'sent',
-    sentCount: 5200,
-    openRate: 91.8,
-    clickRate: 29.4,
-    date: '2026-08-15'
+    sentCount: 890,
+    openRate: 96.1,
+    clickRate: 44.2,
+    date: '2026-08-20'
   }
 ];
 
@@ -344,35 +762,16 @@ export const INITIAL_CHATBOT_CONFIG: ChatbotConfig = {
   phoneNumberId: '10982348572194',
   businessAccountId: 'WABA_992817264819',
   webhookVerifyToken: 'pulso_secure_webhook_token_2026',
-  welcomeMessage: '👋 ¡Hola! Bienvenido al asistente oficial de Pulso. ¿Qué estás buscando hoy? (Ejemplo: "paracetamol cerca", "hamburguesas", "farmacia 24h", "pizza")',
+  welcomeMessage: '👋 ¡Hola! Bienvenido al asistente oficial de Pulso. ¿Qué estás buscando hoy? (Ejemplo: "paracetamol cerca", "hamburguesas", "farmacia 24h", "pizza", "sushi")',
   featuredOfferId: 'prod-7', // Monster burger
   autoDeepLinksEnabled: true,
   geminiSmartSearch: true,
-  maxDistanceKm: 10,
+  maxDistanceKm: 15,
   customKeywords: [
-    { keyword: 'paracetamol', category: 'farmacia', targetTag: 'paracetamol' },
-    { keyword: 'dolor', category: 'farmacia', targetTag: 'analgesico' },
-    { keyword: 'gripe', category: 'farmacia', targetTag: 'antigripal' },
+    { keyword: 'medicina', category: 'farmacia', targetTag: 'medicamentos' },
     { keyword: 'hamburguesa', category: 'restaurante', targetTag: 'hamburguesas' },
     { keyword: 'pizza', category: 'restaurante', targetTag: 'pizza' },
     { keyword: 'tacos', category: 'restaurante', targetTag: 'tacos' },
-    { keyword: 'bloqueador', category: 'farmacia', targetTag: 'bloqueador' }
+    { keyword: 'sushi', category: 'restaurante', targetTag: 'sushi' }
   ]
 };
-
-export const INITIAL_SAVED_ADDRESSES: SavedAddress[] = [
-  {
-    id: 'addr-1',
-    label: 'Casa 🏠',
-    address: 'Av. División del Norte 1420, Depto 301, Benito Juárez',
-    coordinates: { lat: 19.3850, lng: -99.1620 },
-    isDefault: true
-  },
-  {
-    id: 'addr-2',
-    label: 'Trabajo / Oficina 🏢',
-    address: 'Paseo de la Reforma 222, Piso 14, Cuauhtémoc',
-    coordinates: { lat: 19.4290, lng: -99.1610 },
-    isDefault: false
-  }
-];

@@ -14,7 +14,9 @@ import {
   Filter,
   ShoppingBag,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  RefreshCw,
+  Check
 } from 'lucide-react';
 
 interface ClientExploreProps {
@@ -27,11 +29,19 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({ onSelectBusiness }
     products,
     calculateDistance,
     openExternalNavigation,
-    openWhatsAppWithPrompt
+    openWhatsAppWithPrompt,
+    injectMockData
   } = useApp();
 
   const [activeCategory, setActiveCategory] = useState<'all' | BusinessCategory | 'offers'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [injectedToast, setInjectedToast] = useState(false);
+
+  const handleInjectData = () => {
+    injectMockData();
+    setInjectedToast(true);
+    setTimeout(() => setInjectedToast(false), 3000);
+  };
 
   // Filter businesses
   const filteredBusinesses = businesses.filter((biz) => {
@@ -170,13 +180,32 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({ onSelectBusiness }
 
       {/* 4. Businesses Cards Grid */}
       <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <h3 className="font-extrabold text-slate-900 text-base md:text-lg tracking-tight">
-            Comercios Cercanos a tu Ubicación
-          </h3>
-          <span className="text-xs text-slate-500 font-medium">
-            {filteredBusinesses.length} resultados
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="font-extrabold text-slate-900 text-base md:text-lg tracking-tight">
+              Comercios Cercanos a tu Ubicación
+            </h3>
+            <p className="text-xs text-slate-500">
+              {filteredBusinesses.length} comercios verificados con entrega a domicilio y recojo
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {injectedToast && (
+              <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl animate-in fade-in">
+                <Check className="w-3.5 h-3.5" />
+                ¡Datos de prueba inyectados!
+              </span>
+            )}
+            <button
+              onClick={handleInjectData}
+              title="Restaurar o recargar todas las tiendas y productos de prueba"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all shadow-xs cursor-pointer border border-slate-200"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-blue-600" />
+              <span>Inyectar Datos de Prueba</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
