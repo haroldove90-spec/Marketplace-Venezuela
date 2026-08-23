@@ -50,7 +50,7 @@ export const RoleSwitcherHub: React.FC = () => {
           Selecciona tu Rol de Acceso
         </h1>
         <p className="text-slate-600 text-sm mt-1">
-          Marketplace geolocalizado en tiempo real
+          Pulso · Plataforma geolocalizada en tiempo real
         </p>
       </div>
 

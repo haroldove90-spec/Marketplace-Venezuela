@@ -340,11 +340,11 @@ export const INITIAL_CAMPAIGNS: WhatsAppCampaign[] = [
 ];
 
 export const INITIAL_CHATBOT_CONFIG: ChatbotConfig = {
-  metaApiToken: 'EAAG...META_CLOUD_API_TOKEN_MARKETPLACE',
+  metaApiToken: 'EAAG...META_CLOUD_API_TOKEN_PULSO',
   phoneNumberId: '10982348572194',
   businessAccountId: 'WABA_992817264819',
-  webhookVerifyToken: 'marketplace_secure_webhook_token_2026',
-  welcomeMessage: '👋 ¡Hola! Bienvenido al asistente oficial de Marketplace. ¿Qué estás buscando hoy? (Ejemplo: "paracetamol cerca", "hamburguesas", "farmacia 24h", "pizza")',
+  webhookVerifyToken: 'pulso_secure_webhook_token_2026',
+  welcomeMessage: '👋 ¡Hola! Bienvenido al asistente oficial de Pulso. ¿Qué estás buscando hoy? (Ejemplo: "paracetamol cerca", "hamburguesas", "farmacia 24h", "pizza")',
   featuredOfferId: 'prod-7', // Monster burger
   autoDeepLinksEnabled: true,
   geminiSmartSearch: true,

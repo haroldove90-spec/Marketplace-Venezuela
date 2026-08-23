@@ -54,7 +54,7 @@ export const WhatsAppChatModal: React.FC = () => {
       const welcomeMsg: ChatMessage = {
         id: 'msg-welcome',
         sender: 'bot',
-        text: chatbotConfig.welcomeMessage || '¡Hola! Bienvenido al asistente oficial de Marketplace.',
+        text: chatbotConfig.welcomeMessage || '¡Hola! Bienvenido al asistente oficial de Pulso.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -67,7 +67,7 @@ export const WhatsAppChatModal: React.FC = () => {
         data: {
           product: offerProd,
           business: offerBiz,
-          deepLink: `https://marketplace.app/?view=business&id=${offerBiz.id}&product=${offerProd.id}`
+          deepLink: `https://pulso.app/?view=business&id=${offerBiz.id}&product=${offerProd.id}`
         }
       };
 
@@ -195,7 +195,7 @@ export const WhatsAppChatModal: React.FC = () => {
 
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="font-bold text-sm text-white">Marketplace Bot IA</h3>
+                <h3 className="font-bold text-sm text-white">Pulso Bot IA</h3>
                 <span className="px-1.5 py-0.2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold rounded">
                   Oficial
                 </span>

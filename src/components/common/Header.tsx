@@ -53,11 +53,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
         <div className="flex items-center gap-2 md:gap-3">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xl font-black text-white shadow-md shadow-blue-500/20">
-              🛒
+              ⚡
             </div>
             <div className="hidden sm:block">
               <span className="text-base md:text-lg font-black tracking-tight text-slate-900">
-                Marketplace
+                Pulso
               </span>
               <span className="block text-[10px] text-blue-600 font-semibold leading-none">
                 Farmacias & Restaurantes

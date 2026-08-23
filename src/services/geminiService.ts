@@ -40,7 +40,7 @@ export async function processChatbotMessage(
   // Try using Gemini API if key is available
   try {
     const ai = new GoogleGenAI({});
-    const prompt = `Eres el asistente inteligente oficial de WhatsApp para la aplicación móvil "Marketplace" (Farmacias y Restaurantes).
+    const prompt = `Eres el asistente inteligente oficial de WhatsApp para la aplicación móvil "Pulso" (Farmacias y Restaurantes).
 Tu objetivo es responder de manera ultra concisa, cordial y directa como en WhatsApp.
 
 UBICACIÓN DEL USUARIO: ${userLocation ? `Lat: ${userLocation.lat}, Lng: ${userLocation.lng}` : 'Ubicación no proporcionada aún'}

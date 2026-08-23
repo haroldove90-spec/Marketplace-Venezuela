@@ -25,7 +25,7 @@ export const PWAInstallBanner: React.FC = () => {
             📲
           </div>
           <div className="min-w-0">
-            <p className="font-bold truncate text-white">Instala Marketplace en tu Celular</p>
+            <p className="font-bold truncate text-white">Instala Pulso en tu Celular</p>
             <p className="text-[11px] text-blue-100 truncate">Acceso rápido, mapa GPS y WhatsApp</p>
           </div>
         </div>

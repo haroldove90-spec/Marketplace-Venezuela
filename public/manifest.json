@@ -1,11 +1,11 @@
 {
-  "name": "Marketplace",
-  "short_name": "Marketplace",
+  "name": "Pulso",
+  "short_name": "Pulso",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#ffffff",
   "theme_color": "#2563eb",
-  "description": "Marketplace con geolocalización de Farmacias y Restaurantes, navegación interactiva y WhatsApp Bot.",
+  "description": "Pulso - Plataforma con geolocalización de Farmacias y Restaurantes, navegación interactiva y WhatsApp Bot.",
   "icons": [
     {
       "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%232563eb'/><path d='M30 45 L50 25 L70 45 L65 75 L35 75 Z' fill='%23ffffff'/><circle cx='50' cy='52' r='8' fill='%232563eb'/></svg>",

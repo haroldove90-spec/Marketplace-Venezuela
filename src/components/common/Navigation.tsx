@@ -210,7 +210,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
 
         {/* Footer info in sidebar */}
         <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
-          <span>Marketplace PWA v2.0</span>
+          <span>Pulso PWA v2.0</span>
           <span className="flex items-center gap-1 text-emerald-600 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             En línea
