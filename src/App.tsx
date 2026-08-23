@@ -37,7 +37,7 @@ const MarketplaceContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
       
       {/* Top PWA Install Banner */}
       <PWAInstallBanner />
@@ -49,7 +49,7 @@ const MarketplaceContent: React.FC = () => {
       />
 
       {/* Responsive Fullscreen Body Layout */}
-      <div className="flex-1 flex w-full max-w-full">
+      <div className="flex-1 flex w-full max-w-full bg-white">
         {/* Left Sidebar on Desktop */}
         <Navigation
           onOpenRoleModal={() => setIsRoleModalOpen(true)}
@@ -57,7 +57,7 @@ const MarketplaceContent: React.FC = () => {
         />
 
         {/* Center Main View Area */}
-        <main className="flex-1 w-full min-w-0 overflow-y-auto pt-2">
+        <main className="flex-1 w-full min-w-0 overflow-y-auto pt-2 bg-white">
           {/* CLIENT ROLE VIEWS */}
           {currentRole === 'client' && (
             <>

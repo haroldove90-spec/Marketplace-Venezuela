@@ -17,23 +17,23 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     {
       id: 'client',
       name: 'Cliente',
-      icon: <ShoppingBag className="w-7 h-7 text-blue-400" />,
+      icon: <ShoppingBag className="w-7 h-7 text-blue-600" />,
       logo: '🛒',
-      color: 'from-blue-600/20 to-blue-900/30 border-blue-500/40'
+      color: 'bg-blue-50 border-blue-200 hover:border-blue-400'
     },
     {
       id: 'seller',
       name: 'Negocio / Vendedor',
-      icon: <Store className="w-7 h-7 text-emerald-400" />,
+      icon: <Store className="w-7 h-7 text-emerald-600" />,
       logo: '🏪',
-      color: 'from-emerald-600/20 to-emerald-900/30 border-emerald-500/40'
+      color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400'
     },
     {
       id: 'admin',
       name: 'Superadministrador',
-      icon: <ShieldCheck className="w-7 h-7 text-purple-400" />,
+      icon: <ShieldCheck className="w-7 h-7 text-purple-600" />,
       logo: '⚡',
-      color: 'from-purple-600/20 to-purple-900/30 border-purple-500/40'
+      color: 'bg-purple-50 border-purple-200 hover:border-purple-400'
     }
   ];
 
@@ -46,18 +46,18 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 text-slate-100 shadow-2xl space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-6 text-slate-900 shadow-2xl space-y-4">
         
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl">🔀</span>
-            <h3 className="font-extrabold text-base text-white">Cambiar de Rol</h3>
+            <h3 className="font-extrabold text-base text-slate-900">Cambiar de Rol</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,25 +71,25 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
               <button
                 key={item.id}
                 onClick={() => handleSelectRole(item.id)}
-                className={`relative flex flex-col items-center justify-center text-center p-4 rounded-2xl border transition-all duration-200 cursor-pointer bg-gradient-to-b ${item.color} ${
+                className={`relative flex flex-col items-center justify-center text-center p-4 rounded-2xl border transition-all duration-200 cursor-pointer shadow-xs ${item.color} ${
                   isSelected
-                    ? 'ring-2 ring-blue-400 shadow-lg shadow-blue-500/20 scale-[1.02]'
-                    : 'hover:scale-[1.01] opacity-80 hover:opacity-100'
+                    ? 'ring-2 ring-blue-600 shadow-md shadow-blue-500/20 scale-[1.02]'
+                    : 'hover:scale-[1.01]'
                 }`}
               >
                 {/* Logo and Icon */}
                 <div className="text-3xl mb-1.5">{item.logo}</div>
-                <div className="p-2 rounded-xl bg-slate-950/80 border border-slate-700/60 mb-2">
+                <div className="p-2 rounded-xl bg-white border border-slate-200 mb-2 shadow-xs">
                   {item.icon}
                 </div>
 
                 {/* Role Name */}
-                <span className="text-xs md:text-sm font-extrabold text-white tracking-wide">
+                <span className="text-xs md:text-sm font-extrabold text-slate-900 tracking-wide">
                   {item.name}
                 </span>
 
                 {isSelected && (
-                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold">
+                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center font-bold">
                     ✓
                   </span>
                 )}
@@ -100,7 +100,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
 
         <button
           onClick={onClose}
-          className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs mt-2"
+          className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs mt-2 transition-colors"
         >
           Cerrar
         </button>

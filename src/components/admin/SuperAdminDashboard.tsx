@@ -205,26 +205,26 @@ export const SuperAdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 space-y-6 pb-24 md:pb-12">
+    <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 space-y-6 pb-24 md:pb-12 bg-white">
       
       {/* Top Header Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gradient-to-r from-purple-900/40 via-slate-900 to-indigo-950/40 rounded-3xl border border-slate-800 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-gradient-to-r from-purple-50 via-indigo-50/50 to-slate-50 rounded-3xl border border-slate-200 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-purple-600/30">
+          <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center text-white text-2xl shadow-md shadow-purple-600/25">
             ⚡
           </div>
           <div>
-            <h1 className="text-base md:text-lg font-black text-white">
+            <h1 className="text-base md:text-lg font-black text-slate-900">
               Superadministrador (Owner)
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Panel de control global, WhatsApp Business API y Finanzas
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl flex items-center gap-1.5">
+          <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             Meta API Online
           </span>
@@ -232,7 +232,7 @@ export const SuperAdminDashboard: React.FC = () => {
       </div>
 
       {/* Admin Module Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar">
         {[
           { id: 'overview', label: 'Dashboard General', icon: <LayoutDashboard className="w-4 h-4" /> },
           { id: 'sellers', label: `Gestión de Negocios (${businesses.length})`, icon: <Store className="w-4 h-4" /> },
@@ -243,10 +243,10 @@ export const SuperAdminDashboard: React.FC = () => {
           <button
             key={tab.id}
             onClick={() => setActiveAdminTab(tab.id)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
               activeAdminTab === tab.id
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             {tab.icon}
@@ -260,50 +260,50 @@ export const SuperAdminDashboard: React.FC = () => {
         <div className="space-y-6">
           {/* KPI Cards Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Ventas Globales
               </span>
-              <p className="text-xl md:text-2xl font-black text-emerald-400">
+              <p className="text-xl md:text-2xl font-black text-emerald-600">
                 ${totalSales.toLocaleString()} MXN
               </p>
-              <span className="text-[10px] text-slate-500 block">
+              <span className="text-[10px] text-slate-400 block">
                 {orders.length} pedidos procesados
               </span>
             </div>
 
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Sellers Activos
               </span>
-              <p className="text-xl md:text-2xl font-black text-blue-400">
+              <p className="text-xl md:text-2xl font-black text-blue-600">
                 {activeSellersCount} Negocios
               </p>
-              <span className="text-[10px] text-slate-500 block">
+              <span className="text-[10px] text-slate-400 block">
                 {businesses.filter((b) => b.category === 'farmacia').length} Farmacias · {businesses.filter((b) => b.category === 'restaurante').length} Restaurantes
               </span>
             </div>
 
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Modalidad Entregas
               </span>
               <div className="flex items-center gap-2 pt-1">
-                <span className="text-xs font-bold text-purple-400">🛵 {deliveryOrdersCount} Domicilio</span>
-                <span className="text-slate-600">|</span>
-                <span className="text-xs font-bold text-amber-400">🏬 {pickupOrdersCount} Recojo</span>
+                <span className="text-xs font-bold text-purple-600">🛵 {deliveryOrdersCount} Domicilio</span>
+                <span className="text-slate-300">|</span>
+                <span className="text-xs font-bold text-amber-600">🏬 {pickupOrdersCount} Recojo</span>
               </div>
-              <span className="text-[10px] text-slate-500 block">Ratio 70/30</span>
+              <span className="text-[10px] text-slate-400 block">Ratio 70/30</span>
             </div>
 
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                 Chats WhatsApp IA
               </span>
-              <p className="text-xl md:text-2xl font-black text-purple-400">
+              <p className="text-xl md:text-2xl font-black text-purple-600">
                 {totalBotInteractions} Chats
               </p>
-              <span className="text-[10px] text-emerald-400 font-bold block">
+              <span className="text-[10px] text-emerald-600 font-bold block">
                 94.2% Apertura · 38% Clicks
               </span>
             </div>
@@ -311,27 +311,27 @@ export const SuperAdminDashboard: React.FC = () => {
 
           {/* Quick Deep Link & Campaign Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Flame className="w-4 h-4 text-amber-400" />
+            <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-3">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <Flame className="w-4 h-4 text-amber-500" />
                 Oferta del Día Destacada Global
               </h3>
               {(() => {
                 const offerProd = products.find((p) => p.isOfferOfTheDay) || products[0];
                 const offerBiz = businesses.find((b) => b.id === offerProd?.businessId);
                 return (
-                  <div className="flex gap-3 p-3 bg-slate-950 rounded-2xl border border-slate-800">
+                  <div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
                     <img
                       src={offerProd.image}
                       alt={offerProd.name}
-                      className="w-16 h-16 rounded-xl object-cover"
+                      className="w-16 h-16 rounded-xl object-cover bg-white"
                     />
                     <div>
-                      <span className="text-[10px] font-bold text-amber-400 uppercase">
+                      <span className="text-[10px] font-bold text-amber-700 uppercase">
                         Destacada en WhatsApp
                       </span>
-                      <h4 className="font-bold text-white text-xs">{offerProd.name}</h4>
-                      <p className="text-xs text-emerald-400 font-extrabold">
+                      <h4 className="font-bold text-slate-900 text-xs">{offerProd.name}</h4>
+                      <p className="text-xs text-emerald-600 font-extrabold">
                         ${offerProd.price} MXN · {offerBiz?.name}
                       </p>
                     </div>
@@ -340,18 +340,18 @@ export const SuperAdminDashboard: React.FC = () => {
               })()}
             </div>
 
-            <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
+            <div className="p-5 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-3">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-emerald-600" />
                 Última Campaña Masiva WhatsApp
               </h3>
               {campaigns[0] && (
-                <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-xs">
-                  <div className="flex justify-between font-bold text-white">
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+                  <div className="flex justify-between font-bold text-slate-900">
                     <span className="truncate">{campaigns[0].title}</span>
-                    <span className="text-emerald-400 shrink-0">{campaigns[0].sentCount} envíos</span>
+                    <span className="text-emerald-600 shrink-0 font-bold">{campaigns[0].sentCount} envíos</span>
                   </div>
-                  <p className="text-slate-400 text-[11px] line-clamp-2">
+                  <p className="text-slate-600 text-[11px] line-clamp-2">
                     {campaigns[0].message}
                   </p>
                   <div className="flex gap-3 text-[10px] text-slate-500 font-mono pt-1">
@@ -370,15 +370,15 @@ export const SuperAdminDashboard: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-extrabold text-white text-base">Gestión de Negocios y Validación</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="font-extrabold text-slate-900 text-base">Gestión de Negocios y Validación</h3>
+              <p className="text-xs text-slate-500">
                 Alta, edición, comisiones y asignación de pines con logos personalizados
               </p>
             </div>
 
             <button
               onClick={openAddBizModal}
-              className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-purple-600/30 transition-all"
+              className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Alta de Negocio</span>
@@ -389,22 +389,22 @@ export const SuperAdminDashboard: React.FC = () => {
             {businesses.map((biz) => (
               <div
                 key={biz.id}
-                className="bg-slate-900 rounded-3xl border border-slate-800 p-4 space-y-3 shadow-xl flex flex-col justify-between"
+                className="bg-white rounded-3xl border border-slate-200 p-4 space-y-3 shadow-xs flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg border-2 border-white/20"
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm border-2 border-white"
                         style={{ backgroundColor: biz.customPinColor || '#2563eb' }}
                       >
                         {biz.logo}
                       </div>
                       <div>
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-800 text-blue-400 border border-slate-700">
+                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-blue-700 border border-slate-200">
                           {biz.category}
                         </span>
-                        <h4 className="font-bold text-white text-sm line-clamp-1 mt-0.5">
+                        <h4 className="font-bold text-slate-900 text-sm line-clamp-1 mt-0.5">
                           {biz.name}
                         </h4>
                       </div>
@@ -412,44 +412,44 @@ export const SuperAdminDashboard: React.FC = () => {
 
                     <button
                       onClick={() => updateBusiness(biz.id, { isActive: !biz.isActive })}
-                      className={`px-2 py-1 rounded-lg text-[10px] font-bold ${
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer ${
                         biz.isActive
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-red-50 text-red-700 border border-red-200'
                       }`}
                     >
                       {biz.isActive ? 'Activo' : 'Pausado'}
                     </button>
                   </div>
 
-                  <div className="mt-3 space-y-1 text-xs text-slate-400">
+                  <div className="mt-3 space-y-1 text-xs text-slate-600">
                     <p className="line-clamp-1">📍 {biz.address}</p>
                     <p>📞 {biz.phone}</p>
-                    <p className="font-mono text-[11px] text-slate-500">
+                    <p className="font-mono text-[11px] text-slate-400">
                       Pin GPS: [{biz.coordinates.lat.toFixed(4)}, {biz.coordinates.lng.toFixed(4)}]
                     </p>
-                    <div className="flex items-center justify-between text-slate-300 font-semibold pt-1">
+                    <div className="flex items-center justify-between text-slate-700 font-semibold pt-1">
                       <span>Comisión Plataforma:</span>
-                      <span className="text-purple-400">{biz.commissionRate}%</span>
+                      <span className="text-purple-600 font-bold">{biz.commissionRate}%</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-800">
-                  <span className="text-[11px] text-emerald-400 font-bold">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <span className="text-[11px] text-emerald-600 font-bold">
                     {biz.isVerified ? '✓ Validado' : '⏳ Pendiente'}
                   </span>
 
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => openEditBizModal(biz)}
-                      className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs"
+                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs cursor-pointer font-medium"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => deleteBusiness(biz.id)}
-                      className="p-1.5 bg-slate-800 hover:bg-red-900/40 text-red-400 rounded-lg text-xs"
+                      className="p-1.5 bg-slate-100 hover:bg-red-50 text-red-500 rounded-lg text-xs cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -465,53 +465,53 @@ export const SuperAdminDashboard: React.FC = () => {
       {activeAdminTab === 'whatsapp' && (
         <div className="space-y-6">
           {/* Section A: Meta Cloud API Config */}
-          <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
+          <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-white text-base">
+                <MessageSquare className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-bold text-slate-900 text-base">
                   Configuración API Oficial WhatsApp Business (Meta Cloud API / WATI)
                 </h3>
               </div>
-              <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold rounded-lg uppercase">
+              <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold rounded-lg uppercase">
                 Conectado
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Meta Access Token (Bearer)
                 </label>
                 <input
                   type="password"
                   value={metaToken}
                   onChange={(e) => setMetaToken(e.target.value)}
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:border-purple-600"
                 />
               </div>
 
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Phone Number ID (WABA)
                 </label>
                 <input
                   type="text"
                   value={phoneId}
                   onChange={(e) => setPhoneId(e.target.value)}
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:border-purple-600"
                 />
               </div>
 
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Webhook Verify Token
                 </label>
                 <input
                   type="text"
                   value={chatbotConfig.webhookVerifyToken}
                   readOnly
-                  className="w-full mt-1 bg-slate-800/60 border border-slate-700/60 rounded-xl px-3 py-2 text-slate-400 font-mono"
+                  className="w-full mt-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-slate-500 font-mono cursor-not-allowed"
                 />
               </div>
             </div>
@@ -521,7 +521,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 updateChatbotConfig({ metaApiToken: metaToken, phoneNumberId: phoneId });
                 alert('Configuración de WhatsApp guardada.');
               }}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-xs cursor-pointer"
             >
               Guardar Credenciales Meta
             </button>
@@ -530,33 +530,33 @@ export const SuperAdminDashboard: React.FC = () => {
           {/* Section B: Chatbot Control Panel & Deep Link Generator */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Welcome & Featured Offer */}
-            <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-400" />
+            <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-600" />
                 Panel de Control del Chatbot
               </h3>
 
               <div className="space-y-3 text-xs">
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px] font-bold">
+                  <label className="text-slate-600 uppercase text-[10px] font-bold">
                     Mensaje de Bienvenida Automatizado
                   </label>
                   <textarea
                     value={welcomeText}
                     onChange={(e) => setWelcomeText(e.target.value)}
                     rows={3}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white resize-none"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 resize-none focus:outline-none focus:border-purple-600"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px] font-bold">
+                  <label className="text-slate-600 uppercase text-[10px] font-bold">
                     Oferta del Día Promocionada en el Bot
                   </label>
                   <select
                     value={featuredOffer}
                     onChange={(e) => setFeaturedOffer(e.target.value)}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600 cursor-pointer"
                   >
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -574,7 +574,7 @@ export const SuperAdminDashboard: React.FC = () => {
                     });
                     alert('Panel del Bot actualizado.');
                   }}
-                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl text-xs"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer shadow-xs"
                 >
                   Actualizar Mensajes del Bot
                 </button>
@@ -582,25 +582,25 @@ export const SuperAdminDashboard: React.FC = () => {
             </div>
 
             {/* Deep Link Generator */}
-            <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Link className="w-4 h-4 text-blue-400" />
+            <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <Link className="w-4 h-4 text-blue-600" />
                 Generador Automático de Deep Links
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Enlaces dinámicos que abren la web PWA directo en el negocio o producto.
               </p>
 
               <div className="space-y-3 text-xs">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-slate-400 uppercase text-[10px] font-bold">
+                    <label className="text-slate-600 uppercase text-[10px] font-bold">
                       Negocio Destino
                     </label>
                     <select
                       value={deepLinkBizId}
                       onChange={(e) => setDeepLinkBizId(e.target.value)}
-                      className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-600 cursor-pointer"
                     >
                       {businesses.map((b) => (
                         <option key={b.id} value={b.id}>
@@ -611,13 +611,13 @@ export const SuperAdminDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-slate-400 uppercase text-[10px] font-bold">
+                    <label className="text-slate-600 uppercase text-[10px] font-bold">
                       Producto (Opcional)
                     </label>
                     <select
                       value={deepLinkProdId}
                       onChange={(e) => setDeepLinkProdId(e.target.value)}
-                      className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-600 cursor-pointer"
                     >
                       <option value="">Todo el Catálogo</option>
                       {products
@@ -631,11 +631,11 @@ export const SuperAdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-2 font-mono text-[11px] text-blue-400">
+                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 font-mono text-[11px] text-blue-700">
                   <span className="truncate">{generatedDeepLink}</span>
                   <button
                     onClick={handleCopyDeepLink}
-                    className="p-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0"
+                    className="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
                   >
                     {copiedDeepLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedDeepLink ? 'Copiado' : 'Copiar'}</span>
@@ -646,17 +646,17 @@ export const SuperAdminDashboard: React.FC = () => {
           </div>
 
           {/* Section C: WhatsApp Mass Campaign Manager */}
-          <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
+          <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Send className="w-5 h-5 text-purple-400" />
-                <h3 className="font-bold text-white text-base">
+                <Send className="w-5 h-5 text-purple-600" />
+                <h3 className="font-bold text-slate-900 text-base">
                   Gestor de Campañas Masivas & Promociones
                 </h3>
               </div>
 
               {campaignSentToast && (
-                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl border border-emerald-500/30">
+                <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200">
                   ✓ Campaña Enviada con Éxito
                 </span>
               )}
@@ -664,7 +664,7 @@ export const SuperAdminDashboard: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Título de la Campaña
                 </label>
                 <input
@@ -672,18 +672,18 @@ export const SuperAdminDashboard: React.FC = () => {
                   value={campaignTitle}
                   onChange={(e) => setCampaignTitle(e.target.value)}
                   placeholder="Ej. Fin de semana 30% OFF Burgers"
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600"
                 />
               </div>
 
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Audiencia Objetivo
                 </label>
                 <select
                   value={campaignAudience}
                   onChange={(e) => setCampaignAudience(e.target.value as any)}
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600 cursor-pointer"
                 >
                   <option value="all">Todos los Usuarios Registrados</option>
                   <option value="farmacias_users">Clientes de Farmacias</option>
@@ -692,7 +692,7 @@ export const SuperAdminDashboard: React.FC = () => {
               </div>
 
               <div className="md:col-span-3">
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Mensaje del Broadcast
                 </label>
                 <textarea
@@ -700,14 +700,14 @@ export const SuperAdminDashboard: React.FC = () => {
                   onChange={(e) => setCampaignMsg(e.target.value)}
                   placeholder="Escribe el mensaje con emojis y enlaces deep link..."
                   rows={3}
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white resize-none"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 resize-none focus:outline-none focus:border-purple-600"
                 />
               </div>
             </div>
 
             <button
               onClick={handleSendCampaign}
-              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-2.5 px-5 rounded-xl text-xs shadow-lg transition-all active:scale-95"
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs shadow-md shadow-purple-600/25 transition-all active:scale-95 cursor-pointer"
             >
               <Send className="w-4 h-4" />
               <span>Enviar Campaña Masiva WhatsApp</span>
@@ -718,50 +718,50 @@ export const SuperAdminDashboard: React.FC = () => {
 
       {/* 4. MAPA & NAVEGACIÓN */}
       {activeAdminTab === 'map' && (
-        <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 space-y-4 shadow-xl max-w-3xl">
-          <h3 className="font-bold text-white text-base flex items-center gap-2">
-            <Layers className="w-5 h-5 text-blue-400" />
+        <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs max-w-3xl">
+          <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+            <Layers className="w-5 h-5 text-blue-600" />
             Configuración de Capas del Mapa & Navegación Externa
           </h3>
 
           <div className="space-y-4 text-xs">
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-white">Integración con Google Maps</h4>
-                  <p className="text-slate-400 text-[11px]">
+                  <h4 className="font-bold text-slate-900">Integración con Google Maps</h4>
+                  <p className="text-slate-500 text-[11px]">
                     Permite a los usuarios trazar rutas en tiempo real mediante deeplink
                   </p>
                 </div>
-                <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold rounded">
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold rounded">
                   Habilitado
                 </span>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-white">Integración con Waze</h4>
-                  <p className="text-slate-400 text-[11px]">
+                  <h4 className="font-bold text-slate-900">Integración con Waze</h4>
+                  <p className="text-slate-500 text-[11px]">
                     Lanza navegación directa por tráfico en la app oficial de Waze
                   </p>
                 </div>
-                <span className="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 font-bold rounded">
+                <span className="px-2 py-0.5 bg-cyan-50 text-cyan-700 border border-cyan-200 font-bold rounded">
                   Habilitado
                 </span>
               </div>
             </div>
 
-            <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-white">Radio Máximo de Cobertura Geográfica</h4>
-                  <p className="text-slate-400 text-[11px]">
+                  <h4 className="font-bold text-slate-900">Radio Máximo de Cobertura Geográfica</h4>
+                  <p className="text-slate-500 text-[11px]">
                     Límite en kilómetros para mostrar negocios y calcular envíos
                   </p>
                 </div>
-                <span className="font-black text-blue-400 text-sm">15 KM</span>
+                <span className="font-black text-blue-600 text-sm">15 KM</span>
               </div>
             </div>
           </div>
@@ -773,42 +773,42 @@ export const SuperAdminDashboard: React.FC = () => {
         <div className="space-y-6">
           {/* Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase">
                 Volumen Total Transaccionado
               </span>
-              <p className="text-2xl font-black text-white">${totalSales} MXN</p>
+              <p className="text-2xl font-black text-slate-900">${totalSales} MXN</p>
             </div>
 
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase">
                 Comisiones de Plataforma (Prom. 10%)
               </span>
-              <p className="text-2xl font-black text-purple-400">
+              <p className="text-2xl font-black text-purple-600">
                 ${Math.round(totalSales * 0.1)} MXN
               </p>
             </div>
 
-            <div className="p-4 bg-slate-900 rounded-3xl border border-slate-800 shadow-xl space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase">
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase">
                 Liquidaciones Pendientes a Negocios
               </span>
-              <p className="text-2xl font-black text-emerald-400">
+              <p className="text-2xl font-black text-emerald-600">
                 ${Math.round(totalSales * 0.9)} MXN
               </p>
             </div>
           </div>
 
           {/* Breakdown per seller table */}
-          <div className="p-5 bg-slate-900 rounded-3xl border border-slate-800 space-y-3 shadow-xl">
-            <h3 className="font-bold text-white text-base">
+          <div className="p-5 bg-white rounded-3xl border border-slate-200 space-y-3 shadow-xs">
+            <h3 className="font-bold text-slate-900 text-base">
               Balance y Comisiones por Negocio (Sellers)
             </h3>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase text-[10px]">
+                  <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
                     <th className="pb-3">Negocio</th>
                     <th className="pb-3">Categoría</th>
                     <th className="pb-3">Comisión</th>
@@ -817,7 +817,7 @@ export const SuperAdminDashboard: React.FC = () => {
                     <th className="pb-3 text-right">Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-slate-100">
                   {businesses.map((b) => {
                     const bizSales = orders
                       .filter((o) => o.businessId === b.id)
@@ -825,23 +825,23 @@ export const SuperAdminDashboard: React.FC = () => {
                     const commissionAmount = Math.round((bizSales * b.commissionRate) / 100);
 
                     return (
-                      <tr key={b.id} className="text-slate-200">
+                      <tr key={b.id} className="text-slate-800">
                         <td className="py-3 font-bold flex items-center gap-2">
                           <span>{b.logo}</span>
                           <span>{b.name}</span>
                         </td>
-                        <td className="py-3 capitalize text-slate-400">{b.category}</td>
-                        <td className="py-3 font-mono font-bold text-purple-400">
+                        <td className="py-3 capitalize text-slate-500">{b.category}</td>
+                        <td className="py-3 font-mono font-bold text-purple-600">
                           {b.commissionRate}%
                         </td>
-                        <td className="py-3 font-bold">${bizSales} MXN</td>
-                        <td className="py-3 font-bold text-emerald-400">
+                        <td className="py-3 font-bold text-slate-900">${bizSales} MXN</td>
+                        <td className="py-3 font-bold text-emerald-600">
                           ${commissionAmount} MXN
                         </td>
                         <td className="py-3 text-right">
                           <button
                             onClick={() => alert(`Liquidación de $${bizSales - commissionAmount} MXN procesada para ${b.name}`)}
-                            className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-lg text-[11px]"
+                            className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-[11px] cursor-pointer"
                           >
                             Liquidar
                           </button>
@@ -858,15 +858,15 @@ export const SuperAdminDashboard: React.FC = () => {
 
       {/* CREATE / EDIT BUSINESS MODAL */}
       {showAddBizModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl p-5 text-slate-100 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-3xl p-5 text-slate-900 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-sm">
+              <h3 className="font-bold text-sm text-slate-900">
                 {editingBiz ? 'Editar Negocio' : 'Alta de Nuevo Negocio'}
               </h3>
               <button
                 onClick={() => setShowAddBizModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-slate-700 cursor-pointer"
               >
                 ✕
               </button>
@@ -874,26 +874,26 @@ export const SuperAdminDashboard: React.FC = () => {
 
             <div className="space-y-3 text-xs max-h-[70vh] overflow-y-auto no-scrollbar pr-1">
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Nombre del Negocio
                 </label>
                 <input
                   type="text"
                   value={newBizName}
                   onChange={(e) => setNewBizName(e.target.value)}
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px] font-bold">
+                  <label className="text-slate-600 uppercase text-[10px] font-bold">
                     Categoría
                   </label>
                   <select
                     value={newBizCategory}
                     onChange={(e) => setNewBizCategory(e.target.value as BusinessCategory)}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600 cursor-pointer"
                   >
                     <option value="farmacia">💊 Farmacia</option>
                     <option value="restaurante">🍔 Restaurante / Comida</option>
@@ -901,58 +901,58 @@ export const SuperAdminDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px] font-bold">
+                  <label className="text-slate-600 uppercase text-[10px] font-bold">
                     Comisión Plataforma (%)
                   </label>
                   <input
                     type="number"
                     value={newBizCommission}
                     onChange={(e) => setNewBizCommission(Number(e.target.value))}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Dirección Física
                 </label>
                 <input
                   type="text"
                   value={newBizAddress}
                   onChange={(e) => setNewBizAddress(e.target.value)}
-                  className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px] font-bold">
+                  <label className="text-slate-600 uppercase text-[10px] font-bold">
                     Teléfono / WhatsApp
                   </label>
                   <input
                     type="text"
                     value={newBizPhone}
                     onChange={(e) => setNewBizPhone(e.target.value)}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600"
                   />
                 </div>
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px] font-bold">
+                  <label className="text-slate-600 uppercase text-[10px] font-bold">
                     Horario
                   </label>
                   <input
                     type="text"
                     value={newBizHours}
                     onChange={(e) => setNewBizHours(e.target.value)}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-purple-600"
                   />
                 </div>
               </div>
 
               {/* Logo / Pin Icon Picker */}
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Logo Emoji del Marcador en el Mapa
                 </label>
                 <div className="flex gap-2 mt-1">
@@ -961,10 +961,10 @@ export const SuperAdminDashboard: React.FC = () => {
                       key={emoji}
                       type="button"
                       onClick={() => setNewBizLogo(emoji)}
-                      className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center border transition-all ${
+                      className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center border transition-all cursor-pointer ${
                         newBizLogo === emoji
-                          ? 'bg-purple-600 border-white scale-110 shadow'
-                          : 'bg-slate-800 border-slate-700'
+                          ? 'bg-purple-600 text-white border-purple-600 scale-110 shadow-xs'
+                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-900'
                       }`}
                     >
                       {emoji}
@@ -975,7 +975,7 @@ export const SuperAdminDashboard: React.FC = () => {
 
               {/* Pin Color */}
               <div>
-                <label className="text-slate-400 uppercase text-[10px] font-bold">
+                <label className="text-slate-600 uppercase text-[10px] font-bold">
                   Color del Pin en el Mapa
                 </label>
                 <div className="flex gap-2 mt-1">
@@ -984,8 +984,8 @@ export const SuperAdminDashboard: React.FC = () => {
                       key={c}
                       type="button"
                       onClick={() => setNewBizPinColor(c)}
-                      className={`w-8 h-8 rounded-xl border-2 transition-all ${
-                        newBizPinColor === c ? 'border-white scale-110' : 'border-transparent'
+                      className={`w-8 h-8 rounded-xl border-2 transition-all cursor-pointer ${
+                        newBizPinColor === c ? 'border-slate-900 scale-110 shadow-xs' : 'border-transparent'
                       }`}
                       style={{ backgroundColor: c }}
                     />
@@ -996,23 +996,23 @@ export const SuperAdminDashboard: React.FC = () => {
               {/* Coords */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px]">Latitud:</label>
+                  <label className="text-slate-600 uppercase text-[10px]">Latitud:</label>
                   <input
                     type="number"
                     step="0.0001"
                     value={newBizLat}
                     onChange={(e) => setNewBizLat(parseFloat(e.target.value))}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-purple-600"
                   />
                 </div>
                 <div>
-                  <label className="text-slate-400 uppercase text-[10px]">Longitud:</label>
+                  <label className="text-slate-600 uppercase text-[10px]">Longitud:</label>
                   <input
                     type="number"
                     step="0.0001"
                     value={newBizLng}
                     onChange={(e) => setNewBizLng(parseFloat(e.target.value))}
-                    className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"
+                    className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-purple-600"
                   />
                 </div>
               </div>
@@ -1021,13 +1021,13 @@ export const SuperAdminDashboard: React.FC = () => {
             <div className="flex gap-2 pt-2">
               <button
                 onClick={() => setShowAddBizModal(false)}
-                className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-bold"
+                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveBusiness}
-                className="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-2.5 rounded-xl text-xs font-bold"
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-xs cursor-pointer"
               >
                 Guardar Negocio
               </button>

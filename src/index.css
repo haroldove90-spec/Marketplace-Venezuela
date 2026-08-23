@@ -8,6 +8,8 @@
 
   body {
     overscroll-behavior-y: none;
+    background-color: #ffffff;
+    color: #0f172a;
   }
 }
 

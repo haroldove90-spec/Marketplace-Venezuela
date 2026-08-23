@@ -39,7 +39,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
   const [activeBiz, setActiveBiz] = useState<Business | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [mapLayer, setMapLayer] = useState<'dark' | 'satellite' | 'streets'>('dark');
+  const [mapLayer, setMapLayer] = useState<'dark' | 'satellite' | 'streets'>('streets');
   const [showCoverageRadius, setShowCoverageRadius] = useState<boolean>(true);
 
   // Center coordinate reference
@@ -75,29 +75,29 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const userSvgPos = getSvgCoordinates(centerLat, centerLng);
 
   return (
-    <div className="relative w-full h-[420px] md:h-[540px] rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl select-none">
+    <div className="relative w-full h-[420px] md:h-[540px] rounded-3xl overflow-hidden border border-slate-200 bg-slate-100 shadow-md select-none">
       {/* Map Canvas Background Layers */}
       <div className={`absolute inset-0 transition-all duration-500 ${
         mapLayer === 'satellite'
           ? 'bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-[#0a1628] to-[#040810]'
           : mapLayer === 'streets'
-          ? 'bg-slate-900 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:28px_28px]'
-          : 'bg-[#0b1120] bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px]'
+          ? 'bg-[#f1f5f9] bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] bg-[size:28px_28px]'
+          : 'bg-[#0f172a] bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px]'
       }`}>
         {/* Stylized street vectors */}
-        <svg className="absolute inset-0 w-full h-full opacity-30 pointer-events-none stroke-slate-700/60" xmlns="http://www.w3.org/2000/svg">
+        <svg className={`absolute inset-0 w-full h-full pointer-events-none ${mapLayer === 'dark' || mapLayer === 'satellite' ? 'opacity-30 stroke-slate-600' : 'opacity-40 stroke-slate-400'}`} xmlns="http://www.w3.org/2000/svg">
           <path d="M 0 100 Q 250 150 500 120 T 1000 220" fill="none" strokeWidth="4" strokeDasharray="6 4" />
           <path d="M 120 0 Q 180 300 350 600" fill="none" strokeWidth="6" />
           <path d="M 600 0 Q 550 250 850 600" fill="none" strokeWidth="5" />
           <path d="M 0 350 Q 400 320 1000 420" fill="none" strokeWidth="6" />
-          <circle cx="50%" cy="50%" r="180" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 8" opacity="0.4" />
-          <circle cx="50%" cy="50%" r="280" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 8" opacity="0.2" />
+          <circle cx="50%" cy="50%" r="180" fill="none" stroke="#2563eb" strokeWidth="1" strokeDasharray="4 8" opacity="0.35" />
+          <circle cx="50%" cy="50%" r="280" fill="none" stroke="#2563eb" strokeWidth="1" strokeDasharray="4 8" opacity="0.2" />
         </svg>
 
         {/* Coverage Radius Circles around User */}
         {showCoverageRadius && (
           <div
-            className="absolute rounded-full border border-blue-500/20 bg-blue-500/5 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 animate-pulse-ring"
+            className="absolute rounded-full border border-blue-600/30 bg-blue-500/10 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 animate-pulse-ring"
             style={{
               left: `${userSvgPos.x}%`,
               top: `${userSvgPos.y}%`,
@@ -110,27 +110,27 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Top Map Layer Controls */}
       <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20 pointer-events-auto">
-        <div className="flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-lg">
-          <button
-            onClick={() => setMapLayer('dark')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-              mapLayer === 'dark' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Modo Noche
-          </button>
+        <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-xl border border-slate-200 shadow-md">
           <button
             onClick={() => setMapLayer('streets')}
             className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-              mapLayer === 'streets' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+              mapLayer === 'streets' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Calles
           </button>
           <button
+            onClick={() => setMapLayer('dark')}
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
+              mapLayer === 'dark' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Noche
+          </button>
+          <button
             onClick={() => setMapLayer('satellite')}
             className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${
-              mapLayer === 'satellite' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+              mapLayer === 'satellite' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Satélite
@@ -139,10 +139,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
         <button
           onClick={() => setShowCoverageRadius(!showCoverageRadius)}
-          className={`p-2 rounded-xl border backdrop-blur-md shadow-lg transition-colors ${
+          className={`p-2 rounded-xl border backdrop-blur-md shadow-md transition-colors ${
             showCoverageRadius
-              ? 'bg-blue-600/30 border-blue-500 text-blue-400'
-              : 'bg-slate-900/80 border-slate-700 text-slate-400 hover:text-white'
+              ? 'bg-blue-50 border-blue-300 text-blue-700'
+              : 'bg-white/95 border-slate-200 text-slate-600 hover:text-slate-900'
           }`}
           title="Radio de Cobertura"
         >
@@ -155,21 +155,21 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         <button
           onClick={detectUserLocation}
           disabled={isLocating}
-          className="p-2.5 bg-slate-900/90 hover:bg-slate-800 text-blue-400 border border-slate-700 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center"
+          className="p-2.5 bg-white/95 hover:bg-slate-100 text-blue-600 border border-slate-200 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
           title="Centrar en mi ubicación GPS"
         >
           <LocateFixed className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
         </button>
         <button
           onClick={() => setZoomLevel((z) => Math.min(2, z + 0.25))}
-          className="p-2.5 bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center"
+          className="p-2.5 bg-white/95 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
           title="Acercar"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={() => setZoomLevel((z) => Math.max(0.75, z - 0.25))}
-          className="p-2.5 bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center"
+          className="p-2.5 bg-white/95 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center cursor-pointer"
           title="Alejar"
         >
           <ZoomOut className="w-4 h-4" />
@@ -184,9 +184,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           style={{ left: `${userSvgPos.x}%`, top: `${userSvgPos.y}%` }}
         >
           <div className="relative flex items-center justify-center">
-            <span className="animate-ping absolute inline-flex h-7 w-7 rounded-full bg-blue-400 opacity-75" />
-            <div className="relative w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-lg shadow-blue-500/50" />
-            <span className="absolute -bottom-5 px-1.5 py-0.5 bg-slate-900/90 border border-slate-700 rounded text-[9px] font-bold text-blue-400 whitespace-nowrap">
+            <span className="animate-ping absolute inline-flex h-7 w-7 rounded-full bg-blue-500 opacity-75" />
+            <div className="relative w-4 h-4 rounded-full bg-blue-600 border-2 border-white shadow-lg shadow-blue-500/50" />
+            <span className="absolute -bottom-5 px-1.5 py-0.5 bg-white/95 border border-slate-200 rounded text-[9px] font-bold text-blue-700 whitespace-nowrap shadow-xs">
               Tú estás aquí
             </span>
           </div>
@@ -218,7 +218,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <div
                   className={`relative flex items-center justify-center w-11 h-11 rounded-2xl shadow-xl border-2 transition-all ${
                     isSelected
-                      ? 'ring-4 ring-white shadow-2xl scale-110'
+                      ? 'ring-4 ring-blue-600 shadow-2xl scale-110'
                       : 'hover:ring-2 hover:ring-blue-400'
                   }`}
                   style={{
@@ -236,9 +236,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 />
 
                 {/* Floating mini pill with name & distance */}
-                <div className="mt-1 px-2 py-0.5 bg-slate-900/95 border border-slate-700/80 rounded-full shadow-md text-[10px] font-bold text-white whitespace-nowrap flex items-center gap-1 group-hover:border-blue-400">
+                <div className="mt-1 px-2 py-0.5 bg-white/95 border border-slate-200 rounded-full shadow-md text-[10px] font-bold text-slate-800 whitespace-nowrap flex items-center gap-1 group-hover:border-blue-400">
                   <span>{biz.name.split(' ')[0]}</span>
-                  <span className="text-blue-400 font-semibold">· {distance}km</span>
+                  <span className="text-blue-600 font-semibold">· {distance}km</span>
                 </div>
               </div>
             </div>
@@ -248,7 +248,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Selected Business Bottom Card (Popup) */}
       {activeBiz && (
-        <div className="absolute bottom-3 left-3 right-3 md:left-6 md:right-auto md:w-96 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl p-4 shadow-2xl z-30 animate-in fade-in slide-in-from-bottom-4 duration-200">
+        <div className="absolute bottom-3 left-3 right-3 md:left-6 md:right-auto md:w-96 bg-white/98 backdrop-blur-xl border border-slate-200 rounded-2xl p-4 shadow-2xl z-30 animate-in fade-in slide-in-from-bottom-4 duration-200 text-slate-900">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div
@@ -259,18 +259,18 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
                     {activeBiz.category === 'farmacia' ? '💊 Farmacia' : '🍔 Restaurante'}
                   </span>
-                  <span className="text-slate-500">·</span>
-                  <div className="flex items-center gap-0.5 text-amber-400 text-xs font-bold">
+                  <span className="text-slate-400">·</span>
+                  <div className="flex items-center gap-0.5 text-amber-500 text-xs font-bold">
                     <Star className="w-3 h-3 fill-amber-400" />
                     {activeBiz.rating}
                   </div>
                 </div>
-                <h3 className="font-bold text-white text-sm line-clamp-1">{activeBiz.name}</h3>
-                <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
+                <h3 className="font-bold text-slate-900 text-sm line-clamp-1">{activeBiz.name}</h3>
+                <p className="text-[11px] text-slate-600 flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                   <span className="truncate">{activeBiz.address}</span>
                 </p>
               </div>
@@ -278,18 +278,18 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
             <button
               onClick={() => setActiveBiz(null)}
-              className="text-slate-400 hover:text-white p-1 text-xs"
+              className="text-slate-400 hover:text-slate-700 p-1 text-xs"
             >
               ✕
             </button>
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-800 text-xs text-slate-300">
-            <div className="flex items-center gap-1 text-slate-400">
-              <Clock className="w-3.5 h-3.5 text-blue-400" />
+          <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-100 text-xs text-slate-700">
+            <div className="flex items-center gap-1 text-slate-500">
+              <Clock className="w-3.5 h-3.5 text-blue-600" />
               <span>{activeBiz.deliveryTime}</span>
             </div>
-            <span className="font-semibold text-emerald-400">
+            <span className="font-semibold text-emerald-600">
               {calculateDistance(activeBiz.coordinates)} km de ti
             </span>
           </div>
@@ -300,18 +300,18 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             <div className="flex gap-1">
               <button
                 onClick={() => openExternalNavigation(activeBiz.coordinates, 'google_maps')}
-                className="flex-1 flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2 px-2 rounded-xl text-xs font-semibold transition-all active:scale-95"
+                className="flex-1 flex items-center justify-center gap-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 py-2 px-2 rounded-xl text-xs font-semibold transition-all active:scale-95 shadow-xs"
                 title="Ruta en Google Maps"
               >
-                <Navigation className="w-3.5 h-3.5 text-blue-400" />
+                <Navigation className="w-3.5 h-3.5 text-blue-600" />
                 <span>Maps</span>
               </button>
               <button
                 onClick={() => openExternalNavigation(activeBiz.coordinates, 'waze')}
-                className="flex-1 flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-2 px-2 rounded-xl text-xs font-semibold transition-all active:scale-95"
+                className="flex-1 flex items-center justify-center gap-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 py-2 px-2 rounded-xl text-xs font-semibold transition-all active:scale-95 shadow-xs"
                 title="Ruta en Waze"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
+                <ExternalLink className="w-3.5 h-3.5 text-cyan-600" />
                 <span>Waze</span>
               </button>
             </div>
@@ -319,7 +319,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             {/* Direct WhatsApp chat */}
             <button
               onClick={() => openWhatsAppWithPrompt(`Hola, quiero información de ${activeBiz.name}`, activeBiz.id)}
-              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-3 rounded-xl text-xs font-bold shadow-md shadow-emerald-900/30 transition-all active:scale-95"
+              className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-xl text-xs font-bold shadow-xs transition-all active:scale-95"
             >
               <MessageCircle className="w-3.5 h-3.5" />
               <span>WhatsApp</span>
@@ -329,7 +329,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           {/* Primary View Catalog Button */}
           <button
             onClick={() => onSelectBusiness && onSelectBusiness(activeBiz)}
-            className="w-full mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 transition-all active:scale-98"
+            className="w-full mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-md shadow-blue-600/25 transition-all active:scale-98"
           >
             <span>Ver Catálogo y Pedir</span>
             <ChevronRight className="w-4 h-4" />
