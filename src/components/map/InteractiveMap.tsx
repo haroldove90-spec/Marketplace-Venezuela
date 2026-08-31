@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Business, BusinessCategory } from '../../types';
+import { getBusinessScheduleStatus } from '../../utils/scheduleUtils';
 import {
   Navigation,
   MapPin,
@@ -285,10 +286,24 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           </div>
 
           <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-100 text-xs text-slate-700">
-            <div className="flex items-center gap-1 text-slate-500">
-              <Clock className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{activeBiz.deliveryTime}</span>
-            </div>
+            {(() => {
+              const schedule = getBusinessScheduleStatus(activeBiz.openingHours);
+              return (
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${schedule.badgeClass}`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${schedule.dotColorClass}`} />
+                    <span>{schedule.label}</span>
+                  </span>
+                  <span className="text-slate-400 text-[10px]">·</span>
+                  <div className="flex items-center gap-1 text-slate-500 text-[11px]">
+                    <Clock className="w-3 h-3 text-emerald-600" />
+                    <span>{activeBiz.deliveryTime}</span>
+                  </div>
+                </div>
+              );
+            })()}
             <span className="font-semibold text-emerald-600">
               {calculateDistance(activeBiz.coordinates)} km de ti
             </span>

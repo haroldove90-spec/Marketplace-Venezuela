@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Business, Product } from '../../types';
+import { getBusinessScheduleStatus } from '../../utils/scheduleUtils';
 import {
   X,
   Star,
@@ -15,7 +16,9 @@ import {
   Check,
   Flame,
   ShoppingBag,
-  Share2
+  Share2,
+  Truck,
+  Store
 } from 'lucide-react';
 
 interface BusinessDetailModalProps {
@@ -135,36 +138,56 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
         </div>
 
         {/* Quick Contact & Navigation Toolbar */}
-        <div className="mt-6 px-4 pt-3 pb-3 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <Clock className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{business.openingHours}</span>
-          </div>
+        {(() => {
+          const schedule = getBusinessScheduleStatus(business.openingHours);
+          return (
+            <div className="mt-6 px-4 pt-3 pb-3 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                {/* Dynamic Schedule Badge */}
+                <span
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${schedule.badgeClass}`}
+                  title={schedule.detail}
+                >
+                  <span className={`w-2 h-2 rounded-full ${schedule.dotColorClass}`} />
+                  <span>{schedule.label}</span>
+                  <span className="text-[10px] opacity-80 font-normal">({business.openingHours})</span>
+                </span>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => openExternalNavigation(business.coordinates, 'google_maps')}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs cursor-pointer"
-            >
-              <Navigation className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Google Maps</span>
-            </button>
-            <button
-              onClick={() => openExternalNavigation(business.coordinates, 'waze')}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs cursor-pointer"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-teal-600" />
-              <span>Waze</span>
-            </button>
-            <button
-              onClick={() => openWhatsAppWithPrompt(`Hola, quiero consultar el catálogo de ${business.name}`, business.id)}
-              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
-            </button>
-          </div>
-        </div>
+                <span className="hidden sm:inline text-slate-300">·</span>
+
+                <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                  <span className="text-emerald-700 font-bold">🛵 A Domicilio</span>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-800 font-semibold">🏬 Retiro en tienda</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => openExternalNavigation(business.coordinates, 'google_maps')}
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs cursor-pointer"
+                >
+                  <Navigation className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Google Maps</span>
+                </button>
+                <button
+                  onClick={() => openExternalNavigation(business.coordinates, 'waze')}
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Waze</span>
+                </button>
+                <button
+                  onClick={() => openWhatsAppWithPrompt(`Hola, quiero consultar el catálogo de ${business.name}`, business.id)}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </button>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Product Category Filter Pills */}
         <div className="px-4 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar border-b border-slate-100 shrink-0 bg-white">

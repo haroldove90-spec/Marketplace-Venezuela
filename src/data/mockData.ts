@@ -1,6 +1,6 @@
 import { Business, Product, Order, WhatsAppCampaign, ChatbotConfig, SavedAddress } from '../types';
 
-export const DATA_VERSION = 'pulso_mock_v3';
+export const DATA_VERSION = 'pulso_mock_v4';
 
 export const INITIAL_BUSINESSES: Business[] = [
   {
@@ -598,6 +598,165 @@ export const INITIAL_PRODUCTS: Product[] = [
     stockCount: 65,
     tags: ['burrito', 'arrachera', 'queso', 'guacamole', 'norteno', 'carne'],
     isOfferOfTheDay: true
+  },
+
+  // --- CROSS-STORE COMPARABLE ITEMS (Farmacias & Restaurantes) ---
+  // Paracetamol in other pharmacies:
+  {
+    id: 'prod-comp-para-2',
+    businessId: 'biz-farmacia-2',
+    name: 'Paracetamol 500mg Genérico (Caja 20 tabletas)',
+    description: 'Analgésico y antipirético para alivio rápido de dolor leve a moderado.',
+    price: 48,
+    category: 'Medicamentos',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 60,
+    tags: ['paracetamol', 'analgesico', 'fiebre', 'dolor', 'medicamento'],
+    isOfferOfTheDay: false
+  },
+  {
+    id: 'prod-comp-para-3',
+    businessId: 'biz-farmacia-3',
+    name: 'Paracetamol 500mg Línea Familiar (20 tabletas)',
+    description: 'Fórmula efectiva para control térmico y malestar general en adultos.',
+    price: 42,
+    originalPrice: 55,
+    category: 'Medicamentos',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 95,
+    tags: ['paracetamol', 'analgesico', 'fiebre', 'dolor de cabeza', 'medicamento'],
+    isOfferOfTheDay: true
+  },
+  {
+    id: 'prod-comp-para-4',
+    businessId: 'biz-farmacia-4',
+    name: 'Paracetamol 500mg Botica Natural (20 tabletas)',
+    description: 'Tabletas de rápida absorción con certificación de pureza.',
+    price: 50,
+    category: 'Medicamentos',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 40,
+    tags: ['paracetamol', 'analgesico', 'fiebre', 'dolor', 'medicamento'],
+    isOfferOfTheDay: false
+  },
+
+  // Suero Oral in other pharmacies:
+  {
+    id: 'prod-comp-suero-2',
+    businessId: 'biz-farmacia-2',
+    name: 'Suero Oral Electrolitos 500ml Fresa-Kiwi',
+    description: 'Bebida isotónica grado farmacéutico para rehidratación inmediata.',
+    price: 35,
+    category: 'Cuidado & Bienestar',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 80,
+    tags: ['suero', 'electrolitos', 'hidratacion', 'resaca', 'estomago'],
+    isOfferOfTheDay: false
+  },
+  {
+    id: 'prod-comp-suero-3',
+    businessId: 'biz-farmacia-3',
+    name: 'Suero Oral Pediátrico & Familiar 500ml',
+    description: 'Fórmula balanceada con zinc para recuperación gastrointestinal.',
+    price: 29,
+    originalPrice: 38,
+    category: 'Cuidado & Bienestar',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 110,
+    tags: ['suero', 'electrolitos', 'bebe', 'pediatria', 'hidratacion', 'fiebre'],
+    isOfferOfTheDay: true
+  },
+
+  // Hamburguesas in other restaurants:
+  {
+    id: 'prod-comp-burg-2',
+    businessId: 'biz-resto-8',
+    name: 'Hamburguesa Norteña con Arrachera & Queso Asadero',
+    description: 'Jugosa carne de res con fajitas de arrachera, queso asadero y aderezo chipotle + Papas.',
+    price: 165,
+    originalPrice: 195,
+    category: 'Hamburguesas',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 30,
+    tags: ['hamburguesa', 'burger', 'arrachera', 'queso', 'papas', 'comida'],
+    isOfferOfTheDay: false
+  },
+  {
+    id: 'prod-comp-burg-3',
+    businessId: 'biz-resto-6',
+    name: 'Hamburguesa Campestre al Carbón + Papas Rústicas',
+    description: 'Carne asada a la parrilla con queso gouda, lechuga orgánica y salsa bbq casera.',
+    price: 145,
+    originalPrice: 175,
+    category: 'Hamburguesas',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 45,
+    tags: ['hamburguesa', 'burger', 'asado', 'parrilla', 'papas', 'comida'],
+    isOfferOfTheDay: true
+  },
+
+  // Pizzas in other restaurants:
+  {
+    id: 'prod-comp-piz-2',
+    businessId: 'biz-resto-1',
+    name: 'Pizza Artesanal Pepperoni & Mozzarella 8 Rebanadas',
+    description: 'Masa crujiente horneada a la piedra con doble capa de pepperoni y queso.',
+    price: 210,
+    originalPrice: 250,
+    category: 'Pizzas',
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 25,
+    tags: ['pizza', 'pepperoni', 'queso', 'cena', 'comida'],
+    isOfferOfTheDay: false
+  },
+
+  // Refrescos / Bebidas across stores:
+  {
+    id: 'prod-comp-soda-1',
+    businessId: 'biz-resto-1',
+    name: 'Refresco Coca-Cola / Sprite 600ml Frío',
+    description: 'Botella de 600ml bien fría para acompañar tus alimentos.',
+    price: 35,
+    category: 'Bebidas',
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 150,
+    tags: ['refresco', 'coca cola', 'soda', 'bebida', 'frio'],
+    isOfferOfTheDay: false
+  },
+  {
+    id: 'prod-comp-soda-2',
+    businessId: 'biz-resto-3',
+    name: 'Refresco Coca-Cola de Vidrio 500ml',
+    description: 'Clásico refresco en botella de vidrio bien frío.',
+    price: 30,
+    category: 'Bebidas',
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 200,
+    tags: ['refresco', 'coca cola', 'soda', 'bebida', 'taqueria'],
+    isOfferOfTheDay: false
+  },
+  {
+    id: 'prod-comp-soda-3',
+    businessId: 'biz-resto-8',
+    name: 'Refresco Lata 355ml Surtido Frío',
+    description: 'Coca-Cola, Manzana, Sprite o Fanta bien fría.',
+    price: 28,
+    category: 'Bebidas',
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500&auto=format&fit=crop&q=60',
+    inStock: true,
+    stockCount: 120,
+    tags: ['refresco', 'soda', 'bebida', 'lata'],
+    isOfferOfTheDay: false
   }
 ];
 
