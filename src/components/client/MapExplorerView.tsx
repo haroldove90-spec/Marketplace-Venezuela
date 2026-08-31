@@ -17,11 +17,13 @@ import {
 interface MapExplorerViewProps {
   onSelectBusiness: (biz: Business) => void;
   onBackToExplore?: () => void;
+  onOpenCart?: () => void;
 }
 
 export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
   onSelectBusiness,
-  onBackToExplore
+  onBackToExplore,
+  onOpenCart
 }) => {
   const {
     businesses,
@@ -31,7 +33,10 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
     detectUserLocation,
     isLocating,
     openExternalNavigation,
-    openWhatsAppWithPrompt
+    openWhatsAppWithPrompt,
+    cart,
+    cartSubtotal,
+    cartTotalCount
   } = useApp();
 
   const [activeCategory, setActiveCategory] = useState<'all' | BusinessCategory | 'offers'>('all');
@@ -206,6 +211,33 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
         </div>
         <span className="text-[11px] text-slate-400">Toca cualquier marcador para ver ruta</span>
       </div>
+
+      {/* Floating Sticky Cart Bar when items in cart */}
+      {cart.length > 0 && onOpenCart && (
+        <div className="fixed bottom-16 md:bottom-6 left-3 right-3 md:left-auto md:right-8 md:w-96 z-40 animate-in fade-in slide-in-from-bottom-3">
+          <button
+            onClick={onOpenCart}
+            className="w-full bg-slate-950 text-white hover:bg-slate-900 p-3 rounded-2xl shadow-xl border border-slate-800 flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-98"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                {cartTotalCount}
+              </div>
+              <div className="text-left min-w-0">
+                <p className="text-xs font-extrabold truncate">Ver Carrito & Checkout</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">App Móvil o WhatsApp</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-black text-white">${cartSubtotal} MXN</span>
+              <span className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-xl">
+                Pedir →
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
 
     </div>
   );

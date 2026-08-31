@@ -66,12 +66,14 @@ const PulsoAppContent: React.FC = () => {
                 <ClientExplore
                   onSelectBusiness={handleSelectBusiness}
                   onOpenMapModule={() => setActiveClientTab('map')}
+                  onOpenCart={() => setIsCartOpen(true)}
                 />
               )}
               {activeClientTab === 'map' && (
                 <MapExplorerView
                   onSelectBusiness={handleSelectBusiness}
                   onBackToExplore={() => setActiveClientTab('explore')}
+                  onOpenCart={() => setIsCartOpen(true)}
                 />
               )}
               {activeClientTab === 'orders' && <MyOrdersView />}

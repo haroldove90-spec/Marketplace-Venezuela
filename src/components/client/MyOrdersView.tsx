@@ -84,6 +84,15 @@ export const MyOrdersView: React.FC = () => {
                           #{order.id}
                         </span>
                         <span className="text-slate-500 text-xs">· {order.createdAt}</span>
+                        {order.orderChannel && (
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                            order.orderChannel === 'whatsapp'
+                              ? 'bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/30'
+                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          }`}>
+                            {order.orderChannel === 'whatsapp' ? '💬 Vía WhatsApp' : '📱 Vía App'}
+                          </span>
+                        )}
                       </div>
                       <h3 className="font-bold text-slate-900 text-sm md:text-base">
                         {order.businessName}

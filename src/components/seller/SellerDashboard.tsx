@@ -275,6 +275,15 @@ export const SellerDashboard: React.FC = () => {
                           #{order.id}
                         </span>
                         <span className="text-[11px] text-slate-500">· {order.createdAt}</span>
+                        {order.orderChannel && (
+                          <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded ${
+                            order.orderChannel === 'whatsapp'
+                              ? 'bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/30'
+                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                          }`}>
+                            {order.orderChannel === 'whatsapp' ? '💬 WhatsApp' : '📱 App'}
+                          </span>
+                        )}
                       </div>
                       <h4 className="font-bold text-slate-900 text-sm">{order.customerName}</h4>
                       <p className="text-xs text-slate-600 flex items-center gap-1">

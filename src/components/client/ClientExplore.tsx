@@ -20,11 +20,13 @@ import {
 interface ClientExploreProps {
   onSelectBusiness: (biz: Business) => void;
   onOpenMapModule?: () => void;
+  onOpenCart?: () => void;
 }
 
 export const ClientExplore: React.FC<ClientExploreProps> = ({
   onSelectBusiness,
-  onOpenMapModule
+  onOpenMapModule,
+  onOpenCart
 }) => {
   const {
     businesses,
@@ -37,6 +39,8 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
     isLocating,
     addToCart,
     cart,
+    cartSubtotal,
+    cartTotalCount,
     setActiveClientTab
   } = useApp();
 
@@ -484,6 +488,33 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
           <span>¿No encuentras lo que buscas? Pídelo por WhatsApp IA</span>
         </button>
       </div>
+
+      {/* Floating Sticky Cart Bar when items in cart */}
+      {cart.length > 0 && onOpenCart && (
+        <div className="fixed bottom-16 md:bottom-6 left-3 right-3 md:left-auto md:right-8 md:w-96 z-40 animate-in fade-in slide-in-from-bottom-3">
+          <button
+            onClick={onOpenCart}
+            className="w-full bg-slate-950 text-white hover:bg-slate-900 p-3 rounded-2xl shadow-xl border border-slate-800 flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-98"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                {cartTotalCount}
+              </div>
+              <div className="text-left min-w-0">
+                <p className="text-xs font-extrabold truncate">Ver Carrito & Checkout</p>
+                <p className="text-[10px] text-emerald-400 font-semibold">App Móvil o WhatsApp</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-sm font-black text-white">${cartSubtotal} MXN</span>
+              <span className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-xl">
+                Pedir →
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
 
     </div>
   );

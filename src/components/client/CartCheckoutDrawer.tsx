@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { DeliveryType, PaymentMethod } from '../../types';
+import { DeliveryType, PaymentMethod, OrderChannel } from '../../types';
 import confetti from 'canvas-confetti';
 import {
   X,
@@ -16,7 +16,11 @@ import {
   CheckCircle2,
   ArrowRight,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  MessageCircle,
+  Smartphone,
+  Send,
+  AlertCircle
 } from 'lucide-react';
 
 interface CartCheckoutDrawerProps {
@@ -43,6 +47,9 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
     savedAddresses
   } = useApp();
 
+  // Channel Selection: 'app' (App Móvil) or 'whatsapp' (WhatsApp Directo)
+  const [checkoutChannel, setCheckoutChannel] = useState<OrderChannel>('app');
+  
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('delivery');
   const [addressChoice, setAddressChoice] = useState<'current_gps' | 'saved' | 'custom'>('current_gps');
   const [customAddress, setCustomAddress] = useState<string>('');
@@ -62,22 +69,63 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
   const deliveryFee = deliveryType === 'pickup' ? 0 : 35;
   const grandTotal = cartSubtotal + deliveryFee;
 
-  const handlePlaceOrder = () => {
+  const getResolvedAddress = () => {
+    if (deliveryType === 'pickup') {
+      return `Recoger en Sucursal: ${targetBusiness?.address || 'Mostrador principal'}`;
+    }
+    if (addressChoice === 'current_gps') {
+      return userAddressLabel || 'Ubicación GPS actual';
+    }
+    if (addressChoice === 'saved') {
+      const saved = savedAddresses.find((a) => a.id === selectedSavedAddrId);
+      return saved ? `${saved.label}: ${saved.address}` : 'Dirección guardada';
+    }
+    return customAddress.trim() || 'Dirección personalizada especificada';
+  };
+
+  const getPaymentMethodLabel = (method: PaymentMethod) => {
+    switch (method) {
+      case 'card':
+        return 'Tarjeta de Débito/Crédito Online';
+      case 'cash_on_delivery':
+        return 'Efectivo contra entrega';
+      case 'pos_terminal':
+        return 'Terminal POS al recibir';
+      default:
+        return 'Pago directo';
+    }
+  };
+
+  const buildWhatsAppMessage = () => {
+    const bizName = targetBusiness?.name || 'Comercio';
+    const address = getResolvedAddress();
+    const itemsList = cart
+      .map((item) => `• ${item.quantity}x ${item.product.name} - $${item.product.price * item.quantity} MXN`)
+      .join('\n');
+
+    return `🛍️ *NUEVO PEDIDO - PULSO MARKETPLACE*
+🏪 *Tienda:* ${bizName}
+👤 *Cliente:* ${customerName.trim() || 'Cliente Pulso'} (${customerPhone.trim() || 'Sin teléfono'})
+📍 *Modalidad:* ${deliveryType === 'pickup' ? '🏬 Retiro en Tienda' : '🛵 Envío a Domicilio'}
+📍 *Dirección:* ${address}
+
+📦 *DETALLE DE PRODUCTOS:*
+${itemsList}
+
+💵 *Subtotal:* $${cartSubtotal} MXN
+🛵 *Costo Envío:* ${deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
+💰 *TOTAL A PAGAR:* $${grandTotal} MXN
+💳 *Forma de Pago:* ${getPaymentMethodLabel(paymentMethod)}
+${orderNotes.trim() ? `📝 *Instrucciones/Notas:* ${orderNotes.trim()}` : ''}
+
+_Enviado desde Pulso PWA - Checkout WhatsApp_`;
+  };
+
+  const handlePlaceOrder = (channelOverride?: OrderChannel) => {
     if (cart.length === 0 || !targetBusiness) return;
 
-    let finalDeliveryAddress = '';
-    if (deliveryType === 'pickup') {
-      finalDeliveryAddress = `Recoger en Sucursal: ${targetBusiness.address}`;
-    } else {
-      if (addressChoice === 'current_gps') {
-        finalDeliveryAddress = userAddressLabel || 'Ubicación GPS actual';
-      } else if (addressChoice === 'saved') {
-        const saved = savedAddresses.find((a) => a.id === selectedSavedAddrId);
-        finalDeliveryAddress = saved ? `${saved.label}: ${saved.address}` : 'Dirección guardada';
-      } else {
-        finalDeliveryAddress = customAddress.trim() || 'Dirección personalizada especificada';
-      }
-    }
+    const channelToUse = channelOverride || checkoutChannel;
+    const finalDeliveryAddress = getResolvedAddress();
 
     setIsSubmitting(true);
 
@@ -96,6 +144,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
         deliveryAddress: finalDeliveryAddress,
         deliveryCoordinates: userLocation || undefined,
         paymentMethod,
+        orderChannel: channelToUse,
         status: 'preparing',
         notes: orderNotes
       });
@@ -111,10 +160,18 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
         // ignore
       }
 
+      // If checkout is via WhatsApp, open WhatsApp with prefilled message
+      if (channelToUse === 'whatsapp') {
+        const rawMsg = buildWhatsAppMessage();
+        const phone = targetBusiness.phone.replace(/[^0-9]/g, '') || '525512345678';
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(rawMsg)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+
       setIsSubmitting(false);
       onClose();
       onOrderSuccess(newOrder.id);
-    }, 900);
+    }, 800);
   };
 
   return (
@@ -122,24 +179,26 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
       <div className="w-full h-full md:max-w-lg bg-white text-slate-900 flex flex-col shadow-2xl border-l border-slate-200 overflow-hidden">
         
         {/* Header */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+        <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-base shadow-xs">
               🛒
             </div>
             <div>
-              <h3 className="font-bold text-sm text-slate-900">Carrito & Checkout</h3>
-              {targetBusiness && (
-                <p className="text-[11px] text-slate-500 truncate">
-                  Tienda: <span className="text-slate-900 font-semibold">{targetBusiness.name}</span>
+              <h3 className="font-extrabold text-sm text-slate-900">Carrito & Checkout</h3>
+              {targetBusiness ? (
+                <p className="text-xs text-slate-500 truncate">
+                  Tienda: <span className="text-emerald-700 font-bold">{targetBusiness.name}</span>
                 </p>
+              ) : (
+                <p className="text-xs text-slate-500">Completa tu orden</p>
               )}
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -148,124 +207,172 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
         {/* Content Container */}
         {cart.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-white">
-            <div className="text-5xl mb-3">🛍️</div>
-            <h4 className="font-bold text-slate-900 text-base">Tu carrito está vacío</h4>
+            <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mb-3 border border-emerald-200">
+              🛍️
+            </div>
+            <h4 className="font-extrabold text-slate-900 text-base">Tu carrito está vacío</h4>
             <p className="text-xs text-slate-500 max-w-xs mt-1">
-              Explora las farmacias y restaurantes en el mapa para agregar productos.
+              Agrega productos desde la vitrina de tiendas o desde el mapa para continuar con tu compra.
             </p>
             <button
               onClick={onClose}
-              className="mt-5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+              className="mt-5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
             >
               Explorar Tiendas
             </button>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-white">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
             
-            {/* 1. Items List */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                <span>Productos ({cart.length})</span>
+            {/* 🌟 1. SELECTOR DE CANAL DE COMPRA: APP VS WHATSAPP */}
+            <div className="space-y-2">
+              <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <span>¿Cómo deseas realizar tu compra?</span>
+              </label>
+
+              <div className="grid grid-cols-2 gap-2">
+                {/* Opción A: Vía App Móvil */}
+                <button
+                  onClick={() => setCheckoutChannel('app')}
+                  className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-1.5 transition-all cursor-pointer ${
+                    checkoutChannel === 'app'
+                      ? 'bg-emerald-50 border-emerald-500 text-slate-900 shadow-xs ring-1 ring-emerald-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                    <Smartphone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">App Móvil</p>
+                    <p className="text-[10px] text-emerald-700 font-semibold">En línea & En vivo</p>
+                  </div>
+                </button>
+
+                {/* Opción B: Vía WhatsApp */}
+                <button
+                  onClick={() => setCheckoutChannel('whatsapp')}
+                  className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-1.5 transition-all cursor-pointer ${
+                    checkoutChannel === 'whatsapp'
+                      ? 'bg-emerald-50 border-emerald-500 text-slate-900 shadow-xs ring-1 ring-emerald-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-[#25D366] text-white flex items-center justify-center shadow-xs">
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">Vía WhatsApp</p>
+                    <p className="text-[10px] text-emerald-700 font-semibold">Envío de ticket directo</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Items List */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>Resumen de Productos ({cart.length})</span>
                 <button
                   onClick={clearCart}
-                  className="text-red-500 hover:text-red-700 flex items-center gap-1 cursor-pointer"
+                  className="text-red-500 hover:text-red-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Vaciar
                 </button>
               </div>
 
-              {cart.map((item) => (
-                <div
-                  key={item.product.id}
-                  className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200 shadow-xs"
-                >
-                  <img
-                    src={item.product.image}
-                    alt={item.product.name}
-                    className="w-12 h-12 rounded-lg object-cover bg-slate-100 shrink-0"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <h5 className="font-semibold text-slate-900 text-xs truncate">
-                      {item.product.name}
-                    </h5>
-                    <span className="text-xs text-emerald-600 font-bold">
-                      ${item.product.price} MXN
-                    </span>
-                  </div>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                {cart.map((item) => (
+                  <div
+                    key={item.product.id}
+                    className="flex items-center gap-2.5 p-2 bg-slate-50 rounded-xl border border-slate-200/90 shadow-2xs"
+                  >
+                    <img
+                      src={item.product.image}
+                      alt={item.product.name}
+                      className="w-11 h-11 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-200"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <h5 className="font-bold text-slate-900 text-xs truncate">
+                        {item.product.name}
+                      </h5>
+                      <span className="text-xs text-emerald-700 font-extrabold">
+                        ${item.product.price} <span className="text-[10px] text-slate-500 font-normal">MXN</span>
+                      </span>
+                    </div>
 
-                  <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-xs">
-                    <button
-                      onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
-                      className="text-slate-500 hover:text-slate-900 cursor-pointer"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="text-xs font-bold text-slate-900 min-w-[12px] text-center">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
-                      className="text-slate-500 hover:text-slate-900 cursor-pointer"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2 py-0.5 shadow-2xs">
+                      <button
+                        onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
+                        className="text-slate-500 hover:text-slate-900 cursor-pointer p-0.5"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-xs font-bold text-slate-900 min-w-[12px] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
+                        className="text-slate-500 hover:text-slate-900 cursor-pointer p-0.5"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* 2. Modalidad: Recoger vs Domicilio */}
+            {/* 3. Modalidad: Recoger vs Domicilio */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
                 Modalidad de Entrega
               </span>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setDeliveryType('delivery')}
-                  className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     deliveryType === 'delivery'
-                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <span className="text-lg">🛵</span>
+                  <span className="text-base">🛵</span>
                   <span className="text-xs font-bold">Envío a Domicilio</span>
-                  <span className="text-[10px] text-emerald-700 font-semibold">+$35 MXN</span>
+                  <span className="text-[10px] text-emerald-700 font-bold">+$35 MXN</span>
                 </button>
 
                 <button
                   onClick={() => setDeliveryType('pickup')}
-                  className={`p-3 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     deliveryType === 'pickup'
-                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <span className="text-lg">🏬</span>
+                  <span className="text-base">🏬</span>
                   <span className="text-xs font-bold">Recoger en Sucursal</span>
-                  <span className="text-[10px] text-emerald-600 font-semibold">Gratis</span>
+                  <span className="text-[10px] text-emerald-600 font-bold">Gratis</span>
                 </button>
               </div>
             </div>
 
-            {/* 3. Customizable Delivery Address (If delivery) */}
+            {/* 4. Dirección de Entrega (si es delivery) */}
             {deliveryType === 'delivery' && (
-              <div className="space-y-2.5 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    Dirección de Entrega
-                  </span>
-                </div>
+              <div className="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  Dirección de Entrega
+                </span>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {/* Choice 1: Current GPS */}
                   <label
                     onClick={() => setAddressChoice('current_gps')}
-                    className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs ${
+                    className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer text-xs ${
                       addressChoice === 'current_gps'
-                        ? 'bg-white border-emerald-500 text-slate-900 shadow-xs'
+                        ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -276,7 +383,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                       className="accent-emerald-600"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold truncate">📍 Mi posición GPS actual</p>
+                      <p className="font-bold truncate">📍 Posición GPS actual</p>
                       <p className="text-[10px] text-slate-500 truncate">{userAddressLabel}</p>
                     </div>
                   </label>
@@ -285,9 +392,9 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   {savedAddresses.length > 0 && (
                     <label
                       onClick={() => setAddressChoice('saved')}
-                      className={`flex items-start gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs ${
+                      className={`flex items-start gap-2 p-2 rounded-xl border cursor-pointer text-xs ${
                         addressChoice === 'saved'
-                          ? 'bg-white border-emerald-500 text-slate-900 shadow-xs'
+                          ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs'
                           : 'bg-white border-slate-200 text-slate-700'
                       }`}
                     >
@@ -298,7 +405,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                         className="accent-emerald-600 mt-1"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold">Direcciones Frecuentes</p>
+                        <p className="font-bold">Direcciones Guardadas</p>
                         <select
                           value={selectedSavedAddrId}
                           onChange={(e) => {
@@ -317,12 +424,12 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                     </label>
                   )}
 
-                  {/* Choice 3: Custom (Third party / Office) */}
+                  {/* Choice 3: Custom */}
                   <label
                     onClick={() => setAddressChoice('custom')}
-                    className={`flex items-start gap-2.5 p-2.5 rounded-xl border cursor-pointer text-xs ${
+                    className={`flex items-start gap-2 p-2 rounded-xl border cursor-pointer text-xs ${
                       addressChoice === 'custom'
-                        ? 'bg-white border-emerald-500 text-slate-900 shadow-xs'
+                        ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -333,14 +440,14 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                       className="accent-emerald-600 mt-1"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold">Enviar a otra ubicación (Terceros, Oficina)</p>
+                      <p className="font-bold">Escribir otra dirección</p>
                       {addressChoice === 'custom' && (
                         <input
                           type="text"
                           value={customAddress}
                           onChange={(e) => setCustomAddress(e.target.value)}
                           placeholder="Calle, número, colonia, referencias..."
-                          className="mt-1.5 w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
+                          className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
                         />
                       )}
                     </div>
@@ -349,51 +456,51 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
               </div>
             )}
 
-            {/* 4. Payment Method */}
+            {/* 5. Método de Pago */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                Método de Pago
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700">
+                Forma de Pago
               </span>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 <button
                   onClick={() => setPaymentMethod('card')}
-                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
+                  className={`p-2 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   <CreditCard className="w-4 h-4 text-emerald-600" />
-                  <span className="text-[11px] font-bold">Tarjeta Online</span>
+                  <span className="text-[10px] font-bold">Tarjeta Online</span>
                 </button>
 
                 <button
                   onClick={() => setPaymentMethod('cash_on_delivery')}
-                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
+                  className={`p-2 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'cash_on_delivery'
-                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   <Banknote className="w-4 h-4 text-emerald-600" />
-                  <span className="text-[11px] font-bold">Efectivo</span>
+                  <span className="text-[10px] font-bold">Efectivo</span>
                 </button>
 
                 <button
                   onClick={() => setPaymentMethod('pos_terminal')}
-                  className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
+                  className={`p-2 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'pos_terminal'
-                      ? 'bg-emerald-50 border-emerald-300 text-slate-900 shadow-xs'
+                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   <SmartphoneNfc className="w-4 h-4 text-emerald-600" />
-                  <span className="text-[11px] font-bold">Terminal POS</span>
+                  <span className="text-[10px] font-bold">Terminal POS</span>
                 </button>
               </div>
             </div>
 
-            {/* 5. Contact Details & Notes */}
+            {/* 6. Datos del Cliente & Notas */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <label className="text-slate-600 text-[10px] uppercase font-bold">Tu Nombre</label>
@@ -401,16 +508,16 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500 font-medium"
                 />
               </div>
               <div>
-                <label className="text-slate-600 text-[10px] uppercase font-bold">Teléfono Celular</label>
+                <label className="text-slate-600 text-[10px] uppercase font-bold">WhatsApp / Celular</label>
                 <input
                   type="text"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500 font-medium"
                 />
               </div>
             </div>
@@ -421,16 +528,30 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                 type="text"
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
-                placeholder="Ej. Timbre 402, sin cebolla, etc."
+                placeholder="Ej. Timbre 402, salsa aparte, etc."
                 className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
               />
             </div>
+
+            {/* 💬 Previsualización del Ticket de WhatsApp si se elige WhatsApp */}
+            {checkoutChannel === 'whatsapp' && (
+              <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1.5 text-xs">
+                <div className="flex items-center gap-1.5 text-emerald-800 font-bold">
+                  <MessageCircle className="w-4 h-4 fill-emerald-600 text-white" />
+                  <span>Se abrirá WhatsApp con el siguiente pedido:</span>
+                </div>
+                <div className="p-2 bg-white rounded-xl border border-emerald-100 text-[11px] text-slate-700 font-mono whitespace-pre-line leading-relaxed shadow-2xs">
+                  {buildWhatsAppMessage()}
+                </div>
+              </div>
+            )}
+
           </div>
         )}
 
-        {/* Checkout Footer with Totals and Submit */}
+        {/* Checkout Footer with Totals and Action Buttons */}
         {cart.length > 0 && (
-          <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3 shrink-0">
+          <div className="p-3.5 bg-slate-50 border-t border-slate-200 space-y-2.5 shrink-0">
             <div className="space-y-1 text-xs text-slate-600">
               <div className="flex justify-between">
                 <span>Subtotal productos:</span>
@@ -442,29 +563,75 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
                   {deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
                 </span>
               </div>
-              <div className="flex justify-between text-sm font-black text-slate-900 pt-1.5 border-t border-slate-200">
+              <div className="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200">
                 <span>Total a Pagar:</span>
-                <span className="text-emerald-600">${grandTotal} MXN</span>
+                <span className="text-emerald-700">${grandTotal} MXN</span>
               </div>
             </div>
 
-            <button
-              onClick={handlePlaceOrder}
-              disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-600/25 text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Confirmando Pedido...</span>
-                </div>
+            {/* Action Buttons: Principal and Secondary */}
+            <div className="space-y-1.5">
+              {checkoutChannel === 'app' ? (
+                <>
+                  <button
+                    onClick={() => handlePlaceOrder('app')}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-600/25 text-xs sm:text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Procesando Pedido...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Smartphone className="w-4 h-4" />
+                        <span>Comprar vía App Móvil (${grandTotal} MXN)</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handlePlaceOrder('whatsapp')}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] border border-[#25D366]/40 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 fill-[#25D366]" />
+                    <span>O pedir directamente por WhatsApp</span>
+                  </button>
+                </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                  <span>Confirmar Pedido (${grandTotal} MXN)</span>
+                  <button
+                    onClick={() => handlePlaceOrder('whatsapp')}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-600/20 text-xs sm:text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Abriendo WhatsApp...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <MessageCircle className="w-4 h-4 fill-white" />
+                        <span>Enviar Pedido por WhatsApp (${grandTotal} MXN)</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handlePlaceOrder('app')}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer"
+                  >
+                    <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>O comprar en línea vía App Móvil</span>
+                  </button>
                 </>
               )}
-            </button>
+            </div>
+
           </div>
         )}
       </div>

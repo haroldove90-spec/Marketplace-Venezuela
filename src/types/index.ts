@@ -52,6 +52,7 @@ export interface CartItem {
 export type OrderStatus = 'preparing' | 'ready' | 'on_the_way' | 'delivered' | 'cancelled';
 export type DeliveryType = 'pickup' | 'delivery';
 export type PaymentMethod = 'card' | 'cash_on_delivery' | 'pos_terminal';
+export type OrderChannel = 'app' | 'whatsapp';
 
 export interface Order {
   id: string;
@@ -68,6 +69,7 @@ export interface Order {
   deliveryAddress: string;
   deliveryCoordinates?: Coordinates;
   paymentMethod: PaymentMethod;
+  orderChannel?: OrderChannel;
   status: OrderStatus;
   createdAt: string;
   notes?: string;
