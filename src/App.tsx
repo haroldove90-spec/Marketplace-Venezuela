@@ -8,6 +8,7 @@ import { WhatsAppChatModal } from './components/common/WhatsAppChatModal';
 import { RoleAccessModal } from './components/common/RoleAccessModal';
 import { RoleSwitcherHub } from './components/common/RoleSwitcherHub';
 import { ClientExplore } from './components/client/ClientExplore';
+import { MapExplorerView } from './components/client/MapExplorerView';
 import { BusinessDetailModal } from './components/client/BusinessDetailModal';
 import { CartCheckoutDrawer } from './components/client/CartCheckoutDrawer';
 import { MyOrdersView } from './components/client/MyOrdersView';
@@ -50,7 +51,7 @@ const PulsoAppContent: React.FC = () => {
 
       {/* Responsive Fullscreen Body Layout */}
       <div className="flex-1 flex w-full max-w-full bg-white">
-        {/* Left Sidebar on Desktop */}
+        {/* Left Sidebar on Desktop / Bottom Navigation on Mobile */}
         <Navigation
           onOpenRoleModal={() => setIsRoleModalOpen(true)}
           onOpenCart={() => setIsCartOpen(true)}
@@ -62,7 +63,16 @@ const PulsoAppContent: React.FC = () => {
           {currentRole === 'client' && (
             <>
               {activeClientTab === 'explore' && (
-                <ClientExplore onSelectBusiness={handleSelectBusiness} />
+                <ClientExplore
+                  onSelectBusiness={handleSelectBusiness}
+                  onOpenMapModule={() => setActiveClientTab('map')}
+                />
+              )}
+              {activeClientTab === 'map' && (
+                <MapExplorerView
+                  onSelectBusiness={handleSelectBusiness}
+                  onBackToExplore={() => setActiveClientTab('explore')}
+                />
               )}
               {activeClientTab === 'orders' && <MyOrdersView />}
               {activeClientTab === 'account' && (

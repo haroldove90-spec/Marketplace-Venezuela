@@ -1,8 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Role } from '../../types';
 import {
-  MapPin,
   Compass,
   ShoppingBag,
   Clock,
@@ -10,16 +8,13 @@ import {
   LayoutDashboard,
   Store,
   Package,
-  FileText,
   BarChart3,
   MessageSquare,
-  ShieldCheck,
   DollarSign,
   Layers,
   Sparkles,
-  Smartphone,
-  ChevronRight,
-  Settings
+  Map as MapIcon,
+  ChevronRight
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -30,7 +25,6 @@ interface NavigationProps {
 export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenCart }) => {
   const {
     currentRole,
-    setCurrentRole,
     activeClientTab,
     setActiveClientTab,
     activeSellerTab,
@@ -67,7 +61,8 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
         ];
       default:
         return [
-          { id: 'explore', label: 'Explorar Mapa & Tiendas', icon: <Compass className="w-5 h-5" /> },
+          { id: 'explore', label: 'Vitrina de Tiendas', icon: <Compass className="w-5 h-5" /> },
+          { id: 'map', label: 'Mapa de Cobertura', icon: <MapIcon className="w-5 h-5 text-emerald-600" /> },
           { id: 'orders', label: 'Mis Pedidos', icon: <Clock className="w-5 h-5" />, badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined },
           { id: 'account', label: 'Mi Cuenta & Direcciones', icon: <User className="w-5 h-5" /> },
           { id: 'roles_hub', label: 'Portal de Roles', icon: <Sparkles className="w-5 h-5 text-amber-400" /> }
@@ -95,11 +90,11 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
         ];
       default:
         return [
-          { id: 'explore', label: 'Mapa', icon: <MapPin className="w-5 h-5" /> },
+          { id: 'explore', label: 'Inicio', icon: <Compass className="w-5 h-5" /> },
+          { id: 'map', label: 'Mapa', icon: <MapIcon className="w-5 h-5" /> },
           { id: 'cart_modal', label: 'Carrito', icon: <ShoppingBag className="w-5 h-5" />, badge: cartTotalCount },
           { id: 'orders', label: 'Pedidos', icon: <Clock className="w-5 h-5" /> },
-          { id: 'account', label: 'Cuenta', icon: <User className="w-5 h-5" /> },
-          { id: 'roles_modal', label: 'Roles', icon: <Sparkles className="w-5 h-5 text-amber-400" /> }
+          { id: 'account', label: 'Cuenta', icon: <User className="w-5 h-5" /> }
         ];
     }
   };
@@ -250,7 +245,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
 
                 {/* Active Indicator dot */}
                 {isActive && (
-                  <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-[#00D222]" />
+                  <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-emerald-600" />
                 )}
               </button>
             );

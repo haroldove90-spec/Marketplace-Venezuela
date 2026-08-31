@@ -198,14 +198,14 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                     key={prod.id}
                     className="flex gap-3 p-3 bg-white hover:bg-slate-50 rounded-2xl border border-slate-200 transition-all shadow-xs"
                   >
-                    <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-100">
                       <img
                         src={prod.image}
                         alt={prod.name}
                         className="w-full h-full object-cover"
                       />
                       {prod.isOfferOfTheDay && (
-                        <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-amber-400 text-slate-950 font-black text-[9px] rounded-md uppercase flex items-center gap-0.5 shadow-xs">
+                        <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-amber-400 text-slate-950 font-black text-[8px] rounded uppercase flex items-center gap-0.5 shadow-xs">
                           <Flame className="w-2.5 h-2.5 fill-slate-950" /> Oferta
                         </span>
                       )}
@@ -213,30 +213,18 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
 
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
-                        <h4 className="font-bold text-slate-900 text-xs md:text-sm line-clamp-1">
+                        <h4 className="font-bold text-slate-900 text-sm line-clamp-1">
                           {prod.name}
                         </h4>
-                        <p className="text-[11px] text-slate-600 line-clamp-2 mt-0.5">
+                        <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
                           {prod.description}
                         </p>
-
-                        {/* Bot Tags pill */}
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {prod.tags.slice(0, 3).map((tag) => (
-                            <span
-                              key={tag}
-                              className="text-[9px] text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded font-mono border border-emerald-200"
-                            >
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
                       </div>
 
-                      <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100">
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-100">
                         <div>
                           <span className="font-extrabold text-slate-900 text-sm">
-                            ${prod.price} MXN
+                            ${prod.price} <span className="text-[10px] text-slate-500 font-normal">MXN</span>
                           </span>
                           {prod.originalPrice && (
                             <span className="text-[10px] text-slate-400 line-through ml-1.5">
