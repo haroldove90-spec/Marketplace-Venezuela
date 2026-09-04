@@ -36,23 +36,23 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
   const getRoleDisplay = () => {
     switch (currentRole) {
       case 'admin':
-        return { name: 'Superadmin', icon: <ShieldCheck className="w-4 h-4 text-purple-600" />, color: 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100' };
+        return { name: 'Superadmin', icon: <ShieldCheck className="w-4 h-4 text-purple-400" />, color: 'bg-white/10 border-white/20 text-white hover:bg-white/20' };
       case 'seller':
-        return { name: 'Vendedor', icon: <Store className="w-4 h-4 text-emerald-600" />, color: 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' };
+        return { name: 'Vendedor', icon: <Store className="w-4 h-4 text-[#D4021D]" />, color: 'bg-white/10 border-white/20 text-white hover:bg-white/20' };
       default:
-        return { name: 'Cliente', icon: <User className="w-4 h-4 text-emerald-600" />, color: 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' };
+        return { name: 'Cliente', icon: <User className="w-4 h-4 text-[#D4021D]" />, color: 'bg-white/10 border-white/20 text-white hover:bg-white/20' };
     }
   };
 
   const roleInfo = getRoleDisplay();
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200 px-3 md:px-6 py-2.5 shadow-xs">
+    <header className="sticky top-0 z-30 w-full bg-[#000000] border-b border-white/10 px-3 md:px-6 py-2.5 shadow-md text-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 md:gap-4">
         
         {/* Left: Brand & Role Switcher */}
         <div className="flex items-center gap-2 md:gap-4">
-          <PulsoLogo size="md" />
+          <PulsoLogo size="md" textColor="text-white" />
 
           {/* Role Pill Button */}
           <button
@@ -70,16 +70,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           <button
             onClick={detectUserLocation}
             disabled={isLocating}
-            className="w-full flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs text-slate-700 transition-all text-left shadow-xs cursor-pointer"
+            className="w-full flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs text-white transition-all text-left shadow-xs cursor-pointer"
             title="Actualizar mi ubicación GPS"
           >
             <div className="flex items-center gap-1.5 min-w-0">
-              <MapPin className="w-3.5 h-3.5 text-[#00D222] shrink-0" />
-              <span className="truncate text-slate-900 font-medium text-[11px] md:text-xs">
+              <MapPin className="w-3.5 h-3.5 text-[#D4021D] shrink-0" />
+              <span className="truncate text-white font-medium text-[11px] md:text-xs">
                 {userAddressLabel}
               </span>
             </div>
-            <LocateFixed className={`w-3.5 h-3.5 text-slate-400 hover:text-emerald-600 shrink-0 ${isLocating ? 'animate-spin text-emerald-600' : ''}`} />
+            <LocateFixed className={`w-3.5 h-3.5 text-white/60 hover:text-white shrink-0 ${isLocating ? 'animate-spin text-[#D4021D]' : ''}`} />
           </button>
         </div>
 
@@ -88,10 +88,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           {/* WhatsApp shortcut */}
           <button
             onClick={() => openWhatsAppWithPrompt()}
-            className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white border border-white/20 p-2 md:px-3 md:py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             title="Asistente WhatsApp"
           >
-            <MessageCircle className="w-4 h-4 text-emerald-600" />
+            <MessageCircle className="w-4 h-4 text-[#D4021D]" />
             <span className="hidden md:inline">Bot IA</span>
           </button>
 
@@ -99,9 +99,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           {!isAppInstalled && (
             <button
               onClick={installPWA}
-              className="hidden lg:flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="hidden lg:flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-[#D4021D]" />
               <span>Instalar App</span>
             </button>
           )}
@@ -110,13 +110,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
           {currentRole === 'client' && (
             <button
               onClick={onOpenCart}
-              className="relative p-2 md:px-3.5 md:py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/25 transition-all active:scale-95 cursor-pointer"
+              className="relative p-2 md:px-3.5 md:py-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-[#D4021D]/30 transition-all active:scale-95 cursor-pointer"
               aria-label="Ver carrito"
             >
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden md:inline">Carrito</span>
               {cartTotalCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 font-black text-[11px] flex items-center justify-center shadow-xs">
+                <span className="w-5 h-5 rounded-full bg-white text-[#D4021D] font-black text-[11px] flex items-center justify-center shadow-xs">
                   {cartTotalCount}
                 </span>
               )}

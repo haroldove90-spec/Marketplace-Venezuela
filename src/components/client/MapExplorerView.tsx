@@ -173,28 +173,28 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
                 onClick={() => openExternalNavigation(selectedMapBiz.coordinates, 'google_maps')}
                 className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-xl text-xs font-semibold"
               >
-                <Navigation className="w-3 h-3 text-emerald-600" />
+                <Navigation className="w-3 h-3 text-[#D4021D]" />
                 <span>Maps</span>
               </button>
               <button
                 onClick={() => openExternalNavigation(selectedMapBiz.coordinates, 'waze')}
                 className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-xl text-xs font-semibold"
               >
-                <ExternalLink className="w-3 h-3 text-teal-600" />
+                <ExternalLink className="w-3 h-3 text-slate-600" />
                 <span>Waze</span>
               </button>
               <button
                 onClick={() => openWhatsAppWithPrompt(`Hola, quiero consultar el catálogo de ${selectedMapBiz.name}`, selectedMapBiz.id)}
-                className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-xl text-xs font-bold border border-emerald-200"
+                className="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1 rounded-xl text-xs font-bold border border-slate-300"
               >
-                <MessageCircle className="w-3 h-3 text-emerald-600" />
+                <MessageCircle className="w-3 h-3 text-[#D4021D]" />
                 <span>WhatsApp</span>
               </button>
             </div>
 
             <button
               onClick={() => onSelectBusiness(selectedMapBiz)}
-              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
+              className="flex items-center gap-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>Ver Menú & Pedir</span>
@@ -206,7 +206,7 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
       {/* GPS Status Footer Bar */}
       <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs text-slate-600">
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-[#D4021D] animate-pulse" />
           <span>GPS Actual: <strong className="text-slate-800">{userAddressLabel}</strong></span>
         </div>
         <span className="text-[11px] text-slate-400">Toca cualquier marcador para ver ruta</span>
@@ -217,21 +217,21 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
         <div className="fixed bottom-16 md:bottom-6 left-3 right-3 md:left-auto md:right-8 md:w-96 z-40 animate-in fade-in slide-in-from-bottom-3">
           <button
             onClick={onOpenCart}
-            className="w-full bg-slate-950 text-white hover:bg-slate-900 p-3 rounded-2xl shadow-xl border border-slate-800 flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-98"
+            className="w-full bg-[#000000] text-white hover:bg-slate-900 p-3 rounded-2xl shadow-xl border border-slate-800 flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-98"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#D4021D] text-white flex items-center justify-center font-bold text-xs shrink-0">
                 {cartTotalCount}
               </div>
               <div className="text-left min-w-0">
                 <p className="text-xs font-extrabold truncate">Ver Carrito & Checkout</p>
-                <p className="text-[10px] text-emerald-400 font-semibold">App Móvil o WhatsApp</p>
+                <p className="text-[10px] text-red-300 font-semibold">App Móvil o WhatsApp</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               <span className="text-sm font-black text-white">${cartSubtotal} MXN</span>
-              <span className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded-xl">
+              <span className="text-xs bg-[#D4021D] hover:bg-[#b50218] text-white font-bold px-2.5 py-1 rounded-xl">
                 Pedir →
               </span>
             </div>

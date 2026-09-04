@@ -20,6 +20,20 @@ import {
   INITIAL_SAVED_ADDRESSES,
   DATA_VERSION
 } from '../data/mockData';
+import {
+  fetchBusinessesFromSupabase,
+  fetchProductsFromSupabase,
+  fetchOrdersFromSupabase,
+  upsertBusinessInSupabase,
+  deleteBusinessInSupabase,
+  upsertProductInSupabase,
+  deleteProductInSupabase,
+  insertOrderInSupabase,
+  updateOrderStatusInSupabase,
+  testSupabaseConnection,
+  seedAllDataToSupabase,
+  SUPABASE_URL
+} from '../services/supabaseClient';
 
 interface AppContextType {
   // Navigation & Roles
@@ -99,6 +113,17 @@ interface AppContextType {
   // Utilities
   calculateDistance: (destCoords: Coordinates) => number;
   openExternalNavigation: (coords: Coordinates, app: 'google_maps' | 'waze') => void;
+
+  // Supabase PostgreSQL Integration
+  supabaseStatus: {
+    connected: boolean;
+    checking: boolean;
+    message: string;
+    hasTables: boolean;
+    tableCounts?: { [tableName: string]: number };
+  };
+  checkSupabase: () => Promise<void>;
+  syncToSupabase: () => Promise<{ success: boolean; message: string }>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -204,6 +229,71 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem('mk_saved_addresses');
     return saved ? JSON.parse(saved) : INITIAL_SAVED_ADDRESSES;
   });
+
+  // Supabase PostgreSQL Integration State
+  const [supabaseStatus, setSupabaseStatus] = useState<{
+    connected: boolean;
+    checking: boolean;
+    message: string;
+    hasTables: boolean;
+    tableCounts?: { [tableName: string]: number };
+  }>({
+    connected: false,
+    checking: true,
+    message: 'Conectando con Supabase...',
+    hasTables: false
+  });
+
+  const checkSupabase = async () => {
+    setSupabaseStatus(prev => ({ ...prev, checking: true }));
+    const res = await testSupabaseConnection();
+    setSupabaseStatus({
+      connected: res.connected,
+      checking: false,
+      message: res.message,
+      hasTables: res.hasTables,
+      tableCounts: res.tableCounts
+    });
+
+    if (res.connected && res.hasTables) {
+      try {
+        const [remoteBiz, remoteProd, remoteOrders] = await Promise.all([
+          fetchBusinessesFromSupabase(),
+          fetchProductsFromSupabase(),
+          fetchOrdersFromSupabase()
+        ]);
+
+        if (remoteBiz && remoteBiz.length > 0) {
+          setBusinesses(remoteBiz);
+        }
+        if (remoteProd && remoteProd.length > 0) {
+          setProducts(remoteProd);
+        }
+        if (remoteOrders && remoteOrders.length > 0) {
+          setOrders(remoteOrders);
+        }
+      } catch (err) {
+        console.warn('Error hydrating state from Supabase:', err);
+      }
+    }
+  };
+
+  const syncToSupabase = async () => {
+    const res = await seedAllDataToSupabase({
+      businesses,
+      products,
+      orders,
+      campaigns,
+      chatbotConfig,
+      savedAddresses
+    });
+    await checkSupabase();
+    return res;
+  };
+
+  useEffect(() => {
+    checkSupabase();
+  }, []);
 
   // PWA Install State
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<any>(null);
@@ -373,14 +463,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: `biz-${Date.now()}`
     };
     setBusinesses(prev => [newBiz, ...prev]);
+    upsertBusinessInSupabase(newBiz);
   };
 
   const updateBusiness = (id: string, updates: Partial<Business>) => {
-    setBusinesses(prev => prev.map(b => (b.id === id ? { ...b, ...updates } : b)));
+    setBusinesses(prev => {
+      const updated = prev.map(b => (b.id === id ? { ...b, ...updates } : b));
+      const target = updated.find(b => b.id === id);
+      if (target) upsertBusinessInSupabase(target);
+      return updated;
+    });
   };
 
   const deleteBusiness = (id: string) => {
     setBusinesses(prev => prev.filter(b => b.id !== id));
+    deleteBusinessInSupabase(id);
   };
 
   // Product CRUD
@@ -390,21 +487,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: `prod-${Date.now()}`
     };
     setProducts(prev => [newProd, ...prev]);
+    upsertProductInSupabase(newProd);
   };
 
   const updateProduct = (id: string, updates: Partial<Product>) => {
-    setProducts(prev => prev.map(p => (p.id === id ? { ...p, ...updates } : p)));
+    setProducts(prev => {
+      const updated = prev.map(p => (p.id === id ? { ...p, ...updates } : p));
+      const target = updated.find(p => p.id === id);
+      if (target) upsertProductInSupabase(target);
+      return updated;
+    });
   };
 
   const deleteProduct = (id: string) => {
     setProducts(prev => prev.filter(p => p.id !== id));
     setCart(prev => prev.filter(item => item.product.id !== id));
+    deleteProductInSupabase(id);
   };
 
   const toggleOfferOfTheDay = (productId: string) => {
-    setProducts(prev =>
-      prev.map(p => (p.id === productId ? { ...p, isOfferOfTheDay: !p.isOfferOfTheDay } : p))
-    );
+    setProducts(prev => {
+      const updated = prev.map(p =>
+        p.id === productId ? { ...p, isOfferOfTheDay: !p.isOfferOfTheDay } : p
+      );
+      const target = updated.find(p => p.id === productId);
+      if (target) upsertProductInSupabase(target);
+      return updated;
+    });
   };
 
   // Orders
@@ -416,6 +525,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setOrders(prev => [newOrder, ...prev]);
     clearCart();
+    insertOrderInSupabase(newOrder);
     return newOrder;
   };
 
@@ -423,6 +533,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setOrders(prev =>
       prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o))
     );
+    updateOrderStatusInSupabase(orderId, newStatus);
   };
 
   // Cart
@@ -572,7 +683,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setShowInstallBanner,
 
         calculateDistance,
-        openExternalNavigation
+        openExternalNavigation,
+
+        // Supabase Database Integration
+        supabaseStatus,
+        checkSupabase,
+        syncToSupabase
       }}
     >
       {children}

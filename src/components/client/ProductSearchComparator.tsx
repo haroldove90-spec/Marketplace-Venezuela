@@ -166,7 +166,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
       <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-2.5 shadow-2xs space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <Sparkles className="w-3.5 h-3.5 text-[#D4021D]" />
             <span>Modalidad de Compra</span>
           </span>
           <span className="text-[10px] text-slate-500 font-medium">
@@ -180,11 +180,11 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
             onClick={() => setDeliveryMode('delivery')}
             className={`p-2.5 rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer ${
               deliveryMode === 'delivery'
-                ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs ring-1 ring-emerald-500'
+                ? 'bg-white border-[#D4021D] text-slate-900 shadow-2xs ring-1 ring-[#D4021D]'
                 : 'bg-slate-100/70 border-slate-200 text-slate-600 hover:bg-white'
             }`}
           >
-            <Truck className={`w-4 h-4 ${deliveryMode === 'delivery' ? 'text-emerald-600' : 'text-slate-500'}`} />
+            <Truck className={`w-4 h-4 ${deliveryMode === 'delivery' ? 'text-[#D4021D]' : 'text-slate-500'}`} />
             <div className="text-left">
               <p className="text-xs font-bold leading-tight">Envío a Domicilio</p>
               <p className="text-[10px] text-slate-500">+ $35 MXN entrega</p>
@@ -196,15 +196,15 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
             onClick={() => setDeliveryMode('pickup')}
             className={`p-2.5 rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer ${
               deliveryMode === 'pickup'
-                ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs ring-1 ring-emerald-500'
+                ? 'bg-white border-[#D4021D] text-slate-900 shadow-2xs ring-1 ring-[#D4021D]'
                 : 'bg-slate-100/70 border-slate-200 text-slate-600 hover:bg-white'
             }`}
           >
-            <Store className={`w-4 h-4 ${deliveryMode === 'pickup' ? 'text-emerald-600' : 'text-slate-500'}`} />
+            <Store className={`w-4 h-4 ${deliveryMode === 'pickup' ? 'text-[#D4021D]' : 'text-slate-500'}`} />
             <div className="text-left">
               <div className="flex items-center gap-1">
                 <p className="text-xs font-bold leading-tight">Retiro en Tienda</p>
-                <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1 rounded">Gratis</span>
+                <span className="text-[9px] bg-red-50 text-[#D4021D] font-extrabold px-1 rounded">Gratis</span>
               </div>
               <p className="text-[10px] text-slate-500">Recoge tú mismo</p>
             </div>
@@ -222,7 +222,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
               onClick={() => onSearchChange(item.query)}
               className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 searchQuery.toLowerCase() === item.query
-                  ? 'bg-emerald-600 text-white shadow-xs'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
               }`}
             >
@@ -236,7 +236,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
       {searchQuery.trim() && (
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100 text-xs">
           <div className="flex items-center gap-1.5 text-slate-700 font-bold">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-600" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-[#D4021D]" />
             <span>
               {matchedProductEntries.length}{' '}
               {matchedProductEntries.length === 1 ? 'opción encontrada' : 'opciones comparadas en tiendas cercanas'}
@@ -250,7 +250,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                 type="checkbox"
                 checked={onlyOpenStores}
                 onChange={(e) => setOnlyOpenStores(e.target.checked)}
-                className="accent-emerald-600 w-3 h-3 cursor-pointer"
+                className="accent-[#D4021D] w-3 h-3 cursor-pointer"
               />
               <span>Solo Abiertos</span>
             </label>
@@ -276,7 +276,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
       {/* Toast Notification */}
       {addedItemToast && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2 rounded-2xl text-xs font-bold shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
-          <Check className="w-4 h-4 text-emerald-400" />
+          <Check className="w-4 h-4 text-[#D4021D]" />
           <span>¡{addedItemToast} agregado!</span>
         </div>
       )}
@@ -294,14 +294,14 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                   No encontramos tiendas con "{searchQuery}"
                 </h4>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto mt-1">
-                  Intenta buscar por categorías como <span className="font-semibold text-emerald-700">Paracetamol, Hamburguesa, Pizza, Suero o Refresco</span>.
+                  Intenta buscar por categorías como <span className="font-semibold text-[#D4021D]">Paracetamol, Hamburguesa, Pizza, Suero o Refresco</span>.
                 </p>
               </div>
               <button
                 onClick={() => openWhatsAppWithPrompt(`Hola, estoy buscando "${searchQuery}" en tiendas cercanas.`)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] border border-[#25D366]/30 font-bold rounded-xl text-xs transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold rounded-xl text-xs transition-all cursor-pointer"
               >
-                <MessageCircle className="w-3.5 h-3.5 fill-[#25D366]" />
+                <MessageCircle className="w-3.5 h-3.5 text-[#D4021D]" />
                 <span>Consultar disponibilidad por WhatsApp IA</span>
               </button>
             </div>
@@ -314,7 +314,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                   key={`${business.id}-${product.id}`}
                   className={`bg-white rounded-2xl border p-3 shadow-2xs hover:shadow-xs transition-all flex flex-col gap-2.5 ${
                     isBestPrice
-                      ? 'border-emerald-400/80 ring-1 ring-emerald-400/30'
+                      ? 'border-red-400/80 ring-1 ring-red-400/30'
                       : 'border-slate-200/90'
                   }`}
                 >
@@ -326,17 +326,17 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                     >
                       <div
                         className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shadow-2xs shrink-0 border border-white"
-                        style={{ backgroundColor: business.customPinColor || '#10b981' }}
+                        style={{ backgroundColor: business.customPinColor || '#D4021D' }}
                       >
                         {business.logo}
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate group-hover:text-emerald-700">
+                          <h4 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate group-hover:text-[#D4021D]">
                             {business.name}
                           </h4>
                           {business.isVerified && (
-                            <span className="text-[10px] text-emerald-600 font-bold">✓</span>
+                            <span className="text-[10px] text-[#D4021D] font-bold">✓</span>
                           )}
                         </div>
                         <p className="text-[10px] text-slate-500 truncate">{business.address}</p>
@@ -376,7 +376,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                       {/* Comparison Badges Row */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                         {isBestPrice && (
-                          <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <span className="bg-red-50 text-[#D4021D] text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 border border-red-200">
                             🏆 Mejor Precio
                           </span>
                         )}
@@ -424,7 +424,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                           {deliveryMode === 'pickup' ? 'Retiro en Tienda' : 'Entrega a Domicilio'}
                         </span>
                         <div className="flex items-center gap-1 text-slate-700 font-bold text-xs mt-0.5">
-                          <MapPin className="w-3 h-3 text-emerald-600" />
+                          <MapPin className="w-3 h-3 text-[#D4021D]" />
                           <span>{distanceKm} km</span>
                           <span className="text-slate-300">·</span>
                           <span className="text-[11px] text-slate-600">{estimatedTime}</span>
@@ -441,7 +441,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                         className="p-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs font-semibold shadow-2xs cursor-pointer"
                         title="Ver ruta para recoger en Google Maps"
                       >
-                        <Navigation className="w-3.5 h-3.5 text-emerald-600" />
+                        <Navigation className="w-3.5 h-3.5 text-[#D4021D]" />
                       </button>
 
                       {/* WhatsApp Inquiry */}
@@ -450,7 +450,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                         className="p-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs font-semibold shadow-2xs cursor-pointer"
                         title="Consultar por WhatsApp"
                       >
-                        <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                        <MessageCircle className="w-3.5 h-3.5 text-[#D4021D]" />
                       </button>
 
                       {/* Add To Cart / Buy Button */}
@@ -458,8 +458,8 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                         onClick={(e) => handleAddToCart(product, e)}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 ${
                           inCartQty > 0
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            ? 'bg-[#D4021D] text-white'
+                            : 'bg-[#D4021D] hover:bg-[#b50218] text-white'
                         }`}
                       >
                         <Plus className="w-3.5 h-3.5" />

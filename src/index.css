@@ -2,10 +2,10 @@
 
 @layer base {
   :root {
-    --pulso-green: #00D222;
-    --pulso-green-dark: #00a81b;
-    --pulso-green-light: #e6fced;
-    --pulso-navy: #0B132B;
+    --brand-red: #D4021D;
+    --brand-red-dark: #b50218;
+    --brand-red-light: #fef2f2;
+    --brand-black: #000000;
   }
 
   * {
@@ -48,22 +48,40 @@
   animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+.bg-conforce-red {
+  background-color: #D4021D;
+}
+.hover\:bg-conforce-red-dark:hover {
+  background-color: #b50218;
+}
+.text-conforce-red {
+  color: #D4021D;
+}
+.border-conforce-red {
+  border-color: #D4021D;
+}
+.bg-conforce-light {
+  background-color: #fef2f2;
+}
+
+/* Backwards compatibility aliases */
 .bg-pulso-green {
-  background-color: #00D222;
+  background-color: #D4021D;
 }
 .hover\:bg-pulso-green-dark:hover {
-  background-color: #00b31d;
+  background-color: #b50218;
 }
 .text-pulso-green {
-  color: #00a81b;
+  color: #D4021D;
 }
 .text-pulso-vibrant {
-  color: #00D222;
+  color: #D4021D;
 }
 .border-pulso-green {
-  border-color: #00D222;
+  border-color: #D4021D;
 }
 .bg-pulso-light {
-  background-color: #eafbee;
+  background-color: #fef2f2;
 }
+
 

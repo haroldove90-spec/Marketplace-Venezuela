@@ -22,11 +22,11 @@ export const MyOrdersView: React.FC = () => {
       case 'preparing':
         return { step: 1, label: 'En Preparación 👨‍🍳', color: 'text-amber-700 bg-amber-50 border-amber-200' };
       case 'ready':
-        return { step: 2, label: 'Listo para Entrega 📦', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
+        return { step: 2, label: 'Listo para Entrega 📦', color: 'text-slate-800 bg-slate-100 border-slate-300' };
       case 'on_the_way':
-        return { step: 3, label: 'En Camino 🛵', color: 'text-teal-700 bg-teal-50 border-teal-200' };
+        return { step: 3, label: 'En Camino 🛵', color: 'text-[#D4021D] bg-red-50 border-red-200' };
       case 'delivered':
-        return { step: 4, label: 'Entregado ✓', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
+        return { step: 4, label: 'Entregado ✓', color: 'text-slate-900 bg-slate-100 border-slate-300' };
       default:
         return { step: 0, label: 'Cancelado', color: 'text-red-700 bg-red-50 border-red-200' };
     }
@@ -41,7 +41,7 @@ export const MyOrdersView: React.FC = () => {
         </div>
         <button
           onClick={() => setActiveClientTab('explore')}
-          className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-[#D4021D] border border-red-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
         >
           + Nuevo Pedido
         </button>
@@ -56,7 +56,7 @@ export const MyOrdersView: React.FC = () => {
           </p>
           <button
             onClick={() => setActiveClientTab('explore')}
-            className="mt-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
+            className="mt-2 px-5 py-2 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold rounded-xl text-xs shadow-xs cursor-pointer"
           >
             Explorar en el Mapa
           </button>
@@ -80,15 +80,15 @@ export const MyOrdersView: React.FC = () => {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-bold text-emerald-600">
+                        <span className="font-mono text-xs font-bold text-[#D4021D]">
                           #{order.id}
                         </span>
                         <span className="text-slate-500 text-xs">· {order.createdAt}</span>
                         {order.orderChannel && (
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                             order.orderChannel === 'whatsapp'
-                              ? 'bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/30'
-                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              ? 'bg-slate-100 text-slate-800 border border-slate-300'
+                              : 'bg-red-50 text-[#D4021D] border border-red-200'
                           }`}>
                             {order.orderChannel === 'whatsapp' ? '💬 Vía WhatsApp' : '📱 Vía App'}
                           </span>
@@ -122,7 +122,7 @@ export const MyOrdersView: React.FC = () => {
                           <div
                             className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-1 transition-all ${
                               isPassed
-                                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/30'
+                                ? 'bg-[#D4021D] text-white shadow-md shadow-[#D4021D]/30'
                                 : 'bg-slate-100 text-slate-400 border border-slate-200'
                             }`}
                           >
@@ -147,7 +147,7 @@ export const MyOrdersView: React.FC = () => {
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between items-center text-slate-700">
                         <span>
-                          <span className="text-emerald-600 font-bold mr-1.5">{item.quantity}x</span>
+                          <span className="text-[#D4021D] font-bold mr-1.5">{item.quantity}x</span>
                           {item.product.name}
                         </span>
                         <span className="font-semibold text-slate-900">
@@ -161,7 +161,7 @@ export const MyOrdersView: React.FC = () => {
                     <span>
                       Modalidad: <strong className="text-slate-900 capitalize">{order.deliveryType === 'delivery' ? '🛵 A Domicilio' : '🏬 Recoger en Sucursal'}</strong>
                     </span>
-                    <span className="text-sm font-black text-emerald-600">
+                    <span className="text-sm font-black text-[#D4021D]">
                       Total: ${order.total} MXN
                     </span>
                   </div>
@@ -182,9 +182,9 @@ export const MyOrdersView: React.FC = () => {
                     {biz && (
                       <button
                         onClick={() => openWhatsAppWithPrompt(`Hola, consulto por mi pedido #${order.id}`, biz.id)}
-                        className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                        className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                       >
-                        <MessageCircle className="w-3.5 h-3.5" />
+                        <MessageCircle className="w-3.5 h-3.5 text-[#D4021D]" />
                         <span>WhatsApp Tienda</span>
                       </button>
                     )}

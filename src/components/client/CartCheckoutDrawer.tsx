@@ -103,9 +103,9 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
       .map((item) => `• ${item.quantity}x ${item.product.name} - $${item.product.price * item.quantity} MXN`)
       .join('\n');
 
-    return `🛍️ *NUEVO PEDIDO - PULSO MARKETPLACE*
+    return `🛍️ *NUEVO PEDIDO - CON FORCE*
 🏪 *Tienda:* ${bizName}
-👤 *Cliente:* ${customerName.trim() || 'Cliente Pulso'} (${customerPhone.trim() || 'Sin teléfono'})
+👤 *Cliente:* ${customerName.trim() || 'Cliente Con Force'} (${customerPhone.trim() || 'Sin teléfono'})
 📍 *Modalidad:* ${deliveryType === 'pickup' ? '🏬 Retiro en Tienda' : '🛵 Envío a Domicilio'}
 📍 *Dirección:* ${address}
 
@@ -118,7 +118,7 @@ ${itemsList}
 💳 *Forma de Pago:* ${getPaymentMethodLabel(paymentMethod)}
 ${orderNotes.trim() ? `📝 *Instrucciones/Notas:* ${orderNotes.trim()}` : ''}
 
-_Enviado desde Pulso PWA - Checkout WhatsApp_`;
+_Enviado desde Con Force PWA - Checkout WhatsApp_`;
   };
 
   const handlePlaceOrder = (channelOverride?: OrderChannel) => {
@@ -134,7 +134,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
         businessId: targetBusiness.id,
         businessName: targetBusiness.name,
         businessLogo: targetBusiness.logo,
-        customerName: customerName.trim() || 'Cliente Pulso',
+        customerName: customerName.trim() || 'Cliente Con Force',
         customerPhone: customerPhone.trim() || '+52 55 0000 0000',
         items: [...cart],
         subtotal: cartSubtotal,
@@ -181,14 +181,14 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
         {/* Header */}
         <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-base shadow-xs">
+            <div className="w-9 h-9 rounded-2xl bg-[#D4021D] text-white flex items-center justify-center text-base shadow-xs">
               🛒
             </div>
             <div>
               <h3 className="font-extrabold text-sm text-slate-900">Carrito & Checkout</h3>
               {targetBusiness ? (
                 <p className="text-xs text-slate-500 truncate">
-                  Tienda: <span className="text-emerald-700 font-bold">{targetBusiness.name}</span>
+                  Tienda: <span className="text-[#D4021D] font-bold">{targetBusiness.name}</span>
                 </p>
               ) : (
                 <p className="text-xs text-slate-500">Completa tu orden</p>
@@ -207,7 +207,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
         {/* Content Container */}
         {cart.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-white">
-            <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mb-3 border border-emerald-200">
+            <div className="w-16 h-16 rounded-3xl bg-red-50 text-[#D4021D] flex items-center justify-center text-3xl mb-3 border border-red-200">
               🛍️
             </div>
             <h4 className="font-extrabold text-slate-900 text-base">Tu carrito está vacío</h4>
@@ -216,7 +216,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
             </p>
             <button
               onClick={onClose}
-              className="mt-5 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
+              className="mt-5 px-6 py-2.5 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold rounded-2xl text-xs shadow-xs cursor-pointer active:scale-95 transition-all"
             >
               Explorar Tiendas
             </button>
@@ -227,7 +227,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
             {/* 🌟 1. SELECTOR DE CANAL DE COMPRA: APP VS WHATSAPP */}
             <div className="space-y-2">
               <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                <Sparkles className="w-3.5 h-3.5 text-[#D4021D]" />
                 <span>¿Cómo deseas realizar tu compra?</span>
               </label>
 
@@ -237,16 +237,16 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   onClick={() => setCheckoutChannel('app')}
                   className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-1.5 transition-all cursor-pointer ${
                     checkoutChannel === 'app'
-                      ? 'bg-emerald-50 border-emerald-500 text-slate-900 shadow-xs ring-1 ring-emerald-500'
+                      ? 'bg-red-50/50 border-[#D4021D] text-slate-900 shadow-xs ring-1 ring-[#D4021D]'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                  <div className="w-8 h-8 rounded-xl bg-[#D4021D] text-white flex items-center justify-center shadow-xs">
                     <Smartphone className="w-4 h-4" />
                   </div>
                   <div>
                     <p className="text-xs font-black text-slate-900">App Móvil</p>
-                    <p className="text-[10px] text-emerald-700 font-semibold">En línea & En vivo</p>
+                    <p className="text-[10px] text-[#D4021D] font-semibold">En línea & En vivo</p>
                   </div>
                 </button>
 
@@ -255,16 +255,16 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   onClick={() => setCheckoutChannel('whatsapp')}
                   className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-1.5 transition-all cursor-pointer ${
                     checkoutChannel === 'whatsapp'
-                      ? 'bg-emerald-50 border-emerald-500 text-slate-900 shadow-xs ring-1 ring-emerald-500'
+                      ? 'bg-slate-100 border-slate-900 text-slate-900 shadow-xs ring-1 ring-slate-900'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <div className="w-8 h-8 rounded-xl bg-[#25D366] text-white flex items-center justify-center shadow-xs">
+                  <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
                     <MessageCircle className="w-4 h-4 fill-white" />
                   </div>
                   <div>
                     <p className="text-xs font-black text-slate-900">Vía WhatsApp</p>
-                    <p className="text-[10px] text-emerald-700 font-semibold">Envío de ticket directo</p>
+                    <p className="text-[10px] text-slate-600 font-semibold">Envío de ticket directo</p>
                   </div>
                 </button>
               </div>
@@ -297,7 +297,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                       <h5 className="font-bold text-slate-900 text-xs truncate">
                         {item.product.name}
                       </h5>
-                      <span className="text-xs text-emerald-700 font-extrabold">
+                      <span className="text-xs text-[#D4021D] font-extrabold">
                         ${item.product.price} <span className="text-[10px] text-slate-500 font-normal">MXN</span>
                       </span>
                     </div>
@@ -334,26 +334,26 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   onClick={() => setDeliveryType('delivery')}
                   className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     deliveryType === 'delivery'
-                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
+                      ? 'bg-red-50/50 border-[#D4021D] text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   <span className="text-base">🛵</span>
                   <span className="text-xs font-bold">Envío a Domicilio</span>
-                  <span className="text-[10px] text-emerald-700 font-bold">+$35 MXN</span>
+                  <span className="text-[10px] text-[#D4021D] font-bold">+$35 MXN</span>
                 </button>
 
                 <button
                   onClick={() => setDeliveryType('pickup')}
                   className={`p-2.5 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     deliveryType === 'pickup'
-                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
+                      ? 'bg-slate-100 border-slate-400 text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   <span className="text-base">🏬</span>
                   <span className="text-xs font-bold">Recoger en Sucursal</span>
-                  <span className="text-[10px] text-emerald-600 font-bold">Gratis</span>
+                  <span className="text-[10px] text-slate-700 font-bold">Gratis</span>
                 </button>
               </div>
             </div>
@@ -362,7 +362,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
             {deliveryType === 'delivery' && (
               <div className="space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                 <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  <MapPin className="w-3.5 h-3.5 text-[#D4021D]" />
                   Dirección de Entrega
                 </span>
 
@@ -372,7 +372,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                     onClick={() => setAddressChoice('current_gps')}
                     className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer text-xs ${
                       addressChoice === 'current_gps'
-                        ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs'
+                        ? 'bg-white border-[#D4021D] text-slate-900 shadow-2xs'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -380,7 +380,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                       type="radio"
                       checked={addressChoice === 'current_gps'}
                       onChange={() => setAddressChoice('current_gps')}
-                      className="accent-emerald-600"
+                      className="accent-[#D4021D]"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="font-bold truncate">📍 Posición GPS actual</p>
@@ -394,7 +394,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                       onClick={() => setAddressChoice('saved')}
                       className={`flex items-start gap-2 p-2 rounded-xl border cursor-pointer text-xs ${
                         addressChoice === 'saved'
-                          ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs'
+                          ? 'bg-white border-[#D4021D] text-slate-900 shadow-2xs'
                           : 'bg-white border-slate-200 text-slate-700'
                       }`}
                     >
@@ -402,7 +402,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                         type="radio"
                         checked={addressChoice === 'saved'}
                         onChange={() => setAddressChoice('saved')}
-                        className="accent-emerald-600 mt-1"
+                        className="accent-[#D4021D] mt-1"
                       />
                       <div className="min-w-0 flex-1">
                         <p className="font-bold">Direcciones Guardadas</p>
@@ -412,7 +412,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                             setSelectedSavedAddrId(e.target.value);
                             setAddressChoice('saved');
                           }}
-                          className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
+                          className="mt-1 w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900 focus:outline-none focus:border-[#D4021D]"
                         >
                           {savedAddresses.map((addr) => (
                             <option key={addr.id} value={addr.id}>
@@ -429,7 +429,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                     onClick={() => setAddressChoice('custom')}
                     className={`flex items-start gap-2 p-2 rounded-xl border cursor-pointer text-xs ${
                       addressChoice === 'custom'
-                        ? 'bg-white border-emerald-500 text-slate-900 shadow-2xs'
+                        ? 'bg-white border-[#D4021D] text-slate-900 shadow-2xs'
                         : 'bg-white border-slate-200 text-slate-700'
                     }`}
                   >
@@ -437,7 +437,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                       type="radio"
                       checked={addressChoice === 'custom'}
                       onChange={() => setAddressChoice('custom')}
-                      className="accent-emerald-600 mt-1"
+                      className="accent-[#D4021D] mt-1"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="font-bold">Escribir otra dirección</p>
@@ -447,7 +447,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                           value={customAddress}
                           onChange={(e) => setCustomAddress(e.target.value)}
                           placeholder="Calle, número, colonia, referencias..."
-                          className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600"
+                          className="mt-1 w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-[#D4021D]"
                         />
                       )}
                     </div>
@@ -466,11 +466,11 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   onClick={() => setPaymentMethod('card')}
                   className={`p-2 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
+                      ? 'bg-red-50/50 border-[#D4021D] text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <CreditCard className="w-4 h-4 text-emerald-600" />
+                  <CreditCard className="w-4 h-4 text-[#D4021D]" />
                   <span className="text-[10px] font-bold">Tarjeta Online</span>
                 </button>
 
@@ -478,11 +478,11 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   onClick={() => setPaymentMethod('cash_on_delivery')}
                   className={`p-2 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'cash_on_delivery'
-                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
+                      ? 'bg-red-50/50 border-[#D4021D] text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <Banknote className="w-4 h-4 text-emerald-600" />
+                  <Banknote className="w-4 h-4 text-[#D4021D]" />
                   <span className="text-[10px] font-bold">Efectivo</span>
                 </button>
 
@@ -490,11 +490,11 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   onClick={() => setPaymentMethod('pos_terminal')}
                   className={`p-2 rounded-xl border flex flex-col items-center text-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'pos_terminal'
-                      ? 'bg-emerald-50 border-emerald-400 text-slate-900 shadow-2xs'
+                      ? 'bg-red-50/50 border-[#D4021D] text-slate-900 shadow-2xs'
                       : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  <SmartphoneNfc className="w-4 h-4 text-emerald-600" />
+                  <SmartphoneNfc className="w-4 h-4 text-[#D4021D]" />
                   <span className="text-[10px] font-bold">Terminal POS</span>
                 </button>
               </div>
@@ -508,7 +508,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500 font-medium"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-[#D4021D] font-medium"
                 />
               </div>
               <div>
@@ -517,7 +517,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   type="text"
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-emerald-500 font-medium"
+                  className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-[#D4021D] font-medium"
                 />
               </div>
             </div>
@@ -529,18 +529,18 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
                 placeholder="Ej. Timbre 402, salsa aparte, etc."
-                className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500"
+                className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-[#D4021D]"
               />
             </div>
 
             {/* 💬 Previsualización del Ticket de WhatsApp si se elige WhatsApp */}
             {checkoutChannel === 'whatsapp' && (
-              <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-1.5 text-xs">
-                <div className="flex items-center gap-1.5 text-emerald-800 font-bold">
-                  <MessageCircle className="w-4 h-4 fill-emerald-600 text-white" />
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 text-xs">
+                <div className="flex items-center gap-1.5 text-slate-900 font-bold">
+                  <MessageCircle className="w-4 h-4 fill-slate-900 text-white" />
                   <span>Se abrirá WhatsApp con el siguiente pedido:</span>
                 </div>
-                <div className="p-2 bg-white rounded-xl border border-emerald-100 text-[11px] text-slate-700 font-mono whitespace-pre-line leading-relaxed shadow-2xs">
+                <div className="p-2 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-700 font-mono whitespace-pre-line leading-relaxed shadow-2xs">
                   {buildWhatsAppMessage()}
                 </div>
               </div>
@@ -559,13 +559,13 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
               </div>
               <div className="flex justify-between">
                 <span>Costo de entrega:</span>
-                <span className={deliveryFee === 0 ? 'text-emerald-600 font-bold' : 'font-semibold text-slate-900'}>
+                <span className={deliveryFee === 0 ? 'text-slate-900 font-bold' : 'font-semibold text-slate-900'}>
                   {deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
                 </span>
               </div>
               <div className="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200">
                 <span>Total a Pagar:</span>
-                <span className="text-emerald-700">${grandTotal} MXN</span>
+                <span className="text-[#D4021D]">${grandTotal} MXN</span>
               </div>
             </div>
 
@@ -576,7 +576,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   <button
                     onClick={() => handlePlaceOrder('app')}
                     disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-600/25 text-xs sm:text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 bg-[#D4021D] hover:bg-[#b50218] text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-red-600/25 text-xs sm:text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
@@ -594,9 +594,9 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   <button
                     onClick={() => handlePlaceOrder('whatsapp')}
                     disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-1.5 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] border border-[#25D366]/40 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer"
+                    className="w-full flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 fill-[#25D366]" />
+                    <MessageCircle className="w-3.5 h-3.5 fill-slate-900 text-white" />
                     <span>O pedir directamente por WhatsApp</span>
                   </button>
                 </>
@@ -605,7 +605,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                   <button
                     onClick={() => handlePlaceOrder('whatsapp')}
                     disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-emerald-600/20 text-xs sm:text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 bg-[#D4021D] hover:bg-[#b50218] text-white font-extrabold py-3 px-4 rounded-2xl shadow-md shadow-red-600/25 text-xs sm:text-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
@@ -625,7 +625,7 @@ _Enviado desde Pulso PWA - Checkout WhatsApp_`;
                     disabled={isSubmitting}
                     className="w-full flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer"
                   >
-                    <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                    <Smartphone className="w-3.5 h-3.5 text-[#D4021D]" />
                     <span>O comprar en línea vía App Móvil</span>
                   </button>
                 </>

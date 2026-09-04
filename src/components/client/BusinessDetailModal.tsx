@@ -95,7 +95,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                 className="flex items-center gap-1 p-2 px-3 rounded-full bg-white/90 hover:bg-white text-slate-900 text-xs font-semibold backdrop-blur-md border border-slate-200 transition-all shadow-xs cursor-pointer"
                 title="Copiar Deep Link"
               >
-                <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+                <Share2 className="w-3.5 h-3.5 text-[#D4021D]" />
                 <span>{copiedLink ? '¡Copiado!' : 'Compartir'}</span>
               </button>
             </div>
@@ -106,17 +106,17 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
             <div className="flex items-end gap-3">
               <div
                 className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-3xl md:text-4xl shadow-xl border-2 border-white"
-                style={{ backgroundColor: business.customPinColor || '#00D222' }}
+                style={{ backgroundColor: business.customPinColor || '#D4021D' }}
               >
                 {business.logo}
               </div>
               <div className="pb-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-extrabold text-[10px] uppercase shadow-xs">
+                  <span className="px-2 py-0.5 rounded-full bg-[#D4021D] text-white font-extrabold text-[10px] uppercase shadow-xs">
                     {business.category === 'farmacia' ? '💊 Farmacia' : '🍔 Restaurante'}
                   </span>
                   {business.isVerified && (
-                    <span className="text-[10px] text-emerald-400 font-bold bg-slate-900/70 px-1.5 py-0.5 rounded-full backdrop-blur-xs">✓ Verificado</span>
+                    <span className="text-[10px] text-red-400 font-bold bg-slate-900/70 px-1.5 py-0.5 rounded-full backdrop-blur-xs">✓ Verificado</span>
                   )}
                 </div>
                 <h2 className="text-lg md:text-xl font-black text-white truncate drop-shadow">
@@ -156,7 +156,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                 <span className="hidden sm:inline text-slate-300">·</span>
 
                 <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                  <span className="text-emerald-700 font-bold">🛵 A Domicilio</span>
+                  <span className="text-[#D4021D] font-bold">🛵 A Domicilio</span>
                   <span className="text-slate-300">·</span>
                   <span className="text-slate-800 font-semibold">🏬 Retiro en tienda</span>
                 </div>
@@ -167,7 +167,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                   onClick={() => openExternalNavigation(business.coordinates, 'google_maps')}
                   className="flex items-center gap-1 px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-xs cursor-pointer"
                 >
-                  <Navigation className="w-3.5 h-3.5 text-emerald-600" />
+                  <Navigation className="w-3.5 h-3.5 text-[#D4021D]" />
                   <span>Google Maps</span>
                 </button>
                 <button
@@ -179,7 +179,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                 </button>
                 <button
                   onClick={() => openWhatsAppWithPrompt(`Hola, quiero consultar el catálogo de ${business.name}`, business.id)}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   <span>WhatsApp</span>
@@ -197,7 +197,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all shadow-xs cursor-pointer ${
                 selectedCategory === cat
-                  ? 'bg-emerald-600 text-white shadow-xs'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
                   : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -258,7 +258,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
 
                         {/* Cart Controls */}
                         {qty > 0 ? (
-                          <div className="flex items-center gap-2 bg-emerald-600 text-white px-2 py-1 rounded-xl shadow-xs">
+                          <div className="flex items-center gap-2 bg-[#D4021D] text-white px-2 py-1 rounded-xl shadow-xs">
                             <button
                               onClick={() => addToCart(prod, -1)}
                               className="p-0.5 hover:opacity-80 active:scale-95 cursor-pointer"
@@ -278,7 +278,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                         ) : (
                           <button
                             onClick={() => addToCart(prod, 1)}
-                            className="flex items-center gap-1 bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 px-3 py-1 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer"
+                            className="flex items-center gap-1 bg-red-50 hover:bg-[#D4021D] text-[#D4021D] hover:text-white border border-red-200 px-3 py-1 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-xs cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Agregar</span>
@@ -307,7 +307,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                 onClose();
                 onOpenCart();
               }}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-2xl shadow-md shadow-emerald-600/25 text-xs transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold py-2.5 px-5 rounded-2xl shadow-md shadow-red-600/25 text-xs transition-all active:scale-95 cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Ver Carrito & Checkout</span>

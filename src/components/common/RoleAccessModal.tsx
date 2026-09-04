@@ -17,16 +17,16 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     {
       id: 'client',
       name: 'Cliente',
-      icon: <ShoppingBag className="w-7 h-7 text-emerald-600" />,
+      icon: <ShoppingBag className="w-7 h-7 text-[#D4021D]" />,
       logo: '🛒',
-      color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400'
+      color: 'bg-red-50/50 border-red-200 hover:border-red-400'
     },
     {
       id: 'seller',
       name: 'Negocio / Vendedor',
-      icon: <Store className="w-7 h-7 text-emerald-600" />,
+      icon: <Store className="w-7 h-7 text-slate-900" />,
       logo: '🏪',
-      color: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400'
+      color: 'bg-slate-50 border-slate-200 hover:border-slate-400'
     },
     {
       id: 'admin',
@@ -73,7 +73,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
                 onClick={() => handleSelectRole(item.id)}
                 className={`relative flex flex-col items-center justify-center text-center p-4 rounded-2xl border transition-all duration-200 cursor-pointer shadow-xs ${item.color} ${
                   isSelected
-                    ? 'ring-2 ring-[#00D222] shadow-md shadow-emerald-500/20 scale-[1.02]'
+                    ? 'ring-2 ring-[#D4021D] shadow-md shadow-red-500/20 scale-[1.02]'
                     : 'hover:scale-[1.01]'
                 }`}
               >
@@ -89,7 +89,7 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
                 </span>
 
                 {isSelected && (
-                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">
+                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-[#D4021D] text-white text-[10px] flex items-center justify-center font-bold">
                     ✓
                   </span>
                 )}

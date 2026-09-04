@@ -38,7 +38,7 @@ const PulsoAppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-[#D4021D] selection:text-white">
       
       {/* Top PWA Install Banner */}
       <PWAInstallBanner />

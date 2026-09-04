@@ -1,16 +1,16 @@
 {
-  "name": "Pulso",
-  "short_name": "Pulso",
+  "name": "Con Force",
+  "short_name": "Con Force",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#00D222",
-  "description": "Pulso - Plataforma con geolocalización de Farmacias y Restaurantes, navegación interactiva y WhatsApp Bot.",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "description": "Con Force - Plataforma geolocalizada de Farmacias y Restaurantes, navegación interactiva y WhatsApp Bot.",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 110' fill='none'><rect width='100' height='110' rx='20' fill='%23ffffff'/><path d='M35 75V25C35 14 44 5 55 5C66 5 75 14 75 25C75 36 66 45 55 45H42' stroke='%2300D222' stroke-width='12' stroke-linecap='round'/><path d='M42 40L55 60L72 30' stroke='%2300D222' stroke-width='10' stroke-linecap='round'/><path d='M55 60V72' stroke='%2300D222' stroke-width='10' stroke-linecap='round'/><ellipse cx='55' cy='90' rx='18' ry='7' stroke='%2300D222' stroke-width='5'/><circle cx='55' cy='90' r='3.5' fill='%2300D222'/></svg>",
+      "src": "https://cjoszqkgqtgfvzqxcsvi.supabase.co/storage/v1/object/public/logos/conforcelogo.png",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

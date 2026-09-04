@@ -54,7 +54,7 @@ export const WhatsAppChatModal: React.FC = () => {
       const welcomeMsg: ChatMessage = {
         id: 'msg-welcome',
         sender: 'bot',
-        text: chatbotConfig.welcomeMessage || '¡Hola! Bienvenido al asistente oficial de Pulso.',
+        text: chatbotConfig.welcomeMessage || '¡Hola! Bienvenido al asistente oficial de Con Force.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -187,21 +187,21 @@ export const WhatsAppChatModal: React.FC = () => {
 
             {/* Avatar & Bot Info */}
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white text-lg font-bold shadow-md">
+              <div className="w-10 h-10 rounded-full bg-[#D4021D] flex items-center justify-center text-white text-lg font-bold shadow-md">
                 🤖
               </div>
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-[#1f2c34] rounded-full" />
+              <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#D4021D] border-2 border-[#1f2c34] rounded-full" />
             </div>
 
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="font-bold text-sm text-white">Pulso Bot IA</h3>
-                <span className="px-1.5 py-0.2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold rounded">
+                <h3 className="font-bold text-sm text-white">Con Force Bot IA</h3>
+                <span className="px-1.5 py-0.2 bg-[#D4021D]/20 border border-[#D4021D]/40 text-white text-[10px] font-bold rounded">
                   Oficial
                 </span>
               </div>
-              <p className="text-[11px] text-emerald-400 flex items-center gap-1">
-                <span>en línea</span>
+              <p className="text-[11px] text-slate-300 flex items-center gap-1">
+                <span className="text-[#D4021D] font-bold">● en línea</span>
                 <span className="text-slate-400">· Meta Cloud API</span>
               </p>
             </div>
@@ -218,9 +218,9 @@ export const WhatsAppChatModal: React.FC = () => {
         <div className="bg-[#111b21] px-4 py-2 flex items-center justify-between border-b border-slate-800/80">
           <button
             onClick={handleSendLocation}
-            className="flex items-center gap-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95"
+            className="flex items-center gap-1.5 bg-[#D4021D]/20 hover:bg-[#D4021D]/30 text-white border border-[#D4021D]/40 px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95"
           >
-            <MapPin className="w-3.5 h-3.5" />
+            <MapPin className="w-3.5 h-3.5 text-[#D4021D]" />
             <span>📍 Enviar mi ubicación actual</span>
           </button>
           <span className="text-[10px] text-slate-400">Deep Links Activos</span>
@@ -238,7 +238,7 @@ export const WhatsAppChatModal: React.FC = () => {
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-md relative text-xs md:text-sm ${
                     isUser
-                      ? 'bg-[#005c4b] text-white rounded-tr-none'
+                      ? 'bg-[#1e1e1e] border border-[#D4021D]/50 text-white rounded-tr-none'
                       : 'bg-[#202c33] text-slate-100 rounded-tl-none border border-slate-700/40'
                   }`}
                 >
@@ -262,7 +262,7 @@ export const WhatsAppChatModal: React.FC = () => {
                             {msg.data.product.name}
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="font-extrabold text-emerald-400 text-xs">
+                            <span className="font-extrabold text-[#D4021D] text-xs">
                               ${msg.data.product.price} MXN
                             </span>
                             {msg.data.product.originalPrice && (
@@ -277,10 +277,10 @@ export const WhatsAppChatModal: React.FC = () => {
                       {/* Deep link button */}
                       <button
                         onClick={() => handleOpenDeepLink(msg.data?.business?.id || msg.data?.product?.businessId)}
-                        className="w-full mt-2 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all shadow"
+                        className="w-full mt-2 flex items-center justify-center gap-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all shadow"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Abrir en Pulso PWA</span>
+                        <span>Abrir en Con Force PWA</span>
                         <ExternalLink className="w-3 h-3" />
                       </button>
                     </div>
@@ -299,7 +299,7 @@ export const WhatsAppChatModal: React.FC = () => {
           {/* Bot Typing indicator */}
           {isTyping && (
             <div className="flex items-center gap-2 bg-[#202c33] text-slate-400 px-3.5 py-2 rounded-2xl rounded-tl-none w-fit border border-slate-700/40">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
+              <Sparkles className="w-3.5 h-3.5 text-[#D4021D] animate-spin" />
               <span className="text-xs">Buscando en comercios cercanos...</span>
             </div>
           )}
@@ -344,18 +344,18 @@ export const WhatsAppChatModal: React.FC = () => {
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="Escribe un mensaje o busca producto..."
-            className="flex-1 bg-[#2a3942] text-white text-xs md:text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 placeholder-slate-400"
+            className="flex-1 bg-[#2a3942] text-white text-xs md:text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#D4021D] placeholder-slate-400"
           />
 
           {inputMessage.trim() ? (
             <button
               onClick={() => handleSendMessage()}
-              className="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition-all active:scale-95 shrink-0"
+              className="w-10 h-10 rounded-full bg-[#D4021D] hover:bg-[#b50218] text-white flex items-center justify-center shadow-lg transition-all active:scale-95 shrink-0"
             >
               <Send className="w-4 h-4" />
             </button>
           ) : (
-            <button className="w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition-all active:scale-95 shrink-0">
+            <button className="w-10 h-10 rounded-full bg-[#D4021D] hover:bg-[#b50218] text-white flex items-center justify-center shadow-lg transition-all active:scale-95 shrink-0">
               <Mic className="w-4 h-4" />
             </button>
           )}

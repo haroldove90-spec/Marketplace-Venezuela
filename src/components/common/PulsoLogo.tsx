@@ -1,105 +1,81 @@
 import React from 'react';
 
-interface PulsoLogoProps {
+export const CON_FORCE_ICON_URL =
+  'https://cjoszqkgqtgfvzqxcsvi.supabase.co/storage/v1/object/public/logos/conforceicono.png';
+export const CON_FORCE_PWA_ICON_URL =
+  'https://cjoszqkgqtgfvzqxcsvi.supabase.co/storage/v1/object/public/logos/conforcelogo.png';
+
+interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showText?: boolean;
   className?: string;
   variant?: 'full' | 'icon-only' | 'symbol';
+  textColor?: string;
 }
 
-export const PulsoIcon: React.FC<{ size?: number; className?: string }> = ({ size = 32, className = '' }) => {
+export const PulsoIcon: React.FC<{ size?: number; className?: string }> = ({
+  size = 36,
+  className = ''
+}) => {
   return (
-    <svg
+    <img
+      src={CON_FORCE_ICON_URL}
+      alt="Con Force"
       width={size}
       height={size}
-      viewBox="0 0 120 135"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      {/* Outer P-shaped Location Pin */}
-      <path
-        d="M38 108V28C38 12.536 50.536 0 66 0C81.464 0 94 12.536 94 28C94 43.464 81.464 56 66 56H48"
-        stroke="#00D222"
-        strokeWidth="16"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Inner checkmark pointing down to map target */}
-      <path
-        d="M48 48L64 74L86 36"
-        stroke="#00D222"
-        strokeWidth="14"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Pin downward needle pointing to pulse */}
-      <path
-        d="M64 74V96"
-        stroke="#00D222"
-        strokeWidth="14"
-        strokeLinecap="round"
-      />
-      {/* Radar pulse outer ring */}
-      <ellipse
-        cx="64"
-        cy="118"
-        rx="22"
-        ry="9"
-        stroke="#00D222"
-        strokeWidth="7"
-      />
-      {/* Center GPS pulse core dot */}
-      <circle
-        cx="64"
-        cy="118"
-        r="5"
-        fill="#00D222"
-      />
-    </svg>
+      referrerPolicy="no-referrer"
+      className={`object-contain rounded-lg shrink-0 ${className}`}
+      style={{ width: `${size}px`, height: `${size}px` }}
+    />
   );
 };
 
-export const PulsoLogo: React.FC<PulsoLogoProps> = ({
+export const ConForceIcon = PulsoIcon;
+
+export const PulsoLogo: React.FC<LogoProps> = ({
   size = 'md',
   showText = true,
   className = '',
-  variant = 'full'
+  textColor = 'text-white'
 }) => {
   const iconSizes = {
-    sm: 24,
-    md: 32,
-    lg: 44,
-    xl: 60
+    sm: 28,
+    md: 36,
+    lg: 48,
+    xl: 64
   };
 
   const textSizes = {
-    sm: 'text-base tracking-wider',
-    md: 'text-xl tracking-wide',
-    lg: 'text-2xl tracking-wider',
-    xl: 'text-3xl tracking-widest'
+    sm: 'text-sm font-black',
+    md: 'text-base font-black tracking-tight',
+    lg: 'text-xl font-black tracking-tight',
+    xl: 'text-2xl font-black tracking-wide'
   };
 
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Pulso Icon with vibrant green badge or raw */}
+      {/* Con Force Logo */}
       <div className="relative flex items-center justify-center shrink-0">
-        <PulsoIcon size={iconSizes[size]} />
+        <img
+          src={CON_FORCE_ICON_URL}
+          alt="Con Force"
+          width={iconSizes[size]}
+          height={iconSizes[size]}
+          referrerPolicy="no-referrer"
+          className="object-contain shrink-0 drop-shadow-xs"
+          style={{ width: `${iconSizes[size]}px`, height: `${iconSizes[size]}px` }}
+        />
       </div>
 
-      {/* Pulso Text with stylized O containing green center */}
+      {/* Brand Text */}
       {showText && (
-        <div className="flex flex-col">
-          <div className={`font-black text-[#0B132B] flex items-center leading-none ${textSizes[size]}`}>
-            <span>PULS</span>
-            <span className="relative inline-flex items-center justify-center">
-              <span>O</span>
-              <span className="absolute w-2 h-2 rounded-full bg-[#00D222]" />
-            </span>
-          </div>
+        <div className="flex flex-col leading-tight">
+          <span className={`${textColor} ${textSizes[size]}`}>
+            Con Force
+          </span>
           {size !== 'sm' && (
-            <span className="text-[10px] font-bold text-[#00a81b] tracking-tight leading-none mt-0.5">
-              Farmacias & Restaurantes
+            <span className="text-[10px] font-semibold text-[#D4021D] uppercase tracking-wider">
+              Marketplace
             </span>
           )}
         </div>
@@ -107,3 +83,6 @@ export const PulsoLogo: React.FC<PulsoLogoProps> = ({
     </div>
   );
 };
+
+export const ConForceLogo = PulsoLogo;
+

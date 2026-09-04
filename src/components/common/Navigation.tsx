@@ -62,7 +62,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
       default:
         return [
           { id: 'explore', label: 'Vitrina de Tiendas', icon: <Compass className="w-5 h-5" /> },
-          { id: 'map', label: 'Mapa de Cobertura', icon: <MapIcon className="w-5 h-5 text-emerald-600" /> },
+          { id: 'map', label: 'Mapa de Cobertura', icon: <MapIcon className="w-5 h-5 text-[#D4021D]" /> },
           { id: 'orders', label: 'Mis Pedidos', icon: <Clock className="w-5 h-5" />, badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined },
           { id: 'account', label: 'Mi Cuenta & Direcciones', icon: <User className="w-5 h-5" /> },
           { id: 'roles_hub', label: 'Portal de Roles', icon: <Sparkles className="w-5 h-5 text-amber-400" /> }
@@ -75,26 +75,26 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
     switch (currentRole) {
       case 'seller':
         return [
-          { id: 'orders', label: 'Pedidos', icon: <Clock className="w-5 h-5" />, badge: pendingOrdersCount },
-          { id: 'catalog', label: 'Catálogo', icon: <Package className="w-5 h-5" /> },
-          { id: 'profile', label: 'Perfil GPS', icon: <Store className="w-5 h-5" /> },
-          { id: 'roles_modal', label: 'Roles', icon: <Sparkles className="w-5 h-5 text-amber-400" /> }
+          { id: 'orders', label: 'Pedidos', icon: <Clock className="w-5 h-5 text-white" />, badge: pendingOrdersCount },
+          { id: 'catalog', label: 'Catálogo', icon: <Package className="w-5 h-5 text-white" /> },
+          { id: 'profile', label: 'Perfil GPS', icon: <Store className="w-5 h-5 text-white" /> },
+          { id: 'roles_modal', label: 'Roles', icon: <Sparkles className="w-5 h-5 text-white" /> }
         ];
       case 'admin':
         return [
-          { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-          { id: 'sellers', label: 'Sellers', icon: <Store className="w-5 h-5" /> },
-          { id: 'whatsapp', label: 'WhatsApp IA', icon: <MessageSquare className="w-5 h-5" /> },
-          { id: 'finances', label: 'Finanzas', icon: <DollarSign className="w-5 h-5" /> },
-          { id: 'roles_modal', label: 'Roles', icon: <Sparkles className="w-5 h-5 text-amber-400" /> }
+          { id: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5 text-white" /> },
+          { id: 'sellers', label: 'Sellers', icon: <Store className="w-5 h-5 text-white" /> },
+          { id: 'whatsapp', label: 'WhatsApp IA', icon: <MessageSquare className="w-5 h-5 text-white" /> },
+          { id: 'finances', label: 'Finanzas', icon: <DollarSign className="w-5 h-5 text-white" /> },
+          { id: 'roles_modal', label: 'Roles', icon: <Sparkles className="w-5 h-5 text-white" /> }
         ];
       default:
         return [
-          { id: 'explore', label: 'Inicio', icon: <Compass className="w-5 h-5" /> },
-          { id: 'map', label: 'Mapa', icon: <MapIcon className="w-5 h-5" /> },
-          { id: 'cart_modal', label: 'Carrito', icon: <ShoppingBag className="w-5 h-5" />, badge: cartTotalCount },
-          { id: 'orders', label: 'Pedidos', icon: <Clock className="w-5 h-5" /> },
-          { id: 'account', label: 'Cuenta', icon: <User className="w-5 h-5" /> }
+          { id: 'explore', label: 'Inicio', icon: <Compass className="w-5 h-5 text-white" /> },
+          { id: 'map', label: 'Mapa', icon: <MapIcon className="w-5 h-5 text-white" /> },
+          { id: 'cart_modal', label: 'Carrito', icon: <ShoppingBag className="w-5 h-5 text-white" />, badge: cartTotalCount },
+          { id: 'orders', label: 'Pedidos', icon: <Clock className="w-5 h-5 text-white" /> },
+          { id: 'account', label: 'Cuenta', icon: <User className="w-5 h-5 text-white" /> }
         ];
     }
   };
@@ -137,7 +137,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
             </span>
             <button
               onClick={onOpenRoleModal}
-              className="text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-0.5 cursor-pointer"
+              className="text-[11px] font-semibold text-[#D4021D] hover:text-[#b50218] flex items-center gap-0.5 cursor-pointer"
             >
               Cambiar <ChevronRight className="w-3 h-3" />
             </button>
@@ -180,7 +180,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
                 onClick={() => handleTabClick(item.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25'
+                    ? 'bg-[#D4021D] text-white shadow-md shadow-[#D4021D]/25'
                     : 'text-slate-700 hover:bg-slate-200/70 hover:text-slate-900'
                 }`}
               >
@@ -192,7 +192,7 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
                 {item.badge !== undefined && item.badge > 0 && (
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                      isActive ? 'bg-white text-emerald-700' : 'bg-emerald-600 text-white'
+                      isActive ? 'bg-white text-[#D4021D]' : 'bg-[#D4021D] text-white'
                     }`}
                   >
                     {item.badge}
@@ -205,16 +205,16 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
 
         {/* Footer info in sidebar */}
         <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
-          <span>Pulso PWA v2.0</span>
-          <span className="flex items-center gap-1 text-emerald-600 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Con Force PWA</span>
+          <span className="flex items-center gap-1 text-slate-700 font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#D4021D] animate-pulse" />
             En línea
           </span>
         </div>
       </aside>
 
-      {/* 2. MOBILE & TABLET BOTTOM NAVIGATION BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200 px-2 py-1.5 shadow-lg safe-area-inset-bottom">
+      {/* 2. MOBILE & TABLET BOTTOM NAVIGATION BAR (Background #000000, white icons, white module names) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#000000] border-t border-white/10 px-2 py-2 shadow-2xl safe-area-inset-bottom">
         <div className="flex items-center justify-around">
           {getMobileNavItems().map((item) => {
             const isActive = currentTab === item.id;
@@ -222,30 +222,28 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all duration-150 active:scale-95 cursor-pointer ${
-                  isActive
-                    ? 'text-emerald-600 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
+                className={`relative flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-150 active:scale-95 cursor-pointer text-white ${
+                  isActive ? 'opacity-100 font-bold' : 'opacity-80 hover:opacity-100'
                 }`}
               >
-                {/* Icon with badge */}
-                <div className="relative p-1">
+                {/* Icon with white color and badge */}
+                <div className="relative p-1 text-white">
                   {item.icon}
                   {item.badge !== undefined && item.badge > 0 && (
-                    <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#D4021D] text-white text-[10px] font-black flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}
                 </div>
 
-                {/* Minimal legible label */}
-                <span className="text-[10px] tracking-tight leading-none mt-0.5 font-medium">
+                {/* Module name in legible white */}
+                <span className="text-[10px] text-white tracking-tight leading-none mt-0.5 font-medium">
                   {item.label}
                 </span>
 
                 {/* Active Indicator dot */}
                 {isActive && (
-                  <span className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-emerald-600" />
+                  <span className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-[#D4021D]" />
                 )}
               </button>
             );
