@@ -109,13 +109,6 @@ export const ClientAuthModal: React.FC = () => {
     }, 400);
   };
 
-  const fillQuickDemo = (username: string, pass: string) => {
-    setActiveTab('login');
-    setLoginIdentifier(username);
-    setLoginPassword(pass);
-    setErrorMessage('');
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
       <div
@@ -252,31 +245,6 @@ export const ClientAuthModal: React.FC = () => {
                   </>
                 )}
               </button>
-
-              {/* Quick Demo Clients */}
-              <div className="pt-3 border-t border-zinc-800">
-                <span className="text-[11px] font-semibold text-zinc-400 block mb-2">
-                  Cuentas de Cliente Demo para pruebas rápidas:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fillQuickDemo('marialopez', 'Cliente#2026')}
-                    className="p-2 text-left bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/60 rounded-lg text-xs transition-colors cursor-pointer"
-                  >
-                    <div className="font-bold text-white truncate">María Elena López</div>
-                    <div className="text-[10px] text-zinc-400">marialopez (14 pedidos)</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillQuickDemo('carlosm', 'Carlos#2026')}
-                    className="p-2 text-left bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/60 rounded-lg text-xs transition-colors cursor-pointer"
-                  >
-                    <div className="font-bold text-white truncate">Carlos Mendoza</div>
-                    <div className="text-[10px] text-zinc-400">carlosm (8 pedidos)</div>
-                  </button>
-                </div>
-              </div>
             </form>
           ) : (
             <form onSubmit={handleRegister} className="space-y-3.5">

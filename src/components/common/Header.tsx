@@ -15,7 +15,8 @@ import {
   Check,
   LogIn,
   LogOut,
-  KeyRound
+  KeyRound,
+  FileText
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -109,6 +110,20 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
             {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5 text-[#D4021D]" />}
             <span className="text-[11px]">{copiedLink ? '¡Link Copiado!' : 'Link Cliente'}</span>
           </button>
+
+          {/* Download Official PDF Features per Role */}
+          <a
+            href="/Con_Force_Caracteristicas_Por_Rol.pdf"
+            download="Con_Force_Caracteristicas_Por_Rol.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold border border-red-900/60 bg-red-950/40 hover:bg-red-900/60 text-red-200 hover:text-white transition-all shadow-xs cursor-pointer"
+            title="Descargar Ficha Técnica PDF de Características por Rol"
+          >
+            <FileText className="w-3.5 h-3.5 text-[#D4021D]" />
+            <span className="text-[11px]">PDF Roles</span>
+            <Download className="w-3 h-3 text-red-300 opacity-80" />
+          </a>
         </div>
 
         {/* Center: GPS Location Pill */}

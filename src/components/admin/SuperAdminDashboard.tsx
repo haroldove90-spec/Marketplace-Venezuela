@@ -27,12 +27,15 @@ import {
   Radio,
   FileCheck,
   Database,
-  Briefcase
+  Briefcase,
+  FileText,
+  Download
 } from 'lucide-react';
 import { SupabaseAdminView } from './SupabaseAdminView';
 import { AdminUsersView } from './AdminUsersView';
 import { AdminClientsView } from './AdminClientsView';
 import { AdminEmployeesView } from './AdminEmployeesView';
+import { PdfFeatureView } from './PdfFeatureView';
 
 export const SuperAdminDashboard: React.FC = () => {
   const {
@@ -232,7 +235,20 @@ export const SuperAdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <a
+            href="/Con_Force_Caracteristicas_Por_Rol.pdf"
+            download="Con_Force_Caracteristicas_Por_Rol.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-red-600 to-[#D4021D] hover:from-red-700 hover:to-red-800 text-white rounded-xl text-xs font-bold shadow-sm shadow-red-950/20 transition-all cursor-pointer"
+            title="Descargar Ficha Técnica Oficial en PDF con Características por Rol"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Descargar PDF Roles</span>
+            <Download className="w-3.5 h-3.5 opacity-80" />
+          </a>
+
           <span className="px-3 py-1 bg-red-50 border border-red-200 text-[#D4021D] text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-[#D4021D] animate-pulse" />
             Meta API Online
@@ -244,6 +260,7 @@ export const SuperAdminDashboard: React.FC = () => {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar">
         {[
           { id: 'overview', label: 'Dashboard General', icon: <LayoutDashboard className="w-4 h-4" /> },
+          { id: 'pdf', label: 'Ficha PDF Roles', icon: <FileText className="w-4 h-4 text-[#D4021D]" /> },
           { id: 'users', label: `Usuarios & Roles (${users.length})`, icon: <ShieldCheck className="w-4 h-4 text-[#D4021D]" /> },
           { id: 'clients', label: `Clientes (${clients.length})`, icon: <Users className="w-4 h-4" /> },
           { id: 'employees', label: `Colaboradores (${employees.length})`, icon: <Briefcase className="w-4 h-4" /> },
@@ -880,6 +897,9 @@ export const SuperAdminDashboard: React.FC = () => {
 
       {/* 6. SUPABASE DATABASE & SQL MANAGEMENT */}
       {activeAdminTab === 'supabase' && <SupabaseAdminView />}
+
+      {/* 7. FICHA TÉCNICA Y CARACTERÍSTICAS PDF */}
+      {activeAdminTab === 'pdf' && <PdfFeatureView />}
 
       {/* CREATE / EDIT BUSINESS MODAL */}
       {showAddBizModal && (

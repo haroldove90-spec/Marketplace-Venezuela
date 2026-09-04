@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
-  Sparkles,
   KeyRound
 } from 'lucide-react';
 
@@ -56,12 +55,6 @@ export const CorporateAuthModal: React.FC = () => {
         }, 800);
       }
     }, 350);
-  };
-
-  const autoFillCredentials = (user: string, pass: string) => {
-    setIdentifier(user);
-    setPassword(pass);
-    setErrorMessage('');
   };
 
   return (
@@ -171,87 +164,8 @@ export const CorporateAuthModal: React.FC = () => {
             </button>
           </form>
 
-          {/* Preset Credentials Box */}
-          <div className="p-4 bg-zinc-900/80 border border-zinc-800/80 rounded-2xl space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-zinc-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-red-400" />
-                Credenciales del Sistema (1-Clic para probar):
-              </span>
-              <span className="text-[10px] text-zinc-400">Clic para rellenar</span>
-            </div>
-
-            <div className="space-y-2">
-              {/* Harold */}
-              <button
-                type="button"
-                onClick={() => autoFillCredentials('haroldo90', 'Chevropar#1970')}
-                className="w-full p-2.5 text-left bg-black/60 hover:bg-black/90 border border-red-900/40 hover:border-red-600 rounded-xl transition-all cursor-pointer flex items-center justify-between group"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white group-hover:text-red-400 transition-colors">
-                      Harold Anguiano Morales
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-red-950 text-red-300 text-[9px] font-bold rounded border border-red-800">
-                      Superadmin (Acceso Total)
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-zinc-400 mt-0.5">
-                    Usuario: <span className="text-zinc-300 font-mono">haroldo90</span> | Clave: <span className="text-zinc-300 font-mono">Chevropar#1970</span>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-red-400 transition-colors shrink-0" />
-              </button>
-
-              {/* Anyel */}
-              <button
-                type="button"
-                onClick={() => autoFillCredentials('anyel_admin', 'AnyelForce#2026!')}
-                className="w-full p-2.5 text-left bg-black/60 hover:bg-black/90 border border-red-900/40 hover:border-red-600 rounded-xl transition-all cursor-pointer flex items-center justify-between group"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white group-hover:text-red-400 transition-colors">
-                      Anyel
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-red-950 text-red-300 text-[9px] font-bold rounded border border-red-800">
-                      Admin Operaciones (Acceso Total)
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-zinc-400 mt-0.5">
-                    Usuario: <span className="text-zinc-300 font-mono">anyel_admin</span> | Clave: <span className="text-zinc-300 font-mono">AnyelForce#2026!</span>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-red-400 transition-colors shrink-0" />
-              </button>
-
-              {/* Business Seller Demo */}
-              <button
-                type="button"
-                onClick={() => autoFillCredentials('farmacia_sanrafael', 'SanRafael#2026')}
-                className="w-full p-2.5 text-left bg-black/60 hover:bg-black/90 border border-zinc-800 hover:border-zinc-700 rounded-xl transition-all cursor-pointer flex items-center justify-between group"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-bold text-white group-hover:text-zinc-200 transition-colors">
-                      Farmacia San Rafael Express
-                    </span>
-                    <span className="px-1.5 py-0.5 bg-zinc-800 text-zinc-300 text-[9px] font-bold rounded border border-zinc-700">
-                      Rol Negocio (Exclusivo)
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-zinc-400 mt-0.5">
-                    Usuario: <span className="text-zinc-300 font-mono">farmacia_sanrafael</span> | Clave: <span className="text-zinc-300 font-mono">SanRafael#2026</span>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-white transition-colors shrink-0" />
-              </button>
-            </div>
-          </div>
-
           {/* Switch to Client Modal */}
-          <div className="pt-2 text-center">
+          <div className="pt-3 border-t border-zinc-900 text-center">
             <button
               type="button"
               onClick={() => {
