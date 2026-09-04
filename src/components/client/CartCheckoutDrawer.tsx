@@ -44,7 +44,10 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
     businesses,
     userLocation,
     userAddressLabel,
-    savedAddresses
+    savedAddresses,
+    currentUser,
+    setIsClientAuthModalOpen,
+    setClientAuthIntent
   } = useApp();
 
   // Channel Selection: 'app' (App Móvil) or 'whatsapp' (WhatsApp Directo)
@@ -52,13 +55,25 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
   
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('delivery');
   const [addressChoice, setAddressChoice] = useState<'current_gps' | 'saved' | 'custom'>('current_gps');
-  const [customAddress, setCustomAddress] = useState<string>('');
+  const [customAddress, setCustomAddress] = useState<string>(currentUser?.address || '');
   const [selectedSavedAddrId, setSelectedSavedAddrId] = useState<string>(savedAddresses[0]?.id || '');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
-  const [customerName, setCustomerName] = useState<string>('Carlos Mendoza');
-  const [customerPhone, setCustomerPhone] = useState<string>('+52 55 8912 3456');
+  const [customerName, setCustomerName] = useState<string>(currentUser?.name || 'Cliente');
+  const [customerPhone, setCustomerPhone] = useState<string>(currentUser?.phone || '+52 55 8912 3456');
   const [orderNotes, setOrderNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Sync user details if user signs in or registers while drawer is open
+  React.useEffect(() => {
+    if (currentUser) {
+      setCustomerName(currentUser.name);
+      if (currentUser.phone) setCustomerPhone(currentUser.phone);
+      if (currentUser.address) {
+        setCustomAddress(currentUser.address);
+        setAddressChoice('custom');
+      }
+    }
+  }, [currentUser]);
 
   if (!isOpen) return null;
 
@@ -123,6 +138,13 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
 
   const handlePlaceOrder = (channelOverride?: OrderChannel) => {
     if (cart.length === 0 || !targetBusiness) return;
+
+    // Detect if client has account or needs to register
+    if (!currentUser) {
+      setClientAuthIntent('order_checkout');
+      setIsClientAuthModalOpen(true);
+      return;
+    }
 
     const channelToUse = channelOverride || checkoutChannel;
     const finalDeliveryAddress = getResolvedAddress();
@@ -269,6 +291,45 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                 </button>
               </div>
             </div>
+
+            {/* Account Detection Box */}
+            {!currentUser ? (
+              <div className="p-3.5 bg-red-50/80 border border-red-200 rounded-2xl flex items-center justify-between gap-3 text-xs text-red-950 shadow-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#D4021D] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-slate-900 text-xs">Registro de Cliente Obligatorio</p>
+                    <p className="text-slate-600 text-[11px] truncate">
+                      Inicia sesión o crea tu cuenta para enviar y rastrear tu pedido.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setClientAuthIntent('order_checkout');
+                    setIsClientAuthModalOpen(true);
+                  }}
+                  className="px-3 py-1.5 bg-[#D4021D] hover:bg-red-700 text-white font-bold rounded-xl text-xs shrink-0 cursor-pointer shadow-xs transition-colors"
+                >
+                  Entrar / Registrarme
+                </button>
+              </div>
+            ) : (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs text-emerald-900 shadow-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="truncate">
+                    Cliente verificado: <strong>{currentUser.name}</strong> (@{currentUser.username})
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-900 font-bold text-[10px]">
+                  Listo para pedir
+                </span>
+              </div>
+            )}
 
             {/* 2. Items List */}
             <div className="space-y-2">

@@ -26,9 +26,13 @@ import {
   Flame,
   Radio,
   FileCheck,
-  Database
+  Database,
+  Briefcase
 } from 'lucide-react';
 import { SupabaseAdminView } from './SupabaseAdminView';
+import { AdminUsersView } from './AdminUsersView';
+import { AdminClientsView } from './AdminClientsView';
+import { AdminEmployeesView } from './AdminEmployeesView';
 
 export const SuperAdminDashboard: React.FC = () => {
   const {
@@ -43,7 +47,10 @@ export const SuperAdminDashboard: React.FC = () => {
     chatbotConfig,
     updateChatbotConfig,
     activeAdminTab,
-    setActiveAdminTab
+    setActiveAdminTab,
+    users,
+    clients,
+    employees
   } = useApp();
 
   // Metrics Calculations
@@ -237,6 +244,9 @@ export const SuperAdminDashboard: React.FC = () => {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar">
         {[
           { id: 'overview', label: 'Dashboard General', icon: <LayoutDashboard className="w-4 h-4" /> },
+          { id: 'users', label: `Usuarios & Roles (${users.length})`, icon: <ShieldCheck className="w-4 h-4 text-[#D4021D]" /> },
+          { id: 'clients', label: `Clientes (${clients.length})`, icon: <Users className="w-4 h-4" /> },
+          { id: 'employees', label: `Colaboradores (${employees.length})`, icon: <Briefcase className="w-4 h-4" /> },
           { id: 'sellers', label: `Gestión de Negocios (${businesses.length})`, icon: <Store className="w-4 h-4" /> },
           { id: 'whatsapp', label: 'WhatsApp & Bot IA', icon: <MessageSquare className="w-4 h-4" /> },
           { id: 'map', label: 'Mapa & Navegación', icon: <Layers className="w-4 h-4" /> },
@@ -367,6 +377,15 @@ export const SuperAdminDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* USUARIOS Y ROLES RBAC */}
+      {activeAdminTab === 'users' && <AdminUsersView />}
+
+      {/* DIRECTORIO DE CLIENTES */}
+      {activeAdminTab === 'clients' && <AdminClientsView />}
+
+      {/* PLANTILLA DE COLABORADORES */}
+      {activeAdminTab === 'employees' && <AdminEmployeesView />}
 
       {/* 2. GESTIÓN DE NEGOCIOS (SELLERS) */}
       {activeAdminTab === 'sellers' && (

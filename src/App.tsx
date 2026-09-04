@@ -15,6 +15,8 @@ import { MyOrdersView } from './components/client/MyOrdersView';
 import { MyAccountView } from './components/client/MyAccountView';
 import { SellerDashboard } from './components/seller/SellerDashboard';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
+import { ClientAuthModal } from './components/common/ClientAuthModal';
+import { CorporateAuthModal } from './components/common/CorporateAuthModal';
 import { Business } from './types';
 
 const PulsoAppContent: React.FC = () => {
@@ -101,6 +103,10 @@ const PulsoAppContent: React.FC = () => {
         isOpen={isRoleModalOpen}
         onClose={() => setIsRoleModalOpen(false)}
       />
+
+      {/* Role-based Auth Modals */}
+      <ClientAuthModal />
+      <CorporateAuthModal />
 
       {/* Business Catalog / Detail Modal */}
       {selectedBusinessForDetail && (

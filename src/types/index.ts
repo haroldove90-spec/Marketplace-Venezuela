@@ -116,3 +116,50 @@ export interface SavedAddress {
   coordinates: Coordinates;
   isDefault?: boolean;
 }
+
+export type AccountStatus = 'active' | 'suspended';
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  password?: string;
+  role: Role;
+  status: AccountStatus;
+  phone?: string;
+  address?: string;
+  businessId?: string;
+  department?: string;
+  createdAt: string;
+  lastLogin?: string;
+}
+
+export interface ClientProfile {
+  id: string;
+  userId: string;
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  address: string;
+  totalOrders: number;
+  totalSpent: number;
+  status: AccountStatus;
+  registeredAt: string;
+}
+
+export interface EmployeeProfile {
+  id: string;
+  userId: string;
+  fullName: string;
+  username: string;
+  email: string;
+  password: string; // Plain/masked representation for administrative credential review
+  roleTitle: string; // e.g. 'Superadministrador', 'Administrador de Operaciones'
+  systemRole: Role;
+  department: string;
+  status: AccountStatus;
+  createdAt: string;
+}
+

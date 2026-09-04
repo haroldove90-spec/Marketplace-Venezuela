@@ -18,7 +18,10 @@ import {
   Store,
   Map as MapIcon,
   Sparkles,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Share2,
+  User,
+  ShieldCheck
 } from 'lucide-react';
 
 interface ClientExploreProps {
@@ -45,7 +48,11 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
     cart,
     cartSubtotal,
     cartTotalCount,
-    setActiveClientTab
+    setActiveClientTab,
+    currentUser,
+    setIsClientAuthModalOpen,
+    setClientAuthIntent,
+    getMarketplaceShareUrl
   } = useApp();
 
   const [viewMode, setViewMode] = useState<'businesses' | 'products' | 'comparator'>('businesses');
@@ -53,6 +60,16 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [injectedToast, setInjectedToast] = useState(false);
   const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [copiedLinkToast, setCopiedLinkToast] = useState(false);
+
+  const handleCopyLink = () => {
+    const url = getMarketplaceShareUrl();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+      setCopiedLinkToast(true);
+      setTimeout(() => setCopiedLinkToast(false), 2000);
+    }
+  };
 
   const handleInjectData = () => {
     injectMockData();
@@ -200,6 +217,76 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
             <MapIcon className="w-3.5 h-3.5" />
             <span>Ver Mapa</span>
           </button>
+        </div>
+      </div>
+
+      {/* Independent Client Portal Access & Registration Card */}
+      <div className="bg-gradient-to-r from-black via-zinc-950 to-red-950 border border-zinc-800 rounded-2xl p-3.5 sm:p-4 text-white shadow-md relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 bg-[#D4021D] text-white text-[10px] font-black rounded-md tracking-wider uppercase shadow-xs">
+                Portal Cliente
+              </span>
+              <span className="text-[11px] text-zinc-400 font-mono">
+                /marketplace
+              </span>
+            </div>
+            <h3 className="font-extrabold text-sm sm:text-base text-white">
+              {currentUser?.role === 'client'
+                ? `¡Bienvenido de vuelta, ${currentUser.name}!`
+                : 'Marketplace Con Force — Catálogo y Pedidos'}
+            </h3>
+            <p className="text-xs text-zinc-300 max-w-lg leading-relaxed">
+              {currentUser?.role === 'client'
+                ? 'Tu cuenta está activa con entrega prioritaria. Explora productos, farmacias y restaurantes.'
+                : 'Navega libremente. Si deseas pedir un producto o servicio, podrás iniciar sesión o registrarte al instante.'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            {/* Share link button */}
+            <button
+              onClick={handleCopyLink}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs ${
+                copiedLinkToast
+                  ? 'bg-emerald-950/80 border-emerald-600 text-emerald-300'
+                  : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-700 text-zinc-200 hover:text-white'
+              }`}
+              title="Copiar link independiente para compartir solo a clientes"
+            >
+              {copiedLinkToast ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-400" />
+                  <span>¡Link Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-4 h-4 text-[#D4021D]" />
+                  <span>Compartir Link</span>
+                </>
+              )}
+            </button>
+
+            {/* Auth button */}
+            {!currentUser ? (
+              <button
+                onClick={() => {
+                  setClientAuthIntent('general');
+                  setIsClientAuthModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-950 cursor-pointer active:scale-95"
+              >
+                <User className="w-4 h-4" />
+                <span>Entrar / Registrarme</span>
+              </button>
+            ) : (
+              <div className="px-3 py-1.5 bg-emerald-950/60 border border-emerald-800/60 rounded-xl text-xs text-emerald-300 font-bold flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5" />
+                <span>Cuenta Verificada</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

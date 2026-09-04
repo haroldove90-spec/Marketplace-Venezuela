@@ -65,7 +65,7 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
           )}
           <div>
             <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-1.5">
-              <MapPin className="w-5 h-5 text-emerald-600" />
+              <MapPin className="w-5 h-5 text-[#D4021D]" />
               <span>Mapa de Negocios y Cobertura</span>
             </h2>
             <p className="text-xs text-slate-500">
@@ -77,9 +77,9 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
         <button
           onClick={detectUserLocation}
           disabled={isLocating}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-[#D4021D] border border-red-200 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer shrink-0"
         >
-          <LocateFixed className={`w-3.5 h-3.5 text-emerald-600 ${isLocating ? 'animate-spin' : ''}`} />
+          <LocateFixed className={`w-3.5 h-3.5 text-[#D4021D] ${isLocating ? 'animate-spin' : ''}`} />
           <span>{isLocating ? 'Localizando...' : 'Mi GPS'}</span>
         </button>
       </div>
@@ -90,7 +90,7 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
           onClick={() => setActiveCategory('all')}
           className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
             activeCategory === 'all'
-              ? 'bg-emerald-600 text-white shadow-xs'
+              ? 'bg-[#D4021D] text-white shadow-xs'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -101,7 +101,7 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
           onClick={() => setActiveCategory('farmacia')}
           className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
             activeCategory === 'farmacia'
-              ? 'bg-emerald-600 text-white shadow-xs'
+              ? 'bg-[#D4021D] text-white shadow-xs'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -112,7 +112,7 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
           onClick={() => setActiveCategory('restaurante')}
           className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
             activeCategory === 'restaurante'
-              ? 'bg-emerald-600 text-white shadow-xs'
+              ? 'bg-[#D4021D] text-white shadow-xs'
               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
           }`}
         >
@@ -144,12 +144,12 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
 
       {/* Selected Business Preview Floating Card */}
       {selectedMapBiz && (
-        <div className="p-3.5 bg-white rounded-2xl border border-emerald-300 shadow-lg animate-in fade-in slide-in-from-bottom-2">
+        <div className="p-3.5 bg-white rounded-2xl border border-red-200 shadow-lg animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div
                 className="w-8 h-8 rounded-xl flex items-center justify-center text-base shadow-xs"
-                style={{ backgroundColor: selectedMapBiz.customPinColor || '#00D222' }}
+                style={{ backgroundColor: selectedMapBiz.customPinColor || '#D4021D' }}
               >
                 {selectedMapBiz.logo}
               </div>

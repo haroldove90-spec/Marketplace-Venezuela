@@ -64,24 +64,4 @@
   background-color: #fef2f2;
 }
 
-/* Backwards compatibility aliases */
-.bg-pulso-green {
-  background-color: #D4021D;
-}
-.hover\:bg-pulso-green-dark:hover {
-  background-color: #b50218;
-}
-.text-pulso-green {
-  color: #D4021D;
-}
-.text-pulso-vibrant {
-  color: #D4021D;
-}
-.border-pulso-green {
-  border-color: #D4021D;
-}
-.bg-pulso-light {
-  background-color: #fef2f2;
-}
-
 

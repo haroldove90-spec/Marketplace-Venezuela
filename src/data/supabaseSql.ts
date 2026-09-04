@@ -143,6 +143,67 @@ CREATE TABLE IF NOT EXISTS public.saved_addresses (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- ------------------------------------------------------------------------------
+-- 7. TABLA: users (Usuarios y Roles RBAC: Admin, Negocio y Cliente)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('admin', 'seller', 'client')),
+    business_id TEXT REFERENCES public.businesses(id) ON DELETE SET NULL,
+    phone TEXT,
+    avatar TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
+CREATE INDEX IF NOT EXISTS idx_users_username ON public.users(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+
+-- ------------------------------------------------------------------------------
+-- 8. TABLA: clients (Fichas de Clientes Registrados en el Marketplace)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.clients (
+    id TEXT PRIMARY KEY,
+    user_id TEXT REFERENCES public.users(id) ON DELETE SET NULL,
+    name TEXT NOT NULL,
+    username TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    address TEXT NOT NULL,
+    city TEXT NOT NULL DEFAULT 'Ciudad de México',
+    total_orders INTEGER NOT NULL DEFAULT 0,
+    total_spent NUMERIC(10, 2) NOT NULL DEFAULT 0.0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_clients_phone ON public.clients(phone);
+CREATE INDEX IF NOT EXISTS idx_clients_email ON public.clients(email);
+
+-- ------------------------------------------------------------------------------
+-- 9. TABLA: employees (Colaboradores y Empleados del Corporativo y Tiendas)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.employees (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    position TEXT NOT NULL,
+    department TEXT NOT NULL,
+    business_id TEXT REFERENCES public.businesses(id) ON DELETE SET NULL,
+    salary NUMERIC(10, 2) NOT NULL DEFAULT 0.0,
+    hire_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_employees_department ON public.employees(department);
+CREATE INDEX IF NOT EXISTS idx_employees_is_active ON public.employees(is_active);
+
 -- ==============================================================================
 -- POLÍTICAS DE SEGURIDAD (ROW LEVEL SECURITY - RLS)
 -- ==============================================================================
@@ -153,6 +214,9 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.whatsapp_campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chatbot_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.saved_addresses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.employees ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public access for businesses" ON public.businesses;
 CREATE POLICY "Public access for businesses" ON public.businesses
@@ -176,6 +240,18 @@ CREATE POLICY "Public access for chatbot_config" ON public.chatbot_config
 
 DROP POLICY IF EXISTS "Public access for saved_addresses" ON public.saved_addresses;
 CREATE POLICY "Public access for saved_addresses" ON public.saved_addresses
+    FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for users" ON public.users;
+CREATE POLICY "Public access for users" ON public.users
+    FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for clients" ON public.clients;
+CREATE POLICY "Public access for clients" ON public.clients
+    FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for employees" ON public.employees;
+CREATE POLICY "Public access for employees" ON public.employees
     FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
 -- ==============================================================================
@@ -408,4 +484,109 @@ VALUES
     '{"lat": 19.4290, "lng": -99.1620}'::jsonb, false
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- ------------------------------------------------------------------------------
+-- SEED DATA: Usuarios y Credenciales de Acceso (Admin, Negocios y Clientes)
+-- ------------------------------------------------------------------------------
+INSERT INTO public.users (id, name, username, email, password, role, business_id, phone, is_active)
+VALUES
+(
+    'usr-superadmin-1', 'Harold Anguiano Morales', 'haroldo90',
+    'haroldo90@hotmail.com', 'Chevropar#1970', 'admin', NULL, '+52 55 1234 5678', true
+),
+(
+    'usr-admin-2', 'Anyel', 'anyel_admin',
+    'anyel-admin@hotmail.com', 'AnyelForce#2026!', 'admin', NULL, '+52 55 8765 4321', true
+),
+(
+    'usr-seller-1', 'Farmacia San Rafael', 'farmacia_sanrafael',
+    'contacto@sanrafael.com', 'SanRafael#2026', 'seller', 'biz-farm-1', '+52 55 5555 1111', true
+),
+(
+    'usr-seller-2', 'La Parrilla Urbana', 'parrilla_urbana',
+    'ventas@parrillaurbana.com', 'Parrilla#2026', 'seller', 'biz-resto-1', '+52 55 5555 2222', true
+),
+(
+    'usr-client-1', 'Harold Anguiano Morales', 'haroldo90_cli',
+    'haroldo90@cliente.com', 'Chevropar#1970', 'client', NULL, '+52 55 1234 5678', true
+),
+(
+    'usr-client-2', 'María Elena López', 'marialopez',
+    'maria.lopez@gmail.com', 'Cliente#2026', 'client', NULL, '+52 55 9876 5432', true
+),
+(
+    'usr-client-3', 'Carlos Mendoza', 'carlosm',
+    'carlos.mendoza@yahoo.com', 'Carlos#2026', 'client', NULL, '+52 55 8912 3456', true
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    username = EXCLUDED.username,
+    email = EXCLUDED.email,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    business_id = EXCLUDED.business_id,
+    phone = EXCLUDED.phone,
+    is_active = EXCLUDED.is_active;
+
+-- ------------------------------------------------------------------------------
+-- SEED DATA: Directorio de Clientes Registrados en el Marketplace
+-- ------------------------------------------------------------------------------
+INSERT INTO public.clients (id, user_id, name, username, email, phone, address, city, total_orders, total_spent)
+VALUES
+(
+    'cli-1', 'usr-client-1', 'Harold Anguiano Morales', 'haroldo90_cli',
+    'haroldo90@cliente.com', '+52 55 1234 5678', 'Av. Insurgentes Sur 1450, Roma Norte', 'Ciudad de México', 8, 3840.0
+),
+(
+    'cli-2', 'usr-client-2', 'María Elena López', 'marialopez',
+    'maria.lopez@gmail.com', '+52 55 9876 5432', 'Calle Colima 230, Depto 401, Roma Norte', 'Ciudad de México', 14, 5280.0
+),
+(
+    'cli-3', 'usr-client-3', 'Carlos Mendoza', 'carlosm',
+    'carlos.mendoza@yahoo.com', '+52 55 8912 3456', 'Paseo de la Reforma 222, Col. Juárez', 'Ciudad de México', 9, 3120.0
+),
+(
+    'cli-4', NULL, 'Sofía Ramírez', 'sofiar',
+    'sofia.ramirez@hotmail.com', '+52 55 4567 8901', 'Av. Horacio 500, Polanco', 'Ciudad de México', 4, 1850.0
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    username = EXCLUDED.username,
+    email = EXCLUDED.email,
+    phone = EXCLUDED.phone,
+    address = EXCLUDED.address,
+    city = EXCLUDED.city,
+    total_orders = EXCLUDED.total_orders,
+    total_spent = EXCLUDED.total_spent;
+
+-- ------------------------------------------------------------------------------
+-- SEED DATA: Plantilla de Empleados y Operadores
+-- ------------------------------------------------------------------------------
+INSERT INTO public.employees (id, name, email, phone, position, department, business_id, salary, hire_date, is_active)
+VALUES
+(
+    'emp-1', 'Laura Salazar', 'laura.salazar@conforce.com',
+    '+52 55 4321 8765', 'Coordinadora de Operaciones y Rutas', 'Operaciones & Logística', NULL, 22000.0, '2023-04-15', true
+),
+(
+    'emp-2', 'Carlos Rivera', 'carlos.rivera@conforce.com',
+    '+52 55 6543 2109', 'Especialista en Soporte WhatsApp & Bot IA', 'Soporte al Cliente & Bot', NULL, 16500.0, '2023-08-01', true
+),
+(
+    'emp-3', 'Sofía Valenzuela', 'sofia.valenzuela@conforce.com',
+    '+52 55 3456 7890', 'Analista de Finanzas y Liquidaciones', 'Finanzas & Facturación', NULL, 19500.0, '2024-01-10', true
+),
+(
+    'emp-4', 'Jorge Morales', 'jorge.morales@sanrafael.com',
+    '+52 55 7890 1234', 'Encargado de Mostrador y Despacho', 'Comercial & Afiliaciones', 'biz-farm-1', 14000.0, '2023-11-20', true
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    email = EXCLUDED.email,
+    phone = EXCLUDED.phone,
+    position = EXCLUDED.position,
+    department = EXCLUDED.department,
+    business_id = EXCLUDED.business_id,
+    salary = EXCLUDED.salary,
+    is_active = EXCLUDED.is_active;
 `;

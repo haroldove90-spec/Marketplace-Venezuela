@@ -1,6 +1,168 @@
-import { Business, Product, Order, WhatsAppCampaign, ChatbotConfig, SavedAddress } from '../types';
+import {
+  Business,
+  Product,
+  Order,
+  WhatsAppCampaign,
+  ChatbotConfig,
+  SavedAddress,
+  UserAccount,
+  ClientProfile,
+  EmployeeProfile
+} from '../types';
 
-export const DATA_VERSION = 'pulso_mock_v4';
+export const DATA_VERSION = 'conforce_mock_v5';
+
+export const INITIAL_EMPLOYEES: EmployeeProfile[] = [
+  {
+    id: 'emp-harold',
+    userId: 'usr-harold',
+    fullName: 'Harold Anguiano Morales',
+    username: 'haroldo90',
+    email: 'haroldo90@hotmail.com',
+    password: 'Chevropar#1970',
+    roleTitle: 'Director General & Superadministrador',
+    systemRole: 'admin',
+    department: 'Dirección General & Tecnología',
+    status: 'active',
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 'emp-anyel',
+    userId: 'usr-anyel',
+    fullName: 'Anyel',
+    username: 'anyel_admin',
+    email: 'anyel-admin@hotmail.com',
+    password: 'AnyelForce#2026!',
+    roleTitle: 'Administrador de Operaciones & Sistemas',
+    systemRole: 'admin',
+    department: 'Operaciones & Soporte',
+    status: 'active',
+    createdAt: '2026-02-01'
+  }
+];
+
+export const INITIAL_USERS: UserAccount[] = [
+  {
+    id: 'usr-harold',
+    name: 'Harold Anguiano Morales',
+    username: 'haroldo90',
+    email: 'haroldo90@hotmail.com',
+    password: 'Chevropar#1970',
+    role: 'admin',
+    status: 'active',
+    department: 'Dirección General',
+    phone: '+52 55 1122 3344',
+    createdAt: '2026-01-15',
+    lastLogin: '2026-09-03 21:30'
+  },
+  {
+    id: 'usr-anyel',
+    name: 'Anyel',
+    username: 'anyel_admin',
+    email: 'anyel-admin@hotmail.com',
+    password: 'AnyelForce#2026!',
+    role: 'admin',
+    status: 'active',
+    department: 'Operaciones & Sistemas',
+    phone: '+52 55 2233 4455',
+    createdAt: '2026-02-01',
+    lastLogin: '2026-09-03 20:15'
+  },
+  {
+    id: 'usr-biz-1',
+    name: 'Gerente San Rafael',
+    username: 'farmacia_sanrafael',
+    email: 'contacto@sanrafael.com',
+    password: 'SanRafael#2026',
+    role: 'seller',
+    status: 'active',
+    businessId: 'biz-farmacia-1',
+    phone: '+52 55 8765 4321',
+    createdAt: '2026-03-10',
+    lastLogin: '2026-09-03 18:40'
+  },
+  {
+    id: 'usr-client-1',
+    name: 'María Elena López',
+    username: 'marialopez',
+    email: 'maria.lopez@gmail.com',
+    password: 'Cliente#2026',
+    role: 'client',
+    status: 'active',
+    phone: '+52 55 4321 9876',
+    address: 'Av. Insurgentes Sur 450, Roma Norte, CDMX',
+    createdAt: '2026-04-12',
+    lastLogin: '2026-09-03 19:10'
+  },
+  {
+    id: 'usr-client-2',
+    name: 'Carlos Mendoza',
+    username: 'carlosm',
+    email: 'carlos.mendoza@yahoo.com',
+    password: 'Carlos#2026',
+    role: 'client',
+    status: 'active',
+    phone: '+52 55 9876 5432',
+    address: 'Calle Durango 220, Col. Roma Norte, CDMX',
+    createdAt: '2026-05-20',
+    lastLogin: '2026-09-02 14:22'
+  },
+  {
+    id: 'usr-client-3',
+    name: 'Sofía Ramírez',
+    username: 'sofiaramirez',
+    email: 'sofia.ramirez@outlook.com',
+    password: 'Sofia#2026',
+    role: 'client',
+    status: 'active',
+    phone: '+52 55 3344 5566',
+    address: 'Av. Coyoacán 810, Col. Del Valle, CDMX',
+    createdAt: '2026-06-08',
+    lastLogin: '2026-08-30 11:05'
+  }
+];
+
+export const INITIAL_CLIENTS: ClientProfile[] = [
+  {
+    id: 'cli-1',
+    userId: 'usr-client-1',
+    name: 'María Elena López',
+    username: 'marialopez',
+    email: 'maria.lopez@gmail.com',
+    phone: '+52 55 4321 9876',
+    address: 'Av. Insurgentes Sur 450, Roma Norte, CDMX',
+    totalOrders: 14,
+    totalSpent: 3450,
+    status: 'active',
+    registeredAt: '2026-04-12'
+  },
+  {
+    id: 'cli-2',
+    userId: 'usr-client-2',
+    name: 'Carlos Mendoza',
+    username: 'carlosm',
+    email: 'carlos.mendoza@yahoo.com',
+    phone: '+52 55 9876 5432',
+    address: 'Calle Durango 220, Col. Roma Norte, CDMX',
+    totalOrders: 8,
+    totalSpent: 1980,
+    status: 'active',
+    registeredAt: '2026-05-20'
+  },
+  {
+    id: 'cli-3',
+    userId: 'usr-client-3',
+    name: 'Sofía Ramírez',
+    username: 'sofiaramirez',
+    email: 'sofia.ramirez@outlook.com',
+    phone: '+52 55 3344 5566',
+    address: 'Av. Coyoacán 810, Col. Del Valle, CDMX',
+    totalOrders: 5,
+    totalSpent: 1240,
+    status: 'active',
+    registeredAt: '2026-06-08'
+  }
+];
 
 export const INITIAL_BUSINESSES: Business[] = [
   {
