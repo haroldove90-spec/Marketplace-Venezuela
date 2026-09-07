@@ -41,6 +41,7 @@ import {
   updateOrderStatusInSupabase,
   testSupabaseConnection,
   seedAllDataToSupabase,
+  updateUserInSupabase,
   SUPABASE_URL
 } from '../services/supabaseClient';
 
@@ -167,6 +168,8 @@ interface AppContextType {
   setIsClientAuthModalOpen: (open: boolean) => void;
   isCorporateAuthModalOpen: boolean;
   setIsCorporateAuthModalOpen: (open: boolean) => void;
+  isProfileModalOpen: boolean;
+  setIsProfileModalOpen: (open: boolean) => void;
   clientAuthIntent: 'login' | 'register' | 'order_checkout';
   setClientAuthIntent: (intent: 'login' | 'register' | 'order_checkout') => void;
   isMarketplaceRoute: boolean;
@@ -299,6 +302,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Modals for Auth
   const [isClientAuthModalOpen, setIsClientAuthModalOpen] = useState(false);
   const [isCorporateAuthModalOpen, setIsCorporateAuthModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [clientAuthIntent, setClientAuthIntent] = useState<'login' | 'register' | 'order_checkout'>('login');
 
   // Route Detection for Independent Marketplace Link
@@ -568,12 +572,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUsers((prev) => [newU, ...prev]);
   };
 
-  const updateUser = (id: string, updates: Partial<UserAccount>) => {
+  const updateUser = async (id: string, updates: Partial<UserAccount>) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, ...updates } : u))
     );
     if (currentUser?.id === id) {
-      setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
+      setCurrentUser((prev) => {
+        if (!prev) return null;
+        const updated = { ...prev, ...updates };
+        localStorage.setItem('mk_current_user', JSON.stringify(updated));
+        return updated;
+      });
+    }
+    // Sincronizar también en la lista de empleados si coincide
+    setEmployees((prev) =>
+      prev.map((emp) => {
+        if (
+          emp.userId === id ||
+          (currentUser?.email && emp.email.toLowerCase() === currentUser.email.toLowerCase())
+        ) {
+          return {
+            ...emp,
+            fullName: updates.name || emp.fullName,
+            email: updates.email || emp.email,
+            phone: updates.phone || emp.phone,
+            password: updates.password || emp.password
+          };
+        }
+        return emp;
+      })
+    );
+    // Sincronizar en la lista de clientes si coincide
+    setClients((prev) =>
+      prev.map((cli) => {
+        if (
+          cli.userId === id ||
+          (currentUser?.email && cli.email.toLowerCase() === currentUser.email.toLowerCase())
+        ) {
+          return {
+            ...cli,
+            fullName: updates.name || cli.fullName,
+            email: updates.email || cli.email,
+            phone: updates.phone || cli.phone,
+            address: updates.address || cli.address
+          };
+        }
+        return cli;
+      })
+    );
+
+    // Sincronizar en Supabase si está disponible
+    try {
+      await updateUserInSupabase(id, updates);
+    } catch (e) {
+      console.warn('Supabase sync user error:', e);
     }
   };
 
@@ -1374,6 +1426,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsClientAuthModalOpen,
         isCorporateAuthModalOpen,
         setIsCorporateAuthModalOpen,
+        isProfileModalOpen,
+        setIsProfileModalOpen,
         clientAuthIntent,
         setClientAuthIntent,
         isMarketplaceRoute,

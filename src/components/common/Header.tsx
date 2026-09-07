@@ -38,6 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
     openWhatsAppWithPrompt,
     setIsClientAuthModalOpen,
     setIsCorporateAuthModalOpen,
+    setIsProfileModalOpen,
     getMarketplaceShareUrl
   } = useApp();
 
@@ -177,6 +178,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
                   </div>
 
                   <div className="py-1">
+                    <button
+                      onClick={() => {
+                        setShowUserDropdown(false);
+                        setIsProfileModalOpen(true);
+                      }}
+                      className="w-full text-left px-2.5 py-2 hover:bg-zinc-900 rounded-lg flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer font-semibold"
+                    >
+                      <User className="w-3.5 h-3.5 text-[#D4021D]" />
+                      <span>Mi Perfil y Contraseña</span>
+                    </button>
                     <button
                       onClick={handleCopyClientLink}
                       className="w-full text-left px-2.5 py-2 hover:bg-zinc-900 rounded-lg flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer"

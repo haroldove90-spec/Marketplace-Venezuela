@@ -482,3 +482,46 @@ export async function seedAllDataToSupabase(params: {
     };
   }
 }
+
+/**
+ * Updates a user in Supabase (personal data, email, password, phone, etc.)
+ */
+export async function updateUserInSupabase(
+  userId: string,
+  updates: {
+    name?: string;
+    username?: string;
+    email?: string;
+    password?: string;
+    phone?: string;
+    address?: string;
+    businessId?: string;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload: any = {};
+    if (updates.name !== undefined) payload.name = updates.name;
+    if (updates.username !== undefined) payload.username = updates.username;
+    if (updates.email !== undefined) payload.email = updates.email;
+    if (updates.password !== undefined) {
+      payload.password = updates.password;
+      payload.password_hash = updates.password;
+    }
+    if (updates.phone !== undefined) payload.phone = updates.phone;
+
+    const { error } = await supabase
+      .from('users')
+      .update(payload)
+      .eq('id', userId);
+
+    if (error) {
+      console.warn('Error actualizando usuario en Supabase:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.warn('Excepción actualizando usuario en Supabase:', err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+

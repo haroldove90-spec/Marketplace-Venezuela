@@ -19,6 +19,7 @@ import { SellerDashboard } from './components/seller/SellerDashboard';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { ClientAuthModal } from './components/common/ClientAuthModal';
 import { CorporateAuthModal } from './components/common/CorporateAuthModal';
+import { UserProfileModal } from './components/common/UserProfileModal';
 import { Business } from './types';
 
 const PulsoAppContent: React.FC = () => {
@@ -113,6 +114,7 @@ const PulsoAppContent: React.FC = () => {
       {/* Role-based Auth Modals */}
       <ClientAuthModal />
       <CorporateAuthModal />
+      <UserProfileModal />
 
       {/* Business Catalog / Detail Modal */}
       {selectedBusinessForDetail && (

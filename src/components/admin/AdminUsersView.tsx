@@ -13,7 +13,11 @@ import {
   ShoppingBag,
   Sparkles,
   Lock,
-  UserCheck
+  UserCheck,
+  Edit3,
+  Key,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export const AdminUsersView: React.FC = () => {
@@ -39,6 +43,18 @@ export const AdminUsersView: React.FC = () => {
   const [businessId, setBusinessId] = useState<string>(businesses[0]?.id || '');
   const [phone, setPhone] = useState('');
   const [formError, setFormError] = useState('');
+
+  // Edit user state
+  const [editingUser, setEditingUser] = useState<UserAccount | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editUsername, setEditUsername] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editRole, setEditRole] = useState<Role>('seller');
+  const [editBusinessId, setEditBusinessId] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editError, setEditError] = useState('');
+  const [showEditPass, setShowEditPass] = useState(false);
 
   const filteredUsers = users.filter((u) => {
     const matchSearch =
@@ -82,6 +98,42 @@ export const AdminUsersView: React.FC = () => {
     setPassword('');
     setPhone('');
     setShowAddModal(false);
+  };
+
+  const handleStartEdit = (u: UserAccount) => {
+    setEditingUser(u);
+    setEditName(u.name);
+    setEditUsername(u.username);
+    setEditEmail(u.email);
+    setEditPassword(u.password || '');
+    setEditRole(u.role);
+    setEditBusinessId(u.businessId || businesses[0]?.id || '');
+    setEditPhone(u.phone || '');
+    setEditError('');
+    setShowEditPass(false);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setEditError('');
+
+    if (!editName.trim() || !editUsername.trim() || !editEmail.trim()) {
+      setEditError('Por favor completa todos los campos requeridos.');
+      return;
+    }
+
+    updateUser(editingUser.id, {
+      name: editName.trim(),
+      username: editUsername.trim().toLowerCase(),
+      email: editEmail.trim().toLowerCase(),
+      password: editPassword.trim() || undefined,
+      role: editRole,
+      businessId: editRole === 'seller' ? editBusinessId : undefined,
+      phone: editPhone.trim() || undefined
+    });
+
+    setEditingUser(null);
   };
 
   const getRoleBadge = (r: Role) => {
@@ -238,21 +290,30 @@ export const AdminUsersView: React.FC = () => {
                     </td>
 
                     <td className="py-3 px-4 text-right">
-                      {!isSuperadminPreset ? (
+                      <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => {
-                            if (confirm(`¿Eliminar usuario @${u.username}?`)) {
-                              deleteUser(u.id);
-                            }
-                          }}
-                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                          title="Eliminar usuario"
+                          onClick={() => handleStartEdit(u)}
+                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                          title="Editar datos y contraseña"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Edit3 className="w-4 h-4" />
                         </button>
-                      ) : (
-                        <span className="text-[11px] text-slate-400 font-semibold">Fijo</span>
-                      )}
+                        {!isSuperadminPreset ? (
+                          <button
+                            onClick={() => {
+                              if (confirm(`¿Eliminar usuario @${u.username}?`)) {
+                                deleteUser(u.id);
+                              }
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            title="Eliminar usuario"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-semibold px-1">Fijo</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -401,6 +462,179 @@ export const AdminUsersView: React.FC = () => {
                   className="px-4 py-2 bg-[#D4021D] hover:bg-red-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-xs"
                 >
                   Guardar Usuario
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Usuario & Contraseña */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 w-full max-w-md shadow-2xl text-white my-auto max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  {editingUser.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-black text-sm text-white">
+                    Editar Usuario: {editingUser.name}
+                  </h3>
+                  <p className="text-[11px] text-zinc-400 font-mono">@{editingUser.username}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingUser(null)}
+                className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="mt-4 space-y-3.5">
+              {editError && (
+                <div className="p-2.5 bg-red-950/70 border border-red-800 text-red-300 rounded-xl text-xs">
+                  {editError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Nombre Completo *
+                </label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                    Username *
+                  </label>
+                  <input
+                    type="text"
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value)}
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                    Teléfono
+                  </label>
+                  <input
+                    type="text"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="+52 55..."
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Correo Electrónico *
+                </label>
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none"
+                  required
+                />
+              </div>
+
+              {/* Password update section */}
+              <div className="p-3 bg-zinc-900/80 border border-zinc-800 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-zinc-200 flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Contraseña</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditPass(!showEditPass)}
+                    className="text-[11px] text-[#D4021D] font-bold hover:underline cursor-pointer"
+                  >
+                    {showEditPass ? 'Ocultar' : 'Ver / Cambiar'}
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type={showEditPass ? 'text' : 'password'}
+                    value={editPassword}
+                    onChange={(e) => setEditPassword(e.target.value)}
+                    placeholder="Escribe nueva contraseña para actualizar"
+                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white font-mono focus:border-[#D4021D] focus:outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowEditPass(!showEditPass)}
+                    className="absolute right-2.5 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                  >
+                    {showEditPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                  Rol de Usuario
+                </label>
+                <select
+                  value={editRole}
+                  onChange={(e) => setEditRole(e.target.value as Role)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none cursor-pointer"
+                >
+                  <option value="admin">Superadmin</option>
+                  <option value="seller">Negocio / Seller</option>
+                  <option value="client">Cliente</option>
+                </select>
+              </div>
+
+              {editRole === 'seller' && (
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                    Negocio Asignado
+                  </label>
+                  <select
+                    value={editBusinessId}
+                    onChange={(e) => setEditBusinessId(e.target.value)}
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none cursor-pointer"
+                  >
+                    {businesses.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.logo} {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold rounded-xl cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#D4021D] hover:bg-red-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-xs"
+                >
+                  Guardar Cambios
                 </button>
               </div>
             </form>
