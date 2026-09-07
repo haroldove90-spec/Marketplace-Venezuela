@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Business, Product, DeliveryType } from '../../types';
 import { getBusinessScheduleStatus } from '../../utils/scheduleUtils';
@@ -20,7 +20,9 @@ import {
   Flame,
   CheckCircle2,
   AlertTriangle,
-  HelpCircle
+  HelpCircle,
+  Bot,
+  Zap
 } from 'lucide-react';
 
 interface ProductSearchComparatorProps {
@@ -43,7 +45,9 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
     addToCart,
     cart,
     openExternalNavigation,
-    openWhatsAppWithPrompt
+    openWhatsAppWithPrompt,
+    recordFailedSearch,
+    openWebAssistantWithPrompt
   } = useApp();
 
   // Mode: 'delivery' vs 'pickup'
@@ -130,6 +134,10 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
 
     // Apply sorting
     enriched.sort((a, b) => {
+      // Prioritize boosted / sponsored products
+      if (a.product.isBoosted && !b.product.isBoosted) return -1;
+      if (!a.product.isBoosted && b.product.isBoosted) return 1;
+
       if (sortBy === 'distance') {
         return a.distanceKm - b.distanceKm;
       }
@@ -147,6 +155,21 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
 
     return enriched;
   }, [searchQuery, products, businesses, calculateDistance, deliveryMode, onlyOpenStores, sortBy]);
+
+  // Track failed/unmatched searches for the Demand Radar
+  const lastLoggedQueryRef = useRef<string>('');
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed.length >= 3 && matchedProductEntries.length === 0) {
+      const timer = setTimeout(() => {
+        if (lastLoggedQueryRef.current.toLowerCase() !== trimmed.toLowerCase()) {
+          lastLoggedQueryRef.current = trimmed;
+          recordFailedSearch(trimmed);
+        }
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [searchQuery, matchedProductEntries.length, recordFailedSearch]);
 
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -285,25 +308,66 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
       {searchQuery.trim() && (
         <div className="space-y-2.5">
           {matchedProductEntries.length === 0 ? (
-            <div className="p-6 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto border border-amber-200">
+            <div className="p-6 text-center bg-white rounded-3xl border border-slate-200 shadow-sm space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto border border-amber-200 shadow-xs">
                 🔍
               </div>
-              <div>
-                <h4 className="font-bold text-slate-900 text-sm">
-                  No encontramos tiendas con "{searchQuery}"
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-[#D4021D] text-[11px] font-extrabold border border-red-200">
+                  <span className="w-2 h-2 rounded-full bg-[#D4021D] animate-ping" />
+                  <span>Registrado en Radar de Demanda</span>
+                </div>
+                <h4 className="font-extrabold text-slate-900 text-sm sm:text-base">
+                  No encontramos productos o servicios con "{searchQuery}"
                 </h4>
-                <p className="text-xs text-slate-500 max-w-xs mx-auto mt-1">
-                  Intenta buscar por categorías como <span className="font-semibold text-[#D4021D]">Paracetamol, Hamburguesa, Pizza, Suero o Refresco</span>.
+                <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                  ¡Tu búsqueda ha sido guardada! Nuestro equipo comercial analiza el{' '}
+                  <strong className="text-slate-900 font-semibold">Radar de Demanda</strong> para afiliar nuevos comercios o incorporar este producto a las tiendas locales.
                 </p>
               </div>
-              <button
-                onClick={() => openWhatsAppWithPrompt(`Hola, estoy buscando "${searchQuery}" en tiendas cercanas.`)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold rounded-xl text-xs transition-all cursor-pointer"
-              >
-                <MessageCircle className="w-3.5 h-3.5 text-[#D4021D]" />
-                <span>Consultar disponibilidad por WhatsApp IA</span>
-              </button>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                <button
+                  onClick={() =>
+                    openWebAssistantWithPrompt(
+                      `Hola, busqué "${searchQuery}" en el marketplace y no lo encontré. ¿Me puedes sugerir alternativas o comercios similares?`
+                    )
+                  }
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold rounded-xl text-xs transition-all shadow-sm active:scale-98 cursor-pointer"
+                >
+                  <Bot className="w-4 h-4" />
+                  <span>Preguntar al Asistente Virtual</span>
+                </button>
+
+                <button
+                  onClick={() =>
+                    openWhatsAppWithPrompt(`Hola, estoy buscando "${searchQuery}" en tiendas cercanas y no apareció en el marketplace.`)
+                  }
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold rounded-xl text-xs transition-all cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4 text-[#D4021D]" />
+                  <span>Consultar por WhatsApp</span>
+                </button>
+              </div>
+
+              {/* Suggestions */}
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  Búsquedas populares disponibles:
+                </p>
+                <div className="flex flex-wrap justify-center gap-1.5">
+                  {popularKeywords.slice(0, 5).map((kw) => (
+                    <button
+                      key={kw.query}
+                      onClick={() => onSearchChange(kw.query)}
+                      className="px-2.5 py-1 bg-slate-50 hover:bg-red-50 hover:text-[#D4021D] border border-slate-200 rounded-lg text-xs font-medium text-slate-700 transition-all cursor-pointer"
+                    >
+                      {kw.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             matchedProductEntries.map(({ product, business, schedule, distanceKm, deliveryFee, totalEstimatedPrice, estimatedTime, isBestPrice, isClosest }) => {
@@ -375,6 +439,12 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
 
                       {/* Comparison Badges Row */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        {product.isBoosted && (
+                          <span className="bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-2xs">
+                            <Zap className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
+                            Patrocinado
+                          </span>
+                        )}
                         {isBestPrice && (
                           <span className="bg-red-50 text-[#D4021D] text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 border border-red-200">
                             🏆 Mejor Precio

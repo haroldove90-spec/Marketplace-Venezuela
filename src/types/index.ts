@@ -41,6 +41,31 @@ export interface Product {
   stockCount: number;
   tags: string[]; // for Chatbot search: e.g. ['paracetamol', 'analgesico', 'fiebre']
   isOfferOfTheDay: boolean;
+  isBoosted?: boolean;
+  boostTier?: 'basic' | 'pro' | 'premium';
+  boostExpiresAt?: string;
+}
+
+export interface BoostPlan {
+  id: 'boost_3d' | 'boost_7d' | 'boost_15d';
+  name: string;
+  days: number;
+  price: number;
+  impressionsEstimate: string;
+  badgeText: string;
+  recommended?: boolean;
+}
+
+export interface FailedSearchRecord {
+  id: string;
+  term: string;
+  categoryGuess: string;
+  count: number;
+  firstSearchedAt: string;
+  lastSearchedAt: string;
+  status: 'pending' | 'evaluating' | 'added' | 'dismissed';
+  userLocationHint?: string;
+  notes?: string;
 }
 
 export interface CartItem {
@@ -64,6 +89,8 @@ export interface Order {
   items: CartItem[];
   subtotal: number;
   deliveryFee: number;
+  serviceFee?: number;
+  serviceFeeRate?: number;
   total: number;
   deliveryType: DeliveryType;
   deliveryAddress: string;

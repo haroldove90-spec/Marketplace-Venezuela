@@ -21,8 +21,11 @@ import {
   DollarSign,
   Tag,
   Share2,
-  AlertCircle
+  AlertCircle,
+  Zap,
+  Rocket
 } from 'lucide-react';
+import { SellerBoostPaymentModal } from './SellerBoostPaymentModal';
 
 export const SellerDashboard: React.FC = () => {
   const {
@@ -62,6 +65,15 @@ export const SellerDashboard: React.FC = () => {
   const [prodStock, setProdStock] = useState<number>(20);
   const [prodTags, setProdTags] = useState('');
   const [prodIsOffer, setProdIsOffer] = useState(false);
+
+  // States for Boost Ads Modal
+  const [selectedProductForBoost, setSelectedProductForBoost] = useState<Product | null>(null);
+  const [isBoostModalOpen, setIsBoostModalOpen] = useState(false);
+
+  const openBoostModal = (prod: Product) => {
+    setSelectedProductForBoost(prod);
+    setIsBoostModalOpen(true);
+  };
 
   // States for Profile Editor
   const [bizName, setBizName] = useState(biz.name);
@@ -373,6 +385,34 @@ export const SellerDashboard: React.FC = () => {
             </button>
           </div>
 
+          {/* Free Marketplace Notice Banner */}
+          <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shrink-0 shadow-xs">
+                ✓
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-slate-900 text-sm">
+                    Publicación de Catálogo 100% Gratuita
+                  </span>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-300">
+                    Sin costo inicial
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Publica productos y menú ilimitados sin cuota de alta. Opción de <strong>Ads/Boost</strong> disponible para destacar en la cima de resultados cuando tú lo decidas.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+              <span className="text-[11px] font-bold text-slate-500">
+                {bizProducts.length} productos activos
+              </span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {bizProducts.map((prod) => (
               <div
@@ -443,19 +483,36 @@ export const SellerDashboard: React.FC = () => {
                 </div>
 
                 {/* Card Actions */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                  <button
-                    onClick={() => openEditProductModal(prod)}
-                    className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs flex items-center gap-1 cursor-pointer font-medium"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" /> Editar
-                  </button>
-                  <button
-                    onClick={() => deleteProduct(prod.id)}
-                    className="p-1.5 bg-slate-100 hover:bg-red-50 text-red-500 rounded-lg text-xs cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                  {prod.isBoosted ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-[#D4021D] font-extrabold text-[10px] border border-red-200">
+                      <Zap className="w-3 h-3 fill-[#D4021D]" />
+                      <span>Ads Activo</span>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => openBoostModal(prod)}
+                      className="px-2 py-1 bg-gradient-to-r from-amber-50 to-red-50 hover:from-amber-100 hover:to-red-100 text-[#D4021D] font-black rounded-lg text-[10px] flex items-center gap-1 border border-red-200 transition-all cursor-pointer shadow-2xs"
+                    >
+                      <Rocket className="w-3 h-3 text-[#D4021D]" />
+                      <span>Impulsar (Ads)</span>
+                    </button>
+                  )}
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => openEditProductModal(prod)}
+                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs flex items-center gap-1 cursor-pointer font-medium"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" /> Editar
+                    </button>
+                    <button
+                      onClick={() => deleteProduct(prod.id)}
+                      className="p-1.5 bg-slate-100 hover:bg-red-50 text-red-500 rounded-lg text-xs cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -775,6 +832,18 @@ export const SellerDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Boost Ads Payment Gateway Modal */}
+      {selectedProductForBoost && (
+        <SellerBoostPaymentModal
+          product={selectedProductForBoost}
+          isOpen={isBoostModalOpen}
+          onClose={() => {
+            setIsBoostModalOpen(false);
+            setSelectedProductForBoost(null);
+          }}
+        />
       )}
     </div>
   );

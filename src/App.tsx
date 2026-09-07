@@ -5,6 +5,8 @@ import { Navigation } from './components/common/Navigation';
 import { PWAInstallBanner } from './components/common/PWAInstallBanner';
 import { WhatsAppFloatingButton } from './components/common/WhatsAppFloatingButton';
 import { WhatsAppChatModal } from './components/common/WhatsAppChatModal';
+import { WebAssistantFloatingButton } from './components/common/WebAssistantFloatingButton';
+import { WebAssistantChatModal } from './components/common/WebAssistantChatModal';
 import { RoleAccessModal } from './components/common/RoleAccessModal';
 import { RoleSwitcherHub } from './components/common/RoleSwitcherHub';
 import { ClientExplore } from './components/client/ClientExplore';
@@ -97,6 +99,10 @@ const PulsoAppContent: React.FC = () => {
       {/* WhatsApp Floating Action Button & Simulator Modal */}
       <WhatsAppFloatingButton />
       <WhatsAppChatModal />
+
+      {/* Web Assistant Floating Action Button & Interactive Chat Modal */}
+      <WebAssistantFloatingButton />
+      <WebAssistantChatModal />
 
       {/* Role Switcher Modal (2 columns on mobile) */}
       <RoleAccessModal

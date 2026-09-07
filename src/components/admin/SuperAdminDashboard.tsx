@@ -29,13 +29,15 @@ import {
   Database,
   Briefcase,
   FileText,
-  Download
+  Download,
+  Radar
 } from 'lucide-react';
 import { SupabaseAdminView } from './SupabaseAdminView';
 import { AdminUsersView } from './AdminUsersView';
 import { AdminClientsView } from './AdminClientsView';
 import { AdminEmployeesView } from './AdminEmployeesView';
 import { PdfFeatureView } from './PdfFeatureView';
+import { DemandRadarView } from './DemandRadarView';
 
 export const SuperAdminDashboard: React.FC = () => {
   const {
@@ -53,7 +55,9 @@ export const SuperAdminDashboard: React.FC = () => {
     setActiveAdminTab,
     users,
     clients,
-    employees
+    employees,
+    failedSearches,
+    serviceFeeRate
   } = useApp();
 
   // Metrics Calculations
@@ -267,6 +271,7 @@ export const SuperAdminDashboard: React.FC = () => {
           { id: 'sellers', label: `Gestión de Negocios (${businesses.length})`, icon: <Store className="w-4 h-4" /> },
           { id: 'whatsapp', label: 'WhatsApp & Bot IA', icon: <MessageSquare className="w-4 h-4" /> },
           { id: 'map', label: 'Mapa & Navegación', icon: <Layers className="w-4 h-4" /> },
+          { id: 'radar', label: `Radar de Demanda (${failedSearches.length})`, icon: <Radar className="w-4 h-4 text-amber-500" /> },
           { id: 'finances', label: 'Finanzas & Comisiones', icon: <DollarSign className="w-4 h-4" /> },
           { id: 'supabase', label: 'Base de Datos Supabase', icon: <Database className="w-4 h-4" /> }
         ].map((tab) => (
@@ -811,30 +816,45 @@ export const SuperAdminDashboard: React.FC = () => {
       {activeAdminTab === 'finances' && (
         <div className="space-y-6">
           {/* Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
               <span className="text-[11px] font-bold text-slate-500 uppercase">
-                Volumen Total Transaccionado
+                Volumen Transaccionado
               </span>
               <p className="text-2xl font-black text-slate-900">${totalSales} MXN</p>
+              <span className="text-[10px] text-slate-400">En {orders.length} pedidos totales</span>
             </div>
 
             <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
               <span className="text-[11px] font-bold text-slate-500 uppercase">
-                Comisiones de Plataforma (Prom. 10%)
+                Comisión Base Comercios
               </span>
               <p className="text-2xl font-black text-purple-600">
                 ${Math.round(totalSales * 0.1)} MXN
               </p>
+              <span className="text-[10px] text-slate-400">Promedio 10% por venta</span>
             </div>
 
             <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
               <span className="text-[11px] font-bold text-slate-500 uppercase">
-                Liquidaciones Pendientes a Negocios
+                Tarifa Servicio Consumidor ({serviceFeeRate}%)
+              </span>
+              <p className="text-2xl font-black text-emerald-600">
+                ${orders.reduce((acc, o) => acc + (o.serviceFee || Math.round((o.total - (o.deliveryFee || 0)) * (serviceFeeRate / 100))), 0)} MXN
+              </p>
+              <span className="text-[10px] text-slate-400">Cobro automático en checkout</span>
+            </div>
+
+            <div className="p-4 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase">
+                Ingresos Ads & Boost
               </span>
               <p className="text-2xl font-black text-[#D4021D]">
-                ${Math.round(totalSales * 0.9)} MXN
+                ${products.filter((p) => p.isBoosted).length * 89} MXN
               </p>
+              <span className="text-[10px] text-slate-400">
+                {products.filter((p) => p.isBoosted).length} productos destacados
+              </span>
             </div>
           </div>
 
@@ -898,7 +918,10 @@ export const SuperAdminDashboard: React.FC = () => {
       {/* 6. SUPABASE DATABASE & SQL MANAGEMENT */}
       {activeAdminTab === 'supabase' && <SupabaseAdminView />}
 
-      {/* 7. FICHA TÉCNICA Y CARACTERÍSTICAS PDF */}
+      {/* 7. RADAR DE DEMANDA */}
+      {activeAdminTab === 'radar' && <DemandRadarView />}
+
+      {/* 8. FICHA TÉCNICA Y CARACTERÍSTICAS PDF */}
       {activeAdminTab === 'pdf' && <PdfFeatureView />}
 
       {/* CREATE / EDIT BUSINESS MODAL */}

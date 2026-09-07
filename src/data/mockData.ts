@@ -7,7 +7,9 @@ import {
   SavedAddress,
   UserAccount,
   ClientProfile,
-  EmployeeProfile
+  EmployeeProfile,
+  BoostPlan,
+  FailedSearchRecord
 } from '../types';
 
 export const DATA_VERSION = 'conforce_mock_v5';
@@ -421,7 +423,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     inStock: true,
     stockCount: 85,
     tags: ['paracetamol', 'analgesico', 'fiebre', 'dolor de cabeza', 'medicamento', 'pastillas'],
-    isOfferOfTheDay: true
+    isOfferOfTheDay: true,
+    isBoosted: true,
+    boostTier: 'pro',
+    boostExpiresAt: '2026-09-20'
   },
   {
     id: 'prod-2',
@@ -581,7 +586,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     inStock: true,
     stockCount: 50,
     tags: ['hamburguesa', 'burger', 'queso', 'tocino', 'combo', 'papas', 'comida'],
-    isOfferOfTheDay: true
+    isOfferOfTheDay: true,
+    isBoosted: true,
+    boostTier: 'premium',
+    boostExpiresAt: '2026-09-25'
   },
   {
     id: 'prod-8',
@@ -1096,3 +1104,101 @@ export const INITIAL_CHATBOT_CONFIG: ChatbotConfig = {
     { keyword: 'sushi', category: 'restaurante', targetTag: 'sushi' }
   ]
 };
+
+export const BOOST_PLANS: BoostPlan[] = [
+  {
+    id: 'boost_3d',
+    name: 'Impulso Flash (3 Días)',
+    days: 3,
+    price: 49,
+    impressionsEstimate: '+1,800 vistas estimadas',
+    badgeText: '🚀 Flash'
+  },
+  {
+    id: 'boost_7d',
+    name: 'Top Semanal Pro (7 Días)',
+    days: 7,
+    price: 89,
+    impressionsEstimate: '+5,200 vistas estimadas',
+    badgeText: '⭐ Recomendado',
+    recommended: true
+  },
+  {
+    id: 'boost_15d',
+    name: 'Dominio Mensual (15 Días)',
+    days: 15,
+    price: 169,
+    impressionsEstimate: '+12,500 vistas estimadas',
+    badgeText: '👑 Máximo Alcance'
+  }
+];
+
+export const INITIAL_FAILED_SEARCHES: FailedSearchRecord[] = [
+  {
+    id: 'fs-1',
+    term: 'Insulina Glargina 100UI pluma',
+    categoryGuess: 'Farmacia / Medicamentos Crónicos',
+    count: 24,
+    firstSearchedAt: '2026-08-15 09:20',
+    lastSearchedAt: '2026-09-06 18:45',
+    status: 'pending',
+    userLocationHint: 'Col. Roma Norte / Condesa',
+    notes: 'Alta demanda en medicamentos especializados para diabetes. Contactar con Farmacia San Rafael para surtir.'
+  },
+  {
+    id: 'fs-2',
+    term: 'Alitas BBQ con aderezo blue cheese',
+    categoryGuess: 'Restaurante / Snacks',
+    count: 18,
+    firstSearchedAt: '2026-08-18 20:10',
+    lastSearchedAt: '2026-09-07 01:15',
+    status: 'evaluating',
+    userLocationHint: 'Zona Centro / Juárez',
+    notes: 'Se evaluó con Burger Craft para incorporar combo nocturno de alitas con blue cheese.'
+  },
+  {
+    id: 'fs-3',
+    term: 'Pañales Huggies Etapa 4 (paquete x40)',
+    categoryGuess: 'Farmacia / Bebés',
+    count: 15,
+    firstSearchedAt: '2026-08-21 14:05',
+    lastSearchedAt: '2026-09-05 11:30',
+    status: 'pending',
+    userLocationHint: 'Col. Cuauhtémoc',
+    notes: 'Buscar distribuidor de pañales o conveniencia 24h.'
+  },
+  {
+    id: 'fs-4',
+    term: 'Cargador USB-C Carga Rápida 45W',
+    categoryGuess: 'Conveniencia / Electrónica',
+    count: 11,
+    firstSearchedAt: '2026-08-25 16:40',
+    lastSearchedAt: '2026-09-06 22:10',
+    status: 'evaluating',
+    userLocationHint: 'Paseo de la Reforma',
+    notes: 'Comercios cercanos de accesorios de celular interesados en afiliarse.'
+  },
+  {
+    id: 'fs-5',
+    term: 'Sushi Roll Philadelphia Empanizado',
+    categoryGuess: 'Restaurante / Comida Asiática',
+    count: 9,
+    firstSearchedAt: '2026-08-26 13:00',
+    lastSearchedAt: '2026-09-04 15:20',
+    status: 'added',
+    userLocationHint: 'Col. Roma Sur',
+    notes: 'Resuelto: Afiliación de restaurante de sushi en proceso de carga de menú.'
+  },
+  {
+    id: 'fs-6',
+    term: 'Electrolit Fresa Kiwi 625ml',
+    categoryGuess: 'Farmacia / Hidratación',
+    count: 8,
+    firstSearchedAt: '2026-08-29 10:15',
+    lastSearchedAt: '2026-09-06 08:30',
+    status: 'added',
+    userLocationHint: 'Col. Del Valle',
+    notes: 'Resuelto: Stock actualizado en Farmacia San Rafael y Farmacia Roma.'
+  }
+];
+

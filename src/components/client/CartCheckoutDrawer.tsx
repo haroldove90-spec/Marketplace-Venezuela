@@ -40,6 +40,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
     updateCartQuantity,
     clearCart,
     cartSubtotal,
+    cartServiceFee,
     createOrder,
     businesses,
     userLocation,
@@ -82,7 +83,8 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
   const targetBusiness = businesses.find((b) => b.id === primaryBusinessId);
 
   const deliveryFee = deliveryType === 'pickup' ? 0 : 35;
-  const grandTotal = cartSubtotal + deliveryFee;
+  const serviceFee = cartServiceFee;
+  const grandTotal = cartSubtotal + deliveryFee + serviceFee;
 
   const getResolvedAddress = () => {
     if (deliveryType === 'pickup') {
@@ -129,6 +131,7 @@ ${itemsList}
 
 💵 *Subtotal:* $${cartSubtotal} MXN
 🛵 *Costo Envío:* ${deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
+🛡️ *Tarifa de Servicio (5%):* $${serviceFee} MXN
 💰 *TOTAL A PAGAR:* $${grandTotal} MXN
 💳 *Forma de Pago:* ${getPaymentMethodLabel(paymentMethod)}
 ${orderNotes.trim() ? `📝 *Instrucciones/Notas:* ${orderNotes.trim()}` : ''}
@@ -161,6 +164,8 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
         items: [...cart],
         subtotal: cartSubtotal,
         deliveryFee,
+        serviceFee,
+        serviceFeeRate: 0.05,
         total: grandTotal,
         deliveryType,
         deliveryAddress: finalDeliveryAddress,
@@ -623,6 +628,15 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                 <span className={deliveryFee === 0 ? 'text-slate-900 font-bold' : 'font-semibold text-slate-900'}>
                   {deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
                 </span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="flex items-center gap-1 text-slate-600">
+                  <span>Tarifa de servicio:</span>
+                  <span className="text-[9px] bg-red-50 text-[#D4021D] font-black px-1.5 py-0.5 rounded border border-red-200">
+                    5% Soporte & Garantía
+                  </span>
+                </span>
+                <span className="font-semibold text-slate-900">${serviceFee} MXN</span>
               </div>
               <div className="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200">
                 <span>Total a Pagar:</span>

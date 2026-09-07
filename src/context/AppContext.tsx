@@ -12,7 +12,9 @@ import {
   Coordinates,
   UserAccount,
   ClientProfile,
-  EmployeeProfile
+  EmployeeProfile,
+  FailedSearchRecord,
+  BoostPlan
 } from '../types';
 import {
   INITIAL_BUSINESSES,
@@ -24,6 +26,7 @@ import {
   INITIAL_USERS,
   INITIAL_EMPLOYEES,
   INITIAL_CLIENTS,
+  INITIAL_FAILED_SEARCHES,
   DATA_VERSION
 } from '../data/mockData';
 import {
@@ -87,6 +90,23 @@ interface AppContextType {
   clearCart: () => void;
   cartSubtotal: number;
   cartTotalCount: number;
+  serviceFeeRate: number;
+  cartServiceFee: number;
+
+  // Demand Radar & Search Intelligence
+  failedSearches: FailedSearchRecord[];
+  recordFailedSearch: (term: string) => void;
+  updateFailedSearchStatus: (id: string, status: FailedSearchRecord['status'], notes?: string) => void;
+  deleteFailedSearch: (id: string) => void;
+
+  // Boost Ads for Sellers
+  boostProduct: (productId: string, planId: string, days: number) => { success: boolean; message: string };
+
+  // Web Assistant (Native in-app Chatbot)
+  isWebAssistantOpen: boolean;
+  setIsWebAssistantOpen: (open: boolean) => void;
+  openWebAssistantWithPrompt: (initialPrompt?: string) => void;
+  webAssistantInitialPrompt: string;
 
   // Location
   userLocation: Coordinates | null;
@@ -681,6 +701,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [whatsappInitialPrompt, setWhatsappInitialPrompt] = useState('');
 
+  // Web Assistant (Native In-App Chatbot) State
+  const [isWebAssistantOpen, setIsWebAssistantOpen] = useState(false);
+  const [webAssistantInitialPrompt, setWebAssistantInitialPrompt] = useState('');
+
+  // Demand Radar (Failed Searches Tracker)
+  const [failedSearches, setFailedSearches] = useState<FailedSearchRecord[]>(() => {
+    const saved = localStorage.getItem('mk_failed_searches');
+    return saved ? JSON.parse(saved) : INITIAL_FAILED_SEARCHES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('mk_failed_searches', JSON.stringify(failedSearches));
+  }, [failedSearches]);
+
   // Location State
   const [userLocation, setUserLocation] = useState<Coordinates | null>(DEFAULT_CENTER_COORDS);
   const [userAddressLabel, setUserAddressLabel] = useState<string>('Ubicación actual detectada');
@@ -1050,6 +1084,145 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const cartTotalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const serviceFeeRate = 0.05; // 5% de tarifa de servicio a consumidor
+  const cartServiceFee = cartSubtotal > 0 ? Math.max(10, Math.round(cartSubtotal * serviceFeeRate)) : 0;
+
+  // Web Assistant (Native In-App Chatbot) Helper
+  const openWebAssistantWithPrompt = (initialPrompt = '') => {
+    setWebAssistantInitialPrompt(initialPrompt);
+    setIsWebAssistantOpen(true);
+  };
+
+  // Demand Radar Search Tracker
+  const recordFailedSearch = (term: string) => {
+    const cleanTerm = term.trim();
+    if (!cleanTerm || cleanTerm.length < 2) return;
+
+    setFailedSearches((prev) => {
+      const existingIndex = prev.findIndex(
+        (f) => f.term.toLowerCase() === cleanTerm.toLowerCase()
+      );
+
+      const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+      if (existingIndex >= 0) {
+        const updated = [...prev];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          count: updated[existingIndex].count + 1,
+          lastSearchedAt: now
+        };
+        return updated;
+      }
+
+      // Guess category from keywords
+      const lower = cleanTerm.toLowerCase();
+      let categoryGuess = 'Marketplace General';
+      if (
+        lower.includes('med') ||
+        lower.includes('pastilla') ||
+        lower.includes('jarabe') ||
+        lower.includes('farmacia') ||
+        lower.includes('suero') ||
+        lower.includes('dolor') ||
+        lower.includes('gripe') ||
+        lower.includes('insulina') ||
+        lower.includes('antibiotico')
+      ) {
+        categoryGuess = 'Farmacia / Salud';
+      } else if (
+        lower.includes('taco') ||
+        lower.includes('pizza') ||
+        lower.includes('burger') ||
+        lower.includes('hamburguesa') ||
+        lower.includes('comida') ||
+        lower.includes('cena') ||
+        lower.includes('sushi') ||
+        lower.includes('alitas') ||
+        lower.includes('postre')
+      ) {
+        categoryGuess = 'Restaurante / Alimentos';
+      } else if (
+        lower.includes('pañal') ||
+        lower.includes('bebe') ||
+        lower.includes('formula') ||
+        lower.includes('leche')
+      ) {
+        categoryGuess = 'Bebés / Maternidad';
+      } else if (
+        lower.includes('cable') ||
+        lower.includes('cargador') ||
+        lower.includes('pila') ||
+        lower.includes('celular') ||
+        lower.includes('usb')
+      ) {
+        categoryGuess = 'Conveniencia / Electrónica';
+      }
+
+      const newRecord: FailedSearchRecord = {
+        id: `fs-${Date.now()}`,
+        term: cleanTerm,
+        categoryGuess,
+        count: 1,
+        firstSearchedAt: now,
+        lastSearchedAt: now,
+        status: 'pending',
+        userLocationHint: userAddressLabel || 'Zona Metropolitana CDMX',
+        notes: 'Búsqueda registrada automáticamente por cliente en Marketplace'
+      };
+
+      return [newRecord, ...prev];
+    });
+  };
+
+  const updateFailedSearchStatus = (
+    id: string,
+    status: FailedSearchRecord['status'],
+    notes?: string
+  ) => {
+    setFailedSearches((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              status,
+              ...(notes !== undefined ? { notes } : {})
+            }
+          : r
+      )
+    );
+  };
+
+  const deleteFailedSearch = (id: string) => {
+    setFailedSearches((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  // Boost Ads Activation for Sellers
+  const boostProduct = (productId: string, planId: string, days: number) => {
+    const targetProduct = products.find((p) => p.id === productId);
+    if (!targetProduct) {
+      return { success: false, message: 'Producto no encontrado' };
+    }
+
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + days);
+    const formattedExpiry = expiryDate.toISOString().split('T')[0];
+
+    let boostTier: 'basic' | 'pro' | 'premium' = 'basic';
+    if (days >= 15) boostTier = 'premium';
+    else if (days >= 7) boostTier = 'pro';
+
+    updateProduct(productId, {
+      isBoosted: true,
+      boostTier,
+      boostExpiresAt: formattedExpiry
+    });
+
+    return {
+      success: true,
+      message: `¡Producto "${targetProduct.name}" impulsado exitosamente con Ads por ${days} días!`
+    };
+  };
 
   // Address
   const addSavedAddress = (addr: Omit<SavedAddress, 'id'>) => {
@@ -1134,6 +1307,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         clearCart,
         cartSubtotal,
         cartTotalCount,
+        serviceFeeRate,
+        cartServiceFee,
+
+        // Demand Radar & Search Intelligence
+        failedSearches,
+        recordFailedSearch,
+        updateFailedSearchStatus,
+        deleteFailedSearch,
+
+        // Boost Ads for Sellers
+        boostProduct,
+
+        // Web Assistant (Native In-App Chatbot)
+        isWebAssistantOpen,
+        setIsWebAssistantOpen,
+        openWebAssistantWithPrompt,
+        webAssistantInitialPrompt,
 
         userLocation,
         userAddressLabel,
