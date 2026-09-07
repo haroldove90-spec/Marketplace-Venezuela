@@ -12,7 +12,7 @@ import {
   FailedSearchRecord
 } from '../types';
 
-export const DATA_VERSION = 'conforce_mock_v5';
+export const DATA_VERSION = 'conforce_mock_v6';
 
 export const INITIAL_EMPLOYEES: EmployeeProfile[] = [
   {
@@ -29,12 +29,12 @@ export const INITIAL_EMPLOYEES: EmployeeProfile[] = [
     createdAt: '2026-01-15'
   },
   {
-    id: 'emp-anyel',
-    userId: 'usr-anyel',
-    fullName: 'Anyel',
-    username: 'anyel_admin',
-    email: 'anyel-admin@hotmail.com',
-    password: 'AnyelForce#2026!',
+    id: 'emp-anyl',
+    userId: 'usr-anyl',
+    fullName: 'Anyl',
+    username: 'anyl_admin',
+    email: 'anyl@conforce.com',
+    password: 'Anyl#ConForce2026*!',
     roleTitle: 'Administrador de Operaciones & Sistemas',
     systemRole: 'admin',
     department: 'Operaciones & Soporte',
@@ -58,17 +58,17 @@ export const INITIAL_USERS: UserAccount[] = [
     lastLogin: '2026-09-03 21:30'
   },
   {
-    id: 'usr-anyel',
-    name: 'Anyel',
-    username: 'anyel_admin',
-    email: 'anyel-admin@hotmail.com',
-    password: 'AnyelForce#2026!',
+    id: 'usr-anyl',
+    name: 'Anyl',
+    username: 'anyl_admin',
+    email: 'anyl@conforce.com',
+    password: 'Anyl#ConForce2026*!',
     role: 'admin',
     status: 'active',
     department: 'Operaciones & Sistemas',
     phone: '+52 55 2233 4455',
     createdAt: '2026-02-01',
-    lastLogin: '2026-09-03 20:15'
+    lastLogin: '2026-09-07 11:30'
   },
   {
     id: 'usr-biz-1',

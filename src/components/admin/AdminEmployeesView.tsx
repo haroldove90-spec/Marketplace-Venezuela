@@ -162,7 +162,7 @@ export const AdminEmployeesView: React.FC = () => {
       {/* Employees Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredEmployees.map((emp) => {
-          const isPresetSuperadmin = emp.username === 'haroldo90' || emp.username === 'anyel_admin';
+          const isPresetSuperadmin = emp.username === 'haroldo90' || emp.username === 'anyl_admin' || emp.username === 'anyel_admin';
           const isPasswordVisible = revealedPasswords[emp.id];
 
           return (

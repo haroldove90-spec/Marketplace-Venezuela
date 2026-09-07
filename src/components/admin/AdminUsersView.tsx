@@ -184,7 +184,7 @@ export const AdminUsersView: React.FC = () => {
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((u) => {
                 const biz = businesses.find((b) => b.id === u.businessId);
-                const isSuperadminPreset = u.username === 'haroldo90' || u.username === 'anyel_admin';
+                const isSuperadminPreset = u.username === 'haroldo90' || u.username === 'anyl_admin' || u.username === 'anyel_admin';
 
                 return (
                   <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">

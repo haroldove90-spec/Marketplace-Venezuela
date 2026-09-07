@@ -118,7 +118,7 @@ export const CorporateAuthModal: React.FC = () => {
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="ej. haroldo90, anyel_admin o contacto@sanrafael.com"
+                  placeholder="ej. haroldo90, anyl_admin o contacto@sanrafael.com"
                   className="w-full pl-10 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
                 />
               </div>

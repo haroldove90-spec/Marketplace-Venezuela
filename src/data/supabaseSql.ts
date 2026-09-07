@@ -62,8 +62,12 @@ CREATE TABLE IF NOT EXISTS public.products (
     stock_count INTEGER NOT NULL DEFAULT 100,
     tags TEXT[] NOT NULL DEFAULT '{}',
     is_offer_of_the_day BOOLEAN NOT NULL DEFAULT false,
+    is_boosted BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_boosted BOOLEAN DEFAULT false;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_offer_of_the_day BOOLEAN DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS idx_products_business_id ON public.products(business_id);
 CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
@@ -82,6 +86,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     items JSONB NOT NULL DEFAULT '[]'::jsonb,
     subtotal NUMERIC(10, 2) NOT NULL DEFAULT 0,
     delivery_fee NUMERIC(10, 2) NOT NULL DEFAULT 0,
+    service_fee NUMERIC(10, 2) NOT NULL DEFAULT 0,
     total NUMERIC(10, 2) NOT NULL DEFAULT 0,
     delivery_type TEXT NOT NULL CHECK (delivery_type IN ('pickup', 'delivery')),
     delivery_address TEXT NOT NULL DEFAULT '',
@@ -92,6 +97,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS service_fee NUMERIC(10, 2) DEFAULT 0;
 
 CREATE INDEX IF NOT EXISTS idx_orders_business_id ON public.orders(business_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
@@ -152,13 +159,47 @@ CREATE TABLE IF NOT EXISTS public.users (
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('admin', 'seller', 'client')),
+    role TEXT NOT NULL DEFAULT 'client' CHECK (role IN ('admin', 'seller', 'client')),
     business_id TEXT REFERENCES public.businesses(id) ON DELETE SET NULL,
     phone TEXT,
     avatar TEXT,
     is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Asegurar columnas si la tabla public.users ya existía en la base de datos
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS password TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'client';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
+-- Quitar restricciones de clave foránea estricta que puedan bloquear inserciones
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_business_id_fkey;
+ALTER TABLE public.employees DROP CONSTRAINT IF EXISTS employees_business_id_fkey;
+
+-- Quitar restricciones NOT NULL en columnas de contraseña para compatibilidad con esquemas previos
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'password'
+    ) THEN
+        ALTER TABLE public.users ALTER COLUMN password DROP NOT NULL;
+    END IF;
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'users' AND column_name = 'password_hash'
+    ) THEN
+        ALTER TABLE public.users ALTER COLUMN password_hash DROP NOT NULL;
+    END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 CREATE INDEX IF NOT EXISTS idx_users_username ON public.users(username);
@@ -181,6 +222,10 @@ CREATE TABLE IF NOT EXISTS public.clients (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS user_id TEXT;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS total_orders INTEGER DEFAULT 0;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS total_spent NUMERIC(10, 2) DEFAULT 0.0;
+
 CREATE INDEX IF NOT EXISTS idx_clients_phone ON public.clients(phone);
 CREATE INDEX IF NOT EXISTS idx_clients_email ON public.clients(email);
 
@@ -200,6 +245,11 @@ CREATE TABLE IF NOT EXISTS public.employees (
     is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE public.employees ADD COLUMN IF NOT EXISTS position TEXT;
+ALTER TABLE public.employees ADD COLUMN IF NOT EXISTS department TEXT;
+ALTER TABLE public.employees ADD COLUMN IF NOT EXISTS salary NUMERIC(10, 2) DEFAULT 0.0;
+ALTER TABLE public.employees ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 
 CREATE INDEX IF NOT EXISTS idx_employees_department ON public.employees(department);
 CREATE INDEX IF NOT EXISTS idx_employees_is_active ON public.employees(is_active);
@@ -290,6 +340,14 @@ INSERT INTO public.businesses (
 ) VALUES
 (
     'biz-farmacia-1', 'Farmacias San Rafael Express', 'farmacia', '💊',
+    'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&auto=format&fit=crop&q=60',
+    '+52 55 8765 4321', 'Av. Central 452, Col. Del Valle', '{"lat": 19.3985, "lng": -99.1685}'::jsonb,
+    '24 Horas (Lunes a Domingo)', 4.8, 142, true, true,
+    8.0, '#10b981', '15-25 min', 100.0,
+    ARRAY['farmacia', 'medicamentos', 'urgencias', 'salud', 'paracetamol', 'antigripal', 'dolor']
+),
+(
+    'biz-farm-1', 'Farmacias San Rafael Express', 'farmacia', '💊',
     'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800&auto=format&fit=crop&q=60',
     '+52 55 8765 4321', 'Av. Central 452, Col. Del Valle', '{"lat": 19.3985, "lng": -99.1685}'::jsonb,
     '24 Horas (Lunes a Domingo)', 4.8, 142, true, true,
@@ -488,41 +546,42 @@ ON CONFLICT (id) DO NOTHING;
 -- ------------------------------------------------------------------------------
 -- SEED DATA: Usuarios y Credenciales de Acceso (Admin, Negocios y Clientes)
 -- ------------------------------------------------------------------------------
-INSERT INTO public.users (id, name, username, email, password, role, business_id, phone, is_active)
+INSERT INTO public.users (id, name, username, email, password, password_hash, role, business_id, phone, is_active)
 VALUES
 (
     'usr-superadmin-1', 'Harold Anguiano Morales', 'haroldo90',
-    'haroldo90@hotmail.com', 'Chevropar#1970', 'admin', NULL, '+52 55 1234 5678', true
+    'haroldo90@hotmail.com', 'Chevropar#1970', 'Chevropar#1970', 'admin', NULL, '+52 55 1234 5678', true
 ),
 (
-    'usr-admin-2', 'Anyel', 'anyel_admin',
-    'anyel-admin@hotmail.com', 'AnyelForce#2026!', 'admin', NULL, '+52 55 8765 4321', true
+    'usr-admin-2', 'Anyl', 'anyl_admin',
+    'anyl@conforce.com', 'Anyl#ConForce2026*!', 'Anyl#ConForce2026*!', 'admin', NULL, '+52 55 8765 4321', true
 ),
 (
     'usr-seller-1', 'Farmacia San Rafael', 'farmacia_sanrafael',
-    'contacto@sanrafael.com', 'SanRafael#2026', 'seller', 'biz-farm-1', '+52 55 5555 1111', true
+    'contacto@sanrafael.com', 'SanRafael#2026', 'SanRafael#2026', 'seller', 'biz-farmacia-1', '+52 55 5555 1111', true
 ),
 (
     'usr-seller-2', 'La Parrilla Urbana', 'parrilla_urbana',
-    'ventas@parrillaurbana.com', 'Parrilla#2026', 'seller', 'biz-resto-1', '+52 55 5555 2222', true
+    'ventas@parrillaurbana.com', 'Parrilla#2026', 'Parrilla#2026', 'seller', 'biz-resto-1', '+52 55 5555 2222', true
 ),
 (
     'usr-client-1', 'Harold Anguiano Morales', 'haroldo90_cli',
-    'haroldo90@cliente.com', 'Chevropar#1970', 'client', NULL, '+52 55 1234 5678', true
+    'haroldo90@cliente.com', 'Chevropar#1970', 'Chevropar#1970', 'client', NULL, '+52 55 1234 5678', true
 ),
 (
     'usr-client-2', 'María Elena López', 'marialopez',
-    'maria.lopez@gmail.com', 'Cliente#2026', 'client', NULL, '+52 55 9876 5432', true
+    'maria.lopez@gmail.com', 'Cliente#2026', 'Cliente#2026', 'client', NULL, '+52 55 9876 5432', true
 ),
 (
     'usr-client-3', 'Carlos Mendoza', 'carlosm',
-    'carlos.mendoza@yahoo.com', 'Carlos#2026', 'client', NULL, '+52 55 8912 3456', true
+    'carlos.mendoza@yahoo.com', 'Carlos#2026', 'Carlos#2026', 'client', NULL, '+52 55 8912 3456', true
 )
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     username = EXCLUDED.username,
     email = EXCLUDED.email,
     password = EXCLUDED.password,
+    password_hash = EXCLUDED.password_hash,
     role = EXCLUDED.role,
     business_id = EXCLUDED.business_id,
     phone = EXCLUDED.phone,
@@ -578,7 +637,7 @@ VALUES
 ),
 (
     'emp-4', 'Jorge Morales', 'jorge.morales@sanrafael.com',
-    '+52 55 7890 1234', 'Encargado de Mostrador y Despacho', 'Comercial & Afiliaciones', 'biz-farm-1', 14000.0, '2023-11-20', true
+    '+52 55 7890 1234', 'Encargado de Mostrador y Despacho', 'Comercial & Afiliaciones', 'biz-farmacia-1', 14000.0, '2023-11-20', true
 )
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
