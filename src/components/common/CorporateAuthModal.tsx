@@ -147,25 +147,6 @@ export const CorporateAuthModal: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Master Admin helper */}
-            <div className="p-3 bg-zinc-900/90 border border-zinc-800 rounded-xl flex items-center justify-between text-xs">
-              <div>
-                <span className="text-zinc-400 font-medium">Superadmin Master:</span>
-                <span className="ml-1 text-white font-mono font-bold">admin_master</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIdentifier('admin_master');
-                  setPassword('Chevropar#1970');
-                  setErrorMessage('');
-                }}
-                className="px-2.5 py-1 bg-red-950/80 hover:bg-red-900 border border-red-800/60 text-red-300 rounded-lg text-[11px] font-semibold transition-colors"
-              >
-                Autocompletar
-              </button>
-            </div>
-
             <button
               type="submit"
               disabled={isSubmitting}

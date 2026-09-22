@@ -130,7 +130,18 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
         if (activeCategory === 'offers') {
           return products.some((p) => p.businessId === biz.id && p.isOfferOfTheDay);
         }
-        return biz.category === activeCategory;
+        const cat = (biz.category || '').toLowerCase();
+        const f = activeCategory.toLowerCase();
+        if (cat.includes(f)) return true;
+        if (f === 'supermercado' && (cat.includes('víveres') || cat.includes('bodeg') || biz.tags.some(t => t.toLowerCase().includes('super')))) return true;
+        if (f === 'farmacia' && (cat.includes('salud') || cat.includes('medic') || biz.tags.some(t => t.toLowerCase().includes('farma')))) return true;
+        if (f === 'restaurante' && (cat.includes('comida') || cat.includes('gastronom') || biz.tags.some(t => t.toLowerCase().includes('comida')))) return true;
+        if (f === 'tecnologia' && (cat.includes('celular') || cat.includes('computac') || cat.includes('electr') || biz.tags.some(t => t.toLowerCase().includes('tech')))) return true;
+        if (f === 'moda' && (cat.includes('ropa') || cat.includes('calzado') || biz.tags.some(t => t.toLowerCase().includes('moda')))) return true;
+        if (f === 'hogar' && (cat.includes('ferreter') || cat.includes('mueble') || biz.tags.some(t => t.toLowerCase().includes('hogar')))) return true;
+        if (f === 'automotriz' && (cat.includes('repuesto') || cat.includes('taller') || cat.includes('auto') || biz.tags.some(t => t.toLowerCase().includes('auto')))) return true;
+        if (f === 'servicios' && (cat.includes('servicio') || cat.includes('técnico') || biz.tags.some(t => t.toLowerCase().includes('servicio')))) return true;
+        return cat === f;
       })
       .map((biz) => ({
         ...biz,
@@ -148,9 +159,21 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
         if (!parentBiz || !parentBiz.isActive) return false;
 
         // Category filter
-        if (activeCategory === 'farmacia' && parentBiz.category !== 'farmacia') return false;
-        if (activeCategory === 'restaurante' && parentBiz.category !== 'restaurante') return false;
         if (activeCategory === 'offers' && !prod.isOfferOfTheDay) return false;
+        if (activeCategory !== 'all' && activeCategory !== 'offers') {
+          const cat = ((parentBiz.category || '') + ' ' + (prod.category || '')).toLowerCase();
+          const f = activeCategory.toLowerCase();
+          let match = cat.includes(f);
+          if (f === 'supermercado' && (cat.includes('víveres') || cat.includes('bodeg') || prod.tags.some(t => t.toLowerCase().includes('super')))) match = true;
+          if (f === 'farmacia' && (cat.includes('salud') || cat.includes('medic') || prod.tags.some(t => t.toLowerCase().includes('farma')))) match = true;
+          if (f === 'restaurante' && (cat.includes('comida') || cat.includes('gastronom') || prod.tags.some(t => t.toLowerCase().includes('comida')))) match = true;
+          if (f === 'tecnologia' && (cat.includes('celular') || cat.includes('computac') || cat.includes('electr') || prod.tags.some(t => t.toLowerCase().includes('tech')))) match = true;
+          if (f === 'moda' && (cat.includes('ropa') || cat.includes('calzado') || prod.tags.some(t => t.toLowerCase().includes('moda')))) match = true;
+          if (f === 'hogar' && (cat.includes('ferreter') || cat.includes('mueble') || prod.tags.some(t => t.toLowerCase().includes('hogar')))) match = true;
+          if (f === 'automotriz' && (cat.includes('repuesto') || cat.includes('taller') || cat.includes('auto') || prod.tags.some(t => t.toLowerCase().includes('auto')))) match = true;
+          if (f === 'servicios' && (cat.includes('servicio') || cat.includes('técnico') || prod.tags.some(t => t.toLowerCase().includes('servicio')))) match = true;
+          if (!match) return false;
+        }
 
         // Search query
         if (searchQuery.trim()) {
@@ -241,7 +264,7 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
             </h3>
             <p className="text-xs text-zinc-300 max-w-lg leading-relaxed">
               {currentUser?.role === 'client'
-                ? 'Tu cuenta está activa con entrega prioritaria. Explora productos, farmacias y restaurantes.'
+                ? 'Tu cuenta está activa con entrega prioritaria. Explora productos, tiendas, farmacias, restaurantes, tecnología y repuestos.'
                 : 'Navega libremente. Si deseas pedir un producto o servicio, podrás iniciar sesión o registrarte al instante.'}
             </p>
           </div>
@@ -299,7 +322,7 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Buscar producto, comparar precios o tiendas (ej. paracetamol, hamburguesa)..."
+          placeholder="Buscar cualquier producto, comparar precios o tiendas (ej. café, celular, paracetamol, ropa, repuesto)..."
           className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-8 py-2.5 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#D4021D] focus:bg-white transition-all shadow-2xs"
         />
         {searchQuery && (
@@ -378,6 +401,17 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
             </button>
 
             <button
+              onClick={() => setActiveCategory('supermercado')}
+              className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === 'supermercado'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              🛒 Supermercados
+            </button>
+
+            <button
               onClick={() => setActiveCategory('farmacia')}
               className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeCategory === 'farmacia'
@@ -397,6 +431,61 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
               }`}
             >
               🍔 Restaurantes
+            </button>
+
+            <button
+              onClick={() => setActiveCategory('tecnologia')}
+              className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === 'tecnologia'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              📱 Tecnología
+            </button>
+
+            <button
+              onClick={() => setActiveCategory('moda')}
+              className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === 'moda'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              👕 Moda & Ropa
+            </button>
+
+            <button
+              onClick={() => setActiveCategory('automotriz')}
+              className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === 'automotriz'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              🚗 Automotriz
+            </button>
+
+            <button
+              onClick={() => setActiveCategory('hogar')}
+              className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === 'hogar'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              🏠 Hogar & Ferretería
+            </button>
+
+            <button
+              onClick={() => setActiveCategory('servicios')}
+              className={`px-3 py-1.2 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                activeCategory === 'servicios'
+                  ? 'bg-[#D4021D] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              🔧 Servicios
             </button>
 
             <button

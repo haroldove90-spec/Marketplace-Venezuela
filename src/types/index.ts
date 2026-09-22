@@ -1,6 +1,17 @@
 export type Role = 'client' | 'seller' | 'admin';
 
-export type BusinessCategory = 'farmacia' | 'restaurante';
+export type BusinessCategory =
+  | 'supermercado'
+  | 'farmacia'
+  | 'restaurante'
+  | 'tecnologia'
+  | 'moda'
+  | 'hogar'
+  | 'belleza'
+  | 'automotriz'
+  | 'servicios'
+  | 'general'
+  | string;
 
 export interface Coordinates {
   lat: number;

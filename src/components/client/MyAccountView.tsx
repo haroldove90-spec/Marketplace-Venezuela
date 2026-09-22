@@ -158,13 +158,13 @@ export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal })
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-900/60 border border-red-700/50 text-[11px] font-bold text-red-300 uppercase tracking-wider mb-1">
                 <Sparkles className="w-3 h-3 text-red-400" />
-                <span>Oportunidad para Negocios & Talleres</span>
+                <span>Oportunidad para Negocios & Marcas</span>
               </div>
               <h3 className="text-base font-bold text-white">
-                ¿Tienes una Tienda de Repuestos o Taller Automotriz?
+                ¿Tienes un Negocio, Tienda o Empresa?
               </h3>
               <p className="text-xs text-zinc-300 max-w-xl mt-0.5">
-                Publica tu catálogo, recibe pedidos automáticos por WhatsApp y llega a miles de conductores. Puedes registrar tu comercio y vincularlo a tu cuenta ahora mismo.
+                Publica tu catálogo, recibe pedidos directos por WhatsApp y llega a miles de compradores. Registra tu comercio de cualquier rubro y vincúlalo a tu cuenta ahora mismo.
               </p>
             </div>
           </div>

@@ -58,10 +58,10 @@ export const RegisterBusinessModal: React.FC = () => {
       setIsSponsor(isRegisteringAsSponsor);
       if (isRegisteringAsSponsor) {
         setSelectedEmoji('⭐');
-        setCategory('Marca Oficial / Patrocinador');
+        setCategory('Marca Oficial / Patrocinador Corporativo');
       } else {
         setSelectedEmoji('🏢');
-        setCategory('Repuestos Nuevos Chevrolet / Ford / Toyota');
+        setCategory('Comercio General, Variedades & Regalos');
       }
     }
   }, [isRegisterBusinessModalOpen, isRegisteringAsSponsor]);
@@ -294,7 +294,7 @@ export const RegisterBusinessModal: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                  {isSponsor ? 'Nombre de la Marca o Empresa Patrocinadora *' : 'Nombre Comercial del Negocio / Taller *'}
+                  {isSponsor ? 'Nombre de la Marca o Empresa Patrocinadora *' : 'Nombre Comercial del Negocio, Tienda o Empresa *'}
                 </label>
                 <div className="relative">
                   <Store className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
@@ -303,7 +303,7 @@ export const RegisterBusinessModal: React.FC = () => {
                     required
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
-                    placeholder={isSponsor ? 'Ej. Motul Venezuela / Mobil 1 / Bosch Automotriz' : 'Ej. Inversiones Chevropar C.A. / Taller Master Car'}
+                    placeholder={isSponsor ? 'Ej. Samsung / Polar / Nestlé / Motul / Bosch' : 'Ej. Supermercado Central / Farmacia La Fuente / Tienda Tech / Moda Caracas'}
                     className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   />
                 </div>
@@ -320,24 +320,27 @@ export const RegisterBusinessModal: React.FC = () => {
                 >
                   {isSponsor ? (
                     <>
-                      <option value="Marca Oficial / Patrocinador">Marca Oficial / Patrocinador</option>
-                      <option value="Lubricantes y Fluidos">Lubricantes y Fluidos</option>
-                      <option value="Baterías y Sistema Eléctrico">Baterías y Sistema Eléctrico</option>
-                      <option value="Frenos y Suspensión">Frenos y Suspensión</option>
-                      <option value="Cauchos y Neumáticos">Cauchos y Neumáticos</option>
-                      <option value="Repuestos Multimarca">Repuestos Multimarca</option>
+                      <option value="Marca Oficial / Patrocinador Corporativo">Marca Oficial / Patrocinador Corporativo</option>
+                      <option value="Alimentos y Bebidas">Alimentos y Bebidas</option>
+                      <option value="Salud y Cuidado Personal">Salud y Cuidado Personal</option>
+                      <option value="Tecnología y Telecomunicaciones">Tecnología y Telecomunicaciones</option>
+                      <option value="Moda y Calzado">Moda y Calzado</option>
+                      <option value="Automotriz y Lubricantes">Automotriz y Lubricantes</option>
+                      <option value="Hogar y Construcción">Hogar y Construcción</option>
+                      <option value="Servicios Empresariales & Seguros">Servicios Empresariales & Seguros</option>
                     </>
                   ) : (
                     <>
-                      <option value="Repuestos Nuevos Chevrolet / Ford / Toyota">Repuestos Nuevos Chevrolet / Ford / Toyota</option>
-                      <option value="Frenos y Suspensión">Frenos y Suspensión</option>
-                      <option value="Taller Mecánico & Escaneo">Taller Mecánico & Diagnóstico</option>
-                      <option value="Baterías y Sistema Eléctrico">Baterías y Sistema Eléctrico</option>
-                      <option value="Motores y Transmisión">Motores y Transmisión</option>
-                      <option value="Autoperiquitos y Accesorios">Autoperiquitos y Accesorios</option>
-                      <option value="Cauchos y Rines">Cauchos y Rines</option>
-                      <option value="Lubricantes y Filtros">Lubricantes y Filtros</option>
-                      <option value="Repuestos Multimarca">Repuestos Multimarca</option>
+                      <option value="Supermercados, Bodegones & Víveres">Supermercados, Bodegones & Víveres</option>
+                      <option value="Farmacias, Salud & Cuidado Personal">Farmacias, Salud & Cuidado Personal</option>
+                      <option value="Restaurantes, Comida & Gastronomía">Restaurantes, Comida & Gastronomía</option>
+                      <option value="Tecnología, Computación & Celulares">Tecnología, Computación & Celulares</option>
+                      <option value="Ropa, Calzado & Moda">Ropa, Calzado & Moda</option>
+                      <option value="Hogar, Muebles & Ferretería">Hogar, Muebles & Ferretería</option>
+                      <option value="Belleza, Estética & Barbería">Belleza, Estética & Barbería</option>
+                      <option value="Repuestos, Talleres & Automotriz">Repuestos, Talleres & Automotriz</option>
+                      <option value="Servicios Profesionales & Técnicos">Servicios Profesionales & Técnicos</option>
+                      <option value="Comercio General, Variedades & Regalos">Comercio General, Variedades & Regalos</option>
                     </>
                   )}
                 </select>

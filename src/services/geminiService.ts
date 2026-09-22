@@ -1,12 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
-import { Business, Product } from '../types';
+import { Business, Product, BusinessCategory } from '../types';
 
 export interface ChatbotResponse {
   messageText: string;
   foundProducts: Product[];
   recommendedBusinesses: Business[];
   deepLink?: string;
-  categoryDetected?: 'farmacia' | 'restaurante';
+  categoryDetected?: BusinessCategory;
 }
 
 export async function processChatbotMessage(
@@ -40,7 +40,7 @@ export async function processChatbotMessage(
   // Try using Gemini API if key is available
   try {
     const ai = new GoogleGenAI({});
-    const prompt = `Eres el asistente inteligente oficial de WhatsApp para la aplicación móvil "Pulso" (Farmacias y Restaurantes).
+    const prompt = `Eres el asistente inteligente oficial de WhatsApp para la plataforma móvil "Con Force" (Marketplace Global de comercios, tiendas, farmacias, restaurantes, tecnología y repuestos).
 Tu objetivo es responder de manera ultra concisa, cordial y directa como en WhatsApp.
 
 UBICACIÓN DEL USUARIO: ${userLocation ? `Lat: ${userLocation.lat}, Lng: ${userLocation.lng}` : 'Ubicación no proporcionada aún'}
@@ -51,7 +51,7 @@ ${JSON.stringify(catalogContext, null, 2)}
 MENSAJE DEL CLIENTE: "${userMessage}"
 
 INSTRUCCIONES DE RESPUESTA:
-1. Identifica qué producto, categoría (farmacia/comida) o síntoma/antojo busca el cliente.
+1. Identifica qué producto, categoría o servicio busca el cliente.
 2. Encuentra los productos o negocios más adecuados y con stock.
 3. Responde en español en tono WhatsApp (usando emojis apropiados, sin rodeos ni textos largos).
 4. Genera la respuesta en formato JSON estrictamente válido con la estructura:
@@ -59,7 +59,7 @@ INSTRUCCIONES DE RESPUESTA:
   "messageText": "Texto conciso para el usuario en WhatsApp",
   "matchedBusinessIds": ["id_del_negocio"],
   "matchedProductIds": ["id_del_producto"],
-  "category": "farmacia" o "restaurante" o null,
+  "category": "nombre_categoria" o null,
   "deepLinkSlug": "slug descriptivo para el deep link de la app"
 }
 `;

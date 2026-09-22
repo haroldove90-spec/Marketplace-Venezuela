@@ -359,7 +359,7 @@ export const ClientAuthModal: React.FC = () => {
           {/* Business register quick link */}
           <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between gap-2 text-xs">
             <span className="text-zinc-300">
-              ¿Tienes un negocio o taller automotriz?
+              ¿Tienes un negocio, tienda o empresa?
             </span>
             <button
               type="button"
@@ -367,7 +367,7 @@ export const ClientAuthModal: React.FC = () => {
                 setIsClientAuthModalOpen(false);
                 useApp().openBusinessRegistration(false);
               }}
-              className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] rounded-lg transition-colors shrink-0"
+              className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] rounded-lg transition-colors shrink-0 cursor-pointer"
             >
               Registrar Negocio
             </button>
