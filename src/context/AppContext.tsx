@@ -47,6 +47,7 @@ import {
   testSupabaseConnection,
   seedAllDataToSupabase,
   updateUserInSupabase,
+  deleteUserInSupabase,
   insertUserInSupabase,
   insertClientInSupabase,
   insertBusinessInSupabase,
@@ -227,10 +228,11 @@ interface AppContextType {
   getCorporateShareUrl: () => string;
 
   // Admin CRUD for Users
-  addUser: (user: Omit<UserAccount, 'id' | 'createdAt'>) => void;
-  updateUser: (id: string, updates: Partial<UserAccount>) => void;
-  toggleSuspendUser: (id: string) => void;
-  deleteUser: (id: string) => void;
+  addUser: (user: Omit<UserAccount, 'id' | 'createdAt'>) => Promise<{ success: boolean; error?: string }>;
+  updateUser: (id: string, updates: Partial<UserAccount>) => Promise<void>;
+  toggleSuspendUser: (id: string) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  syncAllUsersToSupabase: () => Promise<{ success: boolean; count: number; message: string }>;
 
   // Admin CRUD for Clients
   addClient: (client: Omit<ClientProfile, 'id' | 'registeredAt'>) => void;
@@ -1076,16 +1078,54 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Admin CRUD for Users
-  const addUser = (user: Omit<UserAccount, 'id' | 'createdAt'>) => {
+  const addUser = async (
+    user: Omit<UserAccount, 'id' | 'createdAt'>
+  ): Promise<{ success: boolean; error?: string }> => {
     const newU: UserAccount = {
       ...user,
       id: `usr-${Date.now()}`,
       createdAt: new Date().toISOString().split('T')[0]
     };
+
+    // Actualizar estado local inmediatamente
     setUsers((prev) => [newU, ...prev]);
+
+    // Si el rol es cliente, agregar también el perfil de cliente
+    if (newU.role === 'client') {
+      const newC: ClientProfile = {
+        id: `cli-${Date.now()}`,
+        userId: newU.id,
+        name: newU.name,
+        username: newU.username,
+        email: newU.email,
+        phone: newU.phone || '',
+        address: newU.address || '',
+        totalOrders: 0,
+        totalSpent: 0,
+        status: 'active',
+        registeredAt: newU.createdAt
+      };
+      setClients((prev) => [newC, ...prev]);
+      insertClientInSupabase(newC).catch((e) =>
+        console.warn('Notice saving client in Supabase:', e)
+      );
+    }
+
+    // Persistir directamente en Supabase
+    try {
+      const res = await insertUserInSupabase(newU);
+      if (!res.success) {
+        console.warn('Aviso guardando usuario en Supabase:', res.error);
+        return { success: false, error: res.error };
+      }
+      return { success: true };
+    } catch (e: any) {
+      console.warn('Excepción guardando usuario en Supabase:', e);
+      return { success: false, error: e.message || String(e) };
+    }
   };
 
-  const updateUser = async (id: string, updates: Partial<UserAccount>) => {
+  const updateUser = async (id: string, updates: Partial<UserAccount>): Promise<void> => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, ...updates } : u))
     );
@@ -1142,20 +1182,75 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const toggleSuspendUser = (id: string) => {
+  const toggleSuspendUser = async (id: string): Promise<void> => {
+    let nextStatus: 'active' | 'suspended' = 'active';
     setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id
-          ? { ...u, status: u.status === 'active' ? 'suspended' : 'active' }
-          : u
-      )
+      prev.map((u) => {
+        if (u.id === id) {
+          nextStatus = u.status === 'active' ? 'suspended' : 'active';
+          return { ...u, status: nextStatus };
+        }
+        return u;
+      })
     );
+
+    try {
+      await updateUserInSupabase(id, { status: nextStatus });
+    } catch (e) {
+      console.warn('Error actualizando estado en Supabase:', e);
+    }
   };
 
-  const deleteUser = (id: string) => {
+  const deleteUser = async (id: string): Promise<void> => {
     setUsers((prev) => prev.filter((u) => u.id !== id));
     setClients((prev) => prev.filter((c) => c.userId !== id));
     setEmployees((prev) => prev.filter((e) => e.userId !== id));
+
+    try {
+      await deleteUserInSupabase(id);
+    } catch (e) {
+      console.warn('Error eliminando usuario de Supabase:', e);
+    }
+  };
+
+  const syncAllUsersToSupabase = async (): Promise<{
+    success: boolean;
+    count: number;
+    message: string;
+  }> => {
+    try {
+      let syncedCount = 0;
+      for (const u of users) {
+        const res = await insertUserInSupabase(u);
+        if (res.success) syncedCount++;
+        if (u.role === 'client') {
+          await insertClientInSupabase({
+            id: `cli-${Date.now()}`,
+            userId: u.id,
+            name: u.name,
+            username: u.username,
+            email: u.email,
+            phone: u.phone || '',
+            address: u.address || '',
+            totalOrders: 0,
+            totalSpent: 0,
+            status: 'active',
+            registeredAt: u.createdAt || new Date().toISOString().split('T')[0]
+          }).catch(() => {});
+        }
+      }
+      return {
+        success: true,
+        count: syncedCount,
+        message: `¡Se han sincronizado ${syncedCount} usuarios con Supabase con éxito!`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        count: 0,
+        message: `Error al sincronizar usuarios con Supabase: ${e.message || String(e)}`
+      };
+    }
   };
 
   // Admin CRUD for Clients
@@ -1166,6 +1261,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       registeredAt: new Date().toISOString().split('T')[0]
     };
     setClients((prev) => [newC, ...prev]);
+    insertClientInSupabase(newC).catch((e) =>
+      console.warn('Notice saving client in Supabase:', e)
+    );
   };
 
   const updateClient = (id: string, updates: Partial<ClientProfile>) => {
@@ -1434,10 +1532,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (remoteUsers && remoteUsers.length > 0) {
           setUsers((prev) => {
             const map = new Map<string, UserAccount>();
-            // Add local users first
-            prev.forEach((u) => map.set(u.id, u));
             // Remote Supabase users take authoritative precedence
             remoteUsers.forEach((u) => map.set(u.id, u));
+
+            // Identificar usuarios locales ausentes en Supabase (ej. johana90 creado previamente)
+            const remoteUsernames = new Set(
+              remoteUsers.map((u) => u.username.toLowerCase())
+            );
+            const remoteEmails = new Set(
+              remoteUsers.map((u) => u.email.toLowerCase())
+            );
+
+            prev.forEach((localU) => {
+              if (!map.has(localU.id)) {
+                map.set(localU.id, localU);
+              }
+              // Si no existe en Supabase y no es el admin_master, auto-sincronizarlo ahora mismo
+              if (
+                !remoteUsernames.has(localU.username.toLowerCase()) &&
+                !remoteEmails.has(localU.email.toLowerCase())
+              ) {
+                console.info(
+                  `Auto-sincronizando usuario local "${localU.username}" a Supabase...`
+                );
+                insertUserInSupabase(localU).catch((e) =>
+                  console.warn(`Error auto-syncing ${localU.username}:`, e)
+                );
+                if (localU.role === 'client') {
+                  insertClientInSupabase({
+                    id: `cli-${Date.now()}`,
+                    userId: localU.id,
+                    name: localU.name,
+                    username: localU.username,
+                    email: localU.email,
+                    phone: localU.phone || '',
+                    address: localU.address || '',
+                    totalOrders: 0,
+                    totalSpent: 0,
+                    status: 'active',
+                    registeredAt: localU.createdAt || new Date().toISOString().split('T')[0]
+                  }).catch(() => {});
+                }
+              }
+            });
+
             return Array.from(map.values());
           });
         }
@@ -2086,6 +2224,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateUser,
         toggleSuspendUser,
         deleteUser,
+        syncAllUsersToSupabase,
 
         // Admin CRUD for Clients
         addClient,

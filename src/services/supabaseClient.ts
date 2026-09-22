@@ -629,6 +629,7 @@ export async function updateUserInSupabase(
     password?: string;
     phone?: string;
     address?: string;
+    status?: string;
     businessId?: string;
   }
 ): Promise<{ success: boolean; error?: string }> {
@@ -643,6 +644,8 @@ export async function updateUserInSupabase(
       payload.password_hash = updates.password;
     }
     if (updates.phone !== undefined) payload.phone = updates.phone;
+    if (updates.address !== undefined) payload.address = updates.address;
+    if (updates.status !== undefined) payload.status = updates.status;
 
     const { error } = await supabase
       .from('users')
@@ -656,6 +659,26 @@ export async function updateUserInSupabase(
     return { success: true };
   } catch (err: any) {
     console.warn('Excepción actualizando usuario en Supabase:', err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
+/**
+ * Deletes a user and related client record from Supabase
+ */
+export async function deleteUserInSupabase(
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase.from('users').delete().eq('id', userId);
+    if (error) {
+      console.warn('Error eliminando usuario de Supabase:', error);
+      return { success: false, error: error.message };
+    }
+    await supabase.from('clients').delete().eq('user_id', userId);
+    return { success: true };
+  } catch (err: any) {
+    console.warn('Excepción eliminando usuario de Supabase:', err);
     return { success: false, error: err.message || String(err) };
   }
 }

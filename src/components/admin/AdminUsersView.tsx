@@ -18,7 +18,9 @@ import {
   Edit3,
   Key,
   Eye,
-  EyeOff
+  EyeOff,
+  RefreshCw,
+  Database
 } from 'lucide-react';
 
 export const AdminUsersView: React.FC = () => {
@@ -28,12 +30,16 @@ export const AdminUsersView: React.FC = () => {
     updateUser,
     toggleSuspendUser,
     deleteUser,
+    syncAllUsersToSupabase,
     businesses
   } = useApp();
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   // New user form state
   const [name, setName] = useState('');
@@ -66,7 +72,22 @@ export const AdminUsersView: React.FC = () => {
     return matchSearch && matchRole;
   });
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    setSyncFeedback(null);
+    try {
+      const res = await syncAllUsersToSupabase();
+      setSyncFeedback(res.message);
+      setTimeout(() => setSyncFeedback(null), 6000);
+    } catch (e: any) {
+      setSyncFeedback('Error sincronizando: ' + (e.message || String(e)));
+      setTimeout(() => setSyncFeedback(null), 6000);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -80,7 +101,8 @@ export const AdminUsersView: React.FC = () => {
       return;
     }
 
-    addUser({
+    setIsCreating(true);
+    const res = await addUser({
       name: name.trim(),
       username: username.trim(),
       email: email.trim(),
@@ -90,6 +112,12 @@ export const AdminUsersView: React.FC = () => {
       businessId: role === 'seller' ? businessId : undefined,
       phone: phone.trim() || undefined
     });
+    setIsCreating(false);
+
+    if (res && !res.success && res.error) {
+      // Si hubo error en Supabase, podemos informar o cerrar si se guardó localmente
+      console.warn('Supabase create user error:', res.error);
+    }
 
     // Reset and close
     setName('');
@@ -176,14 +204,33 @@ export const AdminUsersView: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-950 cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Crear Nuevo Usuario</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            title="Sincronizar todos los usuarios con Supabase"
+            className="flex items-center justify-center gap-2 px-3.5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Sincronizando...' : 'Sincronizar a Supabase'}</span>
+          </button>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-950 cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Crear Nuevo Usuario</span>
+          </button>
+        </div>
       </div>
+
+      {syncFeedback && (
+        <div className="p-3 bg-emerald-950/80 border border-emerald-700/80 rounded-2xl flex items-center gap-2.5 text-xs text-emerald-200 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{syncFeedback}</span>
+        </div>
+      )}
 
       {/* Filters and search */}
       <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -458,9 +505,17 @@ export const AdminUsersView: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#D4021D] hover:bg-red-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-xs"
+                  disabled={isCreating}
+                  className="px-4 py-2 bg-[#D4021D] hover:bg-red-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                 >
-                  Guardar Usuario
+                  {isCreating ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    'Guardar Usuario'
+                  )}
                 </button>
               </div>
             </form>
