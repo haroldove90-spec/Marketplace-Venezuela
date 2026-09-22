@@ -184,25 +184,36 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
         </div>
 
         {/* Footnote */}
-        <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400">
+        <div className="pt-2 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
           <button
             onClick={() => {
               onClose();
-              setIsCorporateAuthModalOpen(true);
+              useApp().openBusinessRegistration(currentUser?.role === 'client');
             }}
-            className="text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
+            className="text-amber-400 hover:text-amber-300 font-bold transition-colors cursor-pointer"
           >
-            Acceso Corporativo (Admin / Negocio)
+            + Registrar Nuevo Negocio
           </button>
-          <button
-            onClick={() => {
-              onClose();
-              setIsClientAuthModalOpen(true);
-            }}
-            className="text-zinc-300 hover:text-white font-medium transition-colors cursor-pointer"
-          >
-            Portal de Clientes
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                onClose();
+                setIsCorporateAuthModalOpen(true);
+              }}
+              className="text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
+            >
+              Acceso Admin/Negocio
+            </button>
+            <button
+              onClick={() => {
+                onClose();
+                setIsClientAuthModalOpen(true);
+              }}
+              className="text-zinc-300 hover:text-white font-medium transition-colors cursor-pointer"
+            >
+              Portal Clientes
+            </button>
+          </div>
         </div>
       </div>
     </div>

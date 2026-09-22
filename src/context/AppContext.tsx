@@ -42,6 +42,8 @@ import {
   testSupabaseConnection,
   seedAllDataToSupabase,
   updateUserInSupabase,
+  insertUserInSupabase,
+  insertBusinessInSupabase,
   SUPABASE_URL
 } from '../services/supabaseClient';
 
@@ -160,6 +162,31 @@ interface AppContextType {
   loginAsCorporate: (identifier: string, password: string) => { success: boolean; message: string; role?: Role; user?: UserAccount };
   loginAsClient: (identifier: string, password: string) => { success: boolean; message: string; user?: UserAccount };
   registerClient: (data: { name: string; username: string; email: string; password: string; phone: string; address: string }) => { success: boolean; message: string; user?: UserAccount };
+  registerBusiness: (data: {
+    businessName: string;
+    category: string;
+    address: string;
+    logo?: string;
+    banner?: string;
+    phone: string;
+    description?: string;
+    rifOrNit?: string;
+    ownerName: string;
+    username: string;
+    email: string;
+    password: string;
+    ownerPhone?: string;
+  }) => { success: boolean; message: string; business?: Business; user?: UserAccount };
+  upgradeClientToBusiness: (data: {
+    businessName: string;
+    category: string;
+    address: string;
+    logo?: string;
+    banner?: string;
+    phone: string;
+    description?: string;
+    rifOrNit?: string;
+  }) => { success: boolean; message: string; business?: Business; user?: UserAccount };
   logout: () => void;
   switchRole: (targetRole: Role) => { allowed: boolean; message?: string };
 
@@ -168,12 +195,18 @@ interface AppContextType {
   setIsClientAuthModalOpen: (open: boolean) => void;
   isCorporateAuthModalOpen: boolean;
   setIsCorporateAuthModalOpen: (open: boolean) => void;
+  isRegisterBusinessModalOpen: boolean;
+  setIsRegisterBusinessModalOpen: (open: boolean) => void;
+  openBusinessRegistration: (forClientUpgrade?: boolean) => void;
   isProfileModalOpen: boolean;
   setIsProfileModalOpen: (open: boolean) => void;
   clientAuthIntent: 'login' | 'register' | 'order_checkout';
   setClientAuthIntent: (intent: 'login' | 'register' | 'order_checkout') => void;
   isMarketplaceRoute: boolean;
+  currentRoute: 'marketplace' | 'corporate';
+  navigateToRoute: (route: 'marketplace' | 'corporate') => void;
   getMarketplaceShareUrl: () => string;
+  getCorporateShareUrl: () => string;
 
   // Admin CRUD for Users
   addUser: (user: Omit<UserAccount, 'id' | 'createdAt'>) => void;
@@ -302,27 +335,66 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Modals for Auth
   const [isClientAuthModalOpen, setIsClientAuthModalOpen] = useState(false);
   const [isCorporateAuthModalOpen, setIsCorporateAuthModalOpen] = useState(false);
+  const [isRegisterBusinessModalOpen, setIsRegisterBusinessModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [clientAuthIntent, setClientAuthIntent] = useState<'login' | 'register' | 'order_checkout'>('login');
 
-  // Route Detection for Independent Marketplace Link
-  const isMarketplaceRoute = typeof window !== 'undefined' && (
-    window.location.pathname.toLowerCase().includes('/marketplace') ||
-    window.location.search.toLowerCase().includes('marketplace') ||
-    window.location.hash.toLowerCase().includes('marketplace')
-  );
+  const openBusinessRegistration = (forClientUpgrade = false) => {
+    setIsRegisterBusinessModalOpen(true);
+  };
+
+  // Route Detection for Independent Marketplace Link vs Corporate Portal
+  const [currentRoute, setCurrentRoute] = useState<'marketplace' | 'corporate'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const search = window.location.search.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path.includes('/marketplace') || search.includes('marketplace') || hash.includes('marketplace')) {
+        return 'marketplace';
+      }
+    }
+    return 'corporate';
+  });
+
+  const isMarketplaceRoute = currentRoute === 'marketplace';
 
   useEffect(() => {
     if (isMarketplaceRoute) {
       setCurrentRole('client');
       setActiveClientTab('explore');
     }
-  }, []);
+  }, [isMarketplaceRoute]);
+
+  const navigateToRoute = (route: 'marketplace' | 'corporate') => {
+    setCurrentRoute(route);
+    if (typeof window !== 'undefined') {
+      const newPath = route === 'marketplace' ? '/marketplace' : '/';
+      try {
+        window.history.pushState({}, '', newPath);
+      } catch (e) {}
+    }
+    if (route === 'marketplace') {
+      setCurrentRole('client');
+      setActiveClientTab('explore');
+    } else {
+      if (currentUser?.role === 'admin') {
+        setCurrentRole('admin');
+        setActiveAdminTab('overview');
+      } else if (currentUser?.role === 'seller') {
+        setCurrentRole('seller');
+        setActiveSellerTab('orders');
+      } else {
+        setCurrentRole('client');
+      }
+    }
+  };
 
   const getMarketplaceShareUrl = () => {
-    if (typeof window === 'undefined') return 'https://conforce.app/marketplace';
-    const origin = window.location.origin;
-    return `${origin}/marketplace`;
+    return 'https://venezuela-iota.vercel.app/marketplace';
+  };
+
+  const getCorporateShareUrl = () => {
+    return 'https://venezuela-iota.vercel.app/';
   };
 
   // Sync users, employees and clients to localStorage
@@ -350,6 +422,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const loginAsCorporate = (identifier: string, password: string) => {
     const cleanId = identifier.trim().toLowerCase();
     const cleanPass = password.trim();
+
+    // Direct guaranteed check for admin_master with Chevropar#1970
+    if ((cleanId === 'admin_master' || cleanId === 'admin_master@conforce.com') && cleanPass === 'Chevropar#1970') {
+      let master = users.find((u) => u.username === 'admin_master');
+      if (!master) {
+        master = {
+          id: 'usr-admin-master',
+          name: 'Administrador Master Con Force',
+          username: 'admin_master',
+          email: 'admin_master@conforce.com',
+          password: 'Chevropar#1970',
+          role: 'admin',
+          status: 'active',
+          department: 'Dirección General & Superadministración',
+          phone: '+52 55 9988 7766',
+          createdAt: '2026-01-01',
+          lastLogin: 'Justo ahora'
+        };
+        setUsers((prev) => [master!, ...prev]);
+      }
+      setCurrentUser(master);
+      setCurrentRole('admin');
+      setActiveAdminTab('overview');
+      setIsCorporateAuthModalOpen(false);
+      return {
+        success: true,
+        message: '¡Bienvenido Superadministrador Master!',
+        role: 'admin',
+        user: master
+      };
+    }
 
     const user = users.find(
       (u) =>
@@ -502,6 +605,197 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       success: true,
       message: '¡Tu cuenta ha sido creada exitosamente! Bienvenido a Con Force.',
       user: newUser
+    };
+  };
+
+  const registerBusiness = (data: {
+    businessName: string;
+    category: string;
+    address: string;
+    logo?: string;
+    banner?: string;
+    phone: string;
+    description?: string;
+    rifOrNit?: string;
+    ownerName: string;
+    username: string;
+    email: string;
+    password: string;
+    ownerPhone?: string;
+  }) => {
+    const cleanEmail = data.email.trim().toLowerCase();
+    const cleanUsername = data.username.trim().toLowerCase();
+
+    // Check duplicate username or email
+    const exists = users.some(
+      (u) => u.email.toLowerCase() === cleanEmail || u.username.toLowerCase() === cleanUsername
+    );
+    if (exists) {
+      return {
+        success: false,
+        message: 'Ya existe un usuario o correo registrado con esas credenciales. Elige otro usuario o inicia sesión.'
+      };
+    }
+
+    const newBizId = `biz-${Date.now()}`;
+    const newUserId = `usr-seller-${Date.now()}`;
+
+    const newBusiness: Business = {
+      id: newBizId,
+      name: data.businessName.trim(),
+      category: data.category || 'Repuestos y Servicios',
+      rating: 5.0,
+      reviewsCount: 1,
+      deliveryTime: '20-40 min',
+      minOrder: 0,
+      address: data.address.trim(),
+      coordinates: DEFAULT_CENTER_COORDS,
+      logo: data.logo || '🏢',
+      bannerImage: data.banner || 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80',
+      description: data.description || 'Comercio oficial afiliado a Con Force Marketplace.',
+      phone: data.phone.trim(),
+      tags: [data.category || 'Repuestos', 'Atención Directa', 'Garantía'],
+      isVerified: true,
+      isActive: true,
+      openingHours: '08:00 AM - 07:00 PM',
+      commissionRate: 10,
+      customPinColor: '#D4021D'
+    };
+
+    const newUser: UserAccount = {
+      id: newUserId,
+      name: data.ownerName.trim(),
+      username: cleanUsername,
+      email: cleanEmail,
+      password: data.password,
+      role: 'seller',
+      businessId: newBizId,
+      status: 'active',
+      phone: (data.ownerPhone || data.phone).trim(),
+      address: data.address.trim(),
+      department: 'Gerencia y Ventas',
+      createdAt: new Date().toISOString().split('T')[0],
+      lastLogin: 'Justo ahora'
+    };
+
+    const newEmployee: EmployeeProfile = {
+      id: `emp-${Date.now()}`,
+      userId: newUserId,
+      fullName: data.ownerName.trim(),
+      username: cleanUsername,
+      email: cleanEmail,
+      password: data.password,
+      roleTitle: `Gerente General - ${data.businessName.trim()}`,
+      systemRole: 'seller',
+      department: 'Comercial & Negocios',
+      status: 'active',
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    setBusinesses((prev) => [newBusiness, ...prev]);
+    setUsers((prev) => [newUser, ...prev]);
+    setEmployees((prev) => [newEmployee, ...prev]);
+    setSelectedBusinessId(newBizId);
+    setCurrentUser(newUser);
+    setCurrentRole('seller');
+    setActiveSellerTab('orders');
+    setIsCorporateAuthModalOpen(false);
+    setIsRegisterBusinessModalOpen(false);
+
+    // Sync in background to Supabase
+    try {
+      insertBusinessInSupabase(newBusiness);
+      insertUserInSupabase(newUser);
+    } catch (e) {
+      console.warn('Sync to Supabase warning:', e);
+    }
+
+    return {
+      success: true,
+      message: `¡Felicidades! Tu negocio "${newBusiness.name}" ha sido registrado exitosamente en el Marketplace.`,
+      business: newBusiness,
+      user: newUser
+    };
+  };
+
+  const upgradeClientToBusiness = (data: {
+    businessName: string;
+    category: string;
+    address: string;
+    logo?: string;
+    banner?: string;
+    phone: string;
+    description?: string;
+    rifOrNit?: string;
+  }) => {
+    if (!currentUser) {
+      return {
+        success: false,
+        message: 'Debes tener una sesión iniciada para vincular tu negocio a tu cuenta.'
+      };
+    }
+
+    const newBizId = `biz-${Date.now()}`;
+
+    const newBusiness: Business = {
+      id: newBizId,
+      name: data.businessName.trim(),
+      category: data.category || 'Repuestos y Servicios',
+      rating: 5.0,
+      reviewsCount: 1,
+      deliveryTime: '20-40 min',
+      minOrder: 0,
+      address: data.address.trim(),
+      coordinates: DEFAULT_CENTER_COORDS,
+      logo: data.logo || '🏢',
+      bannerImage: data.banner || 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80',
+      description: data.description || 'Comercio oficial afiliado a Con Force Marketplace.',
+      phone: data.phone.trim(),
+      tags: [data.category || 'Repuestos', 'Comercio Aliado', 'Garantía'],
+      isVerified: true,
+      isActive: true,
+      openingHours: '08:00 AM - 07:00 PM',
+      commissionRate: 10,
+      customPinColor: '#D4021D'
+    };
+
+    // Update currentUser to seller role and attach businessId
+    const updatedUser: UserAccount = {
+      ...currentUser,
+      role: 'seller',
+      businessId: newBizId,
+      phone: data.phone.trim() || currentUser.phone,
+      address: data.address.trim() || currentUser.address,
+      department: 'Gerencia de Negocio Afiliado'
+    };
+
+    setBusinesses((prev) => [newBusiness, ...prev]);
+    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? updatedUser : u)));
+    setCurrentUser(updatedUser);
+    setSelectedBusinessId(newBizId);
+    setCurrentRole('seller');
+    setActiveSellerTab('orders');
+    setIsRegisterBusinessModalOpen(false);
+    setIsCorporateAuthModalOpen(false);
+
+    // Sync in background to Supabase
+    try {
+      insertBusinessInSupabase(newBusiness);
+      updateUserInSupabase(currentUser.id, {
+        role: 'seller' as any,
+        businessId: newBizId,
+        phone: updatedUser.phone,
+        address: updatedUser.address
+      });
+    } catch (e) {
+      console.warn('Sync to Supabase warning:', e);
+    }
+
+    return {
+      success: true,
+      message: `¡Excelente! Tu cuenta @${currentUser.username} ha sido convertida a Comercio Aliado y tu negocio "${newBusiness.name}" está activo en el Marketplace.`,
+      business: newBusiness,
+      user: updatedUser
     };
   };
 
@@ -1418,6 +1712,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginAsCorporate,
         loginAsClient,
         registerClient,
+        registerBusiness,
+        upgradeClientToBusiness,
         logout,
         switchRole,
 
@@ -1426,12 +1722,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsClientAuthModalOpen,
         isCorporateAuthModalOpen,
         setIsCorporateAuthModalOpen,
+        isRegisterBusinessModalOpen,
+        setIsRegisterBusinessModalOpen,
+        openBusinessRegistration,
         isProfileModalOpen,
         setIsProfileModalOpen,
         clientAuthIntent,
         setClientAuthIntent,
         isMarketplaceRoute,
+        currentRoute,
+        navigateToRoute,
         getMarketplaceShareUrl,
+        getCorporateShareUrl,
 
         // Admin CRUD for Users
         addUser,

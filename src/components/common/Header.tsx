@@ -39,6 +39,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
     setIsClientAuthModalOpen,
     setIsCorporateAuthModalOpen,
     setIsProfileModalOpen,
+    openBusinessRegistration,
+    navigateToRoute,
     getMarketplaceShareUrl
   } = useApp();
 
@@ -188,12 +190,37 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
                       <User className="w-3.5 h-3.5 text-[#D4021D]" />
                       <span>Mi Perfil y Contraseña</span>
                     </button>
+
+                    {currentUser.role === 'client' && (
+                      <button
+                        onClick={() => {
+                          setShowUserDropdown(false);
+                          openBusinessRegistration(true);
+                        }}
+                        className="w-full text-left px-2.5 py-2 hover:bg-zinc-900 rounded-lg flex items-center gap-2 text-amber-300 hover:text-amber-200 cursor-pointer font-semibold"
+                      >
+                        <Store className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Registrar Mi Negocio</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        setShowUserDropdown(false);
+                        navigateToRoute('corporate');
+                      }}
+                      className="w-full text-left px-2.5 py-2 hover:bg-zinc-900 rounded-lg flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer font-semibold"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#D4021D]" />
+                      <span>Portal Corporativo (/)</span>
+                    </button>
+
                     <button
                       onClick={handleCopyClientLink}
                       className="w-full text-left px-2.5 py-2 hover:bg-zinc-900 rounded-lg flex items-center gap-2 text-zinc-300 hover:text-white cursor-pointer"
                     >
                       <Share2 className="w-3.5 h-3.5 text-[#D4021D]" />
-                      <span>Copiar link clientes</span>
+                      <span>Copiar link clientes (/marketplace)</span>
                     </button>
                     <button
                       onClick={() => logout()}

@@ -13,6 +13,9 @@ import {
   Sparkles,
   CheckCircle2,
   Building,
+  Building2,
+  Store,
+  ArrowRight,
   KeyRound,
   Edit3,
   LogIn
@@ -27,6 +30,9 @@ export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal })
     currentUser,
     setIsProfileModalOpen,
     setIsClientAuthModalOpen,
+    openBusinessRegistration,
+    setCurrentRole,
+    setActiveSellerTab,
     userLocation,
     userAddressLabel,
     detectUserLocation,
@@ -120,6 +126,55 @@ export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal })
           >
             Cambiar Rol
           </button>
+        </div>
+      </div>
+
+      {/* Become a Business / Seller Card */}
+      <div className="p-5 bg-gradient-to-r from-red-950 via-zinc-900 to-black text-white rounded-3xl border border-red-900/40 shadow-md relative overflow-hidden">
+        <div className="absolute right-0 bottom-0 translate-x-4 translate-y-4 opacity-10 pointer-events-none">
+          <Store className="w-48 h-48 text-white" />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-red-600/30 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-900/60 border border-red-700/50 text-[11px] font-bold text-red-300 uppercase tracking-wider mb-1">
+                <Sparkles className="w-3 h-3 text-red-400" />
+                <span>Oportunidad para Negocios & Talleres</span>
+              </div>
+              <h3 className="text-base font-bold text-white">
+                ¿Tienes una Tienda de Repuestos o Taller Automotriz?
+              </h3>
+              <p className="text-xs text-zinc-300 max-w-xl mt-0.5">
+                Publica tu catálogo, recibe pedidos automáticos por WhatsApp y llega a miles de conductores. Puedes registrar tu comercio y vincularlo a tu cuenta ahora mismo.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {currentUser?.role === 'seller' ? (
+              <button
+                onClick={() => {
+                  setCurrentRole('seller');
+                  setActiveSellerTab('orders');
+                }}
+                className="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+              >
+                <span>Ir a Mi Panel de Negocio</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => openBusinessRegistration(true)}
+                className="px-5 py-2.5 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-red-950/50 transition-all hover:scale-[1.02] cursor-pointer"
+              >
+                <Store className="w-4 h-4" />
+                <span>Registrar Mi Negocio Aquí</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

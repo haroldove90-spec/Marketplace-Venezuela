@@ -525,3 +525,55 @@ export async function updateUserInSupabase(
   }
 }
 
+/**
+ * Inserts a new user in Supabase (client, seller or admin)
+ */
+export async function insertUserInSupabase(user: any): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload = {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      password_hash: user.password,
+      role: user.role,
+      business_id: user.businessId || null,
+      phone: user.phone || null,
+      address: user.address || null,
+      status: user.status || 'active',
+      department: user.department || null,
+      created_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase.from('users').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.warn('Error insertando usuario en Supabase:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.warn('Excepción insertando usuario en Supabase:', err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
+/**
+ * Inserts or upserts a business in Supabase
+ */
+export async function insertBusinessInSupabase(biz: Business): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload = mapBusinessToDB(biz);
+    const { error } = await supabase.from('businesses').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.warn('Error insertando negocio en Supabase:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.warn('Excepción insertando negocio en Supabase:', err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
+

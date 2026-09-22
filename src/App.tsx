@@ -20,11 +20,15 @@ import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
 import { ClientAuthModal } from './components/common/ClientAuthModal';
 import { CorporateAuthModal } from './components/common/CorporateAuthModal';
 import { UserProfileModal } from './components/common/UserProfileModal';
+import { RegisterBusinessModal } from './components/common/RegisterBusinessModal';
+import { CorporatePortalHome } from './components/corporate/CorporatePortalHome';
 import { Business } from './types';
 
 const PulsoAppContent: React.FC = () => {
   const {
     currentRole,
+    currentUser,
+    currentRoute,
     activeClientTab,
     selectedBusinessForDetail,
     setSelectedBusinessForDetail,
@@ -41,6 +45,19 @@ const PulsoAppContent: React.FC = () => {
   const handleOrderSuccess = (orderId: string) => {
     setActiveClientTab('orders');
   };
+
+  // If visiting the corporate root route and not logged in as Admin or Seller, show Corporate Portal Home
+  if (currentRoute === 'corporate' && (!currentUser || currentUser.role === 'client')) {
+    return (
+      <div className="min-h-screen w-full bg-slate-950 font-sans selection:bg-[#D4021D] selection:text-white">
+        <CorporatePortalHome />
+        <RegisterBusinessModal />
+        <CorporateAuthModal />
+        <ClientAuthModal />
+        <UserProfileModal />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-[#D4021D] selection:text-white">
@@ -111,10 +128,11 @@ const PulsoAppContent: React.FC = () => {
         onClose={() => setIsRoleModalOpen(false)}
       />
 
-      {/* Role-based Auth Modals */}
+      {/* Role-based Auth Modals & Business Registration Modal */}
       <ClientAuthModal />
       <CorporateAuthModal />
       <UserProfileModal />
+      <RegisterBusinessModal />
 
       {/* Business Catalog / Detail Modal */}
       {selectedBusinessForDetail && (

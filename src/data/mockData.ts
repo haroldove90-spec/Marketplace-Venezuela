@@ -12,9 +12,22 @@ import {
   FailedSearchRecord
 } from '../types';
 
-export const DATA_VERSION = 'conforce_mock_v6';
+export const DATA_VERSION = 'conforce_mock_v7';
 
 export const INITIAL_EMPLOYEES: EmployeeProfile[] = [
+  {
+    id: 'emp-admin-master',
+    userId: 'usr-admin-master',
+    fullName: 'Administrador Master Con Force',
+    username: 'admin_master',
+    email: 'admin_master@conforce.com',
+    password: 'Chevropar#1970',
+    roleTitle: 'Superadministrador Master & Control Global',
+    systemRole: 'admin',
+    department: 'Dirección General & Superadministración',
+    status: 'active',
+    createdAt: '2026-01-01'
+  },
   {
     id: 'emp-harold',
     userId: 'usr-harold',
@@ -44,6 +57,19 @@ export const INITIAL_EMPLOYEES: EmployeeProfile[] = [
 ];
 
 export const INITIAL_USERS: UserAccount[] = [
+  {
+    id: 'usr-admin-master',
+    name: 'Administrador Master Con Force',
+    username: 'admin_master',
+    email: 'admin_master@conforce.com',
+    password: 'Chevropar#1970',
+    role: 'admin',
+    status: 'active',
+    department: 'Dirección General',
+    phone: '+52 55 9988 7766',
+    createdAt: '2026-01-01',
+    lastLogin: '2026-09-21 17:00'
+  },
   {
     id: 'usr-harold',
     name: 'Harold Anguiano Morales',

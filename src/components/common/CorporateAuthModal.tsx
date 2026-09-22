@@ -147,6 +147,25 @@ export const CorporateAuthModal: React.FC = () => {
               </div>
             </div>
 
+            {/* Quick Master Admin helper */}
+            <div className="p-3 bg-zinc-900/90 border border-zinc-800 rounded-xl flex items-center justify-between text-xs">
+              <div>
+                <span className="text-zinc-400 font-medium">Superadmin Master:</span>
+                <span className="ml-1 text-white font-mono font-bold">admin_master</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier('admin_master');
+                  setPassword('Chevropar#1970');
+                  setErrorMessage('');
+                }}
+                className="px-2.5 py-1 bg-red-950/80 hover:bg-red-900 border border-red-800/60 text-red-300 rounded-lg text-[11px] font-semibold transition-colors"
+              >
+                Autocompletar
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={isSubmitting}
@@ -163,6 +182,29 @@ export const CorporateAuthModal: React.FC = () => {
               )}
             </button>
           </form>
+
+          {/* Business Registration Banner */}
+          <div className="p-4 bg-gradient-to-r from-red-950/40 via-zinc-900 to-black border border-red-900/40 rounded-2xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-red-600/20 text-red-400 flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">¿Tienes un negocio automotriz?</h4>
+                <p className="text-[11px] text-zinc-400">Afíliate y vende tus repuestos en el Marketplace</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsCorporateAuthModalOpen(false);
+                useApp().openBusinessRegistration(false);
+              }}
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold shrink-0 transition-colors shadow"
+            >
+              Registrar Negocio
+            </button>
+          </div>
 
           {/* Switch to Client Modal */}
           <div className="pt-3 border-t border-zinc-900 text-center">
