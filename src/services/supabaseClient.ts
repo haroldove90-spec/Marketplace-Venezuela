@@ -6,7 +6,10 @@ import {
   WhatsAppCampaign,
   ChatbotConfig,
   SavedAddress,
-  OrderStatus
+  OrderStatus,
+  UserAccount,
+  ClientProfile,
+  Role
 } from '../types';
 
 // Supabase Configuration from User Credentials
@@ -268,6 +271,44 @@ export function mapAddressToDB(addr: SavedAddress): any {
   };
 }
 
+export function mapUserFromDB(row: any): UserAccount {
+  return {
+    id: row.id,
+    name: row.name || row.username || 'Usuario',
+    username: row.username,
+    email: row.email,
+    password: row.password || row.password_hash || '',
+    role: (row.role === 'admin' || row.role === 'seller' || row.role === 'client') ? (row.role as Role) : 'client',
+    status: (row.status === 'suspended' || row.is_active === false) ? 'suspended' : 'active',
+    phone: row.phone || undefined,
+    address: row.address || undefined,
+    businessId: row.business_id || undefined,
+    department: row.department || undefined,
+    createdAt: row.created_at ? row.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
+    lastLogin: 'Registrado en Supabase',
+    isSponsor: Boolean(
+      row.department?.toLowerCase().includes('patrocinador') ||
+      row.department?.toLowerCase().includes('sponsor')
+    )
+  };
+}
+
+export function mapClientFromDB(row: any): ClientProfile {
+  return {
+    id: row.id,
+    userId: row.user_id || row.id,
+    name: row.name || row.username || 'Cliente',
+    username: row.username,
+    email: row.email,
+    phone: row.phone || '',
+    address: row.address || '',
+    totalOrders: Number(row.total_orders ?? 0),
+    totalSpent: Number(row.total_spent ?? 0),
+    status: 'active',
+    registeredAt: row.created_at ? row.created_at.split('T')[0] : new Date().toISOString().split('T')[0]
+  };
+}
+
 // ==========================================
 // SUPABASE OPERATIONS & HEALTH CHECKS
 // ==========================================
@@ -302,7 +343,7 @@ export async function testSupabaseConnection(): Promise<{
 
     // Now query counts
     const counts: { [tableName: string]: number } = {};
-    const tables = ['businesses', 'products', 'orders', 'whatsapp_campaigns', 'saved_addresses'];
+    const tables = ['businesses', 'products', 'orders', 'whatsapp_campaigns', 'saved_addresses', 'users', 'clients'];
     
     for (const t of tables) {
       try {
@@ -325,6 +366,34 @@ export async function testSupabaseConnection(): Promise<{
       message: `Error al intentar conectar con Supabase: ${err.message || err}`,
       hasTables: false
     };
+  }
+}
+
+/**
+ * Fetches all users from Supabase.
+ */
+export async function fetchUsersFromSupabase(): Promise<UserAccount[] | null> {
+  try {
+    const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+    if (error || !data) return null;
+    return data.map(mapUserFromDB);
+  } catch (err) {
+    console.warn('Error fetching users from Supabase:', err);
+    return null;
+  }
+}
+
+/**
+ * Fetches all clients from Supabase.
+ */
+export async function fetchClientsFromSupabase(): Promise<ClientProfile[] | null> {
+  try {
+    const { data, error } = await supabase.from('clients').select('*').order('created_at', { ascending: false });
+    if (error || !data) return null;
+    return data.map(mapClientFromDB);
+  } catch (err) {
+    console.warn('Error fetching clients from Supabase:', err);
+    return null;
   }
 }
 
@@ -581,9 +650,84 @@ export async function updateUserInSupabase(
 }
 
 /**
+ * Checks if a username or email is already registered in Supabase
+ */
+export async function checkUserExistsInSupabase(
+  username: string,
+  email: string
+): Promise<{ exists: boolean; reason?: string }> {
+  try {
+    const cleanUser = username.trim().toLowerCase();
+    const cleanEmail = email.trim().toLowerCase();
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username, email')
+      .or(`username.ilike.${cleanUser},email.ilike.${cleanEmail}`);
+
+    if (error || !data) return { exists: false };
+
+    for (const u of data) {
+      if (u.username?.toLowerCase() === cleanUser) {
+        return {
+          exists: true,
+          reason: `El nombre de usuario "${username}" ya está registrado en Supabase. Por favor elige otro nombre de usuario.`
+        };
+      }
+      if (u.email?.toLowerCase() === cleanEmail) {
+        return {
+          exists: true,
+          reason: `El correo electrónico "${email}" ya está registrado en Supabase. Puedes iniciar sesión con tus credenciales.`
+        };
+      }
+    }
+    return { exists: false };
+  } catch (err) {
+    return { exists: false };
+  }
+}
+
+/**
+ * Directly validates credentials against Supabase PostgreSQL
+ */
+export async function verifyUserCredentialsInSupabase(
+  identifier: string,
+  password: string
+): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
+  try {
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPass = password.trim();
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .or(`username.ilike.${cleanId},email.ilike.${cleanId}`)
+      .limit(1);
+
+    if (error || !data || data.length === 0) {
+      return { success: false, error: 'Usuario o correo no encontrado en Supabase.' };
+    }
+
+    const row = data[0];
+    const dbPass = row.password || row.password_hash || '';
+
+    if (dbPass !== cleanPass) {
+      return { success: false, error: 'Contraseña incorrecta. Verifica tus credenciales.' };
+    }
+
+    const mapped = mapUserFromDB(row);
+    return { success: true, user: mapped };
+  } catch (err: any) {
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
+/**
  * Inserts a new user in Supabase (client, seller or admin)
  */
-export async function insertUserInSupabase(user: any): Promise<{ success: boolean; error?: string }> {
+export async function insertUserInSupabase(
+  user: any
+): Promise<{ success: boolean; error?: string; user?: any }> {
   try {
     let validRole = user.role || 'client';
     // Ensure role matches check constraint (admin, seller, client)
@@ -591,11 +735,39 @@ export async function insertUserInSupabase(user: any): Promise<{ success: boolea
       validRole = 'seller';
     }
 
+    const cleanUsername = String(user.username || '').trim().toLowerCase();
+    const cleanEmail = String(user.email || '').trim().toLowerCase();
+
+    // Check duplicate username or email first in Supabase
+    const dupCheck = await checkUserExistsInSupabase(cleanUsername, cleanEmail);
+    if (dupCheck.exists) {
+      return { success: false, error: dupCheck.reason };
+    }
+
+    // Try Supabase Auth signUp as well so the user appears in Supabase Authentication Dashboard
+    try {
+      if (cleanEmail && user.password && cleanEmail.includes('@')) {
+        await supabase.auth.signUp({
+          email: cleanEmail,
+          password: user.password,
+          options: {
+            data: {
+              name: user.name,
+              username: cleanUsername,
+              role: validRole
+            }
+          }
+        });
+      }
+    } catch (authErr) {
+      console.info('Supabase Auth signUp notification (non-blocking):', authErr);
+    }
+
     const payload = {
       id: user.id,
       name: user.name,
-      username: user.username,
-      email: user.email,
+      username: cleanUsername,
+      email: cleanEmail,
       password: user.password,
       password_hash: user.password,
       role: validRole,
@@ -607,12 +779,21 @@ export async function insertUserInSupabase(user: any): Promise<{ success: boolea
       created_at: new Date().toISOString()
     };
 
-    const { error } = await supabase.from('users').upsert(payload, { onConflict: 'id' });
+    const { data, error } = await supabase.from('users').upsert(payload, { onConflict: 'id' }).select();
     if (error) {
+      if (error.code === '23505' || error.message.includes('unique constraint')) {
+        if (error.message.includes('users_username_key')) {
+          return { success: false, error: `El nombre de usuario "${cleanUsername}" ya está registrado en Supabase. Elige otro.` };
+        }
+        if (error.message.includes('users_email_key')) {
+          return { success: false, error: `El correo "${cleanEmail}" ya está registrado en Supabase.` };
+        }
+        return { success: false, error: `Ya existe un usuario con esas credenciales en Supabase: ${error.message}` };
+      }
       console.warn('Error insertando usuario en Supabase:', error);
       return { success: false, error: error.message };
     }
-    return { success: true };
+    return { success: true, user: data?.[0] || payload };
   } catch (err: any) {
     console.warn('Excepción insertando usuario en Supabase:', err);
     return { success: false, error: err.message || String(err) };

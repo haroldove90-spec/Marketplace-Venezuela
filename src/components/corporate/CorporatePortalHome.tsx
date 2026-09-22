@@ -45,7 +45,7 @@ export const CorporatePortalHome: React.FC = () => {
     setTimeout(() => setCopiedLink(null), 2000);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
@@ -56,15 +56,18 @@ export const CorporatePortalHome: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const res = loginAsCorporate(identifier, password);
+    try {
+      const res = await loginAsCorporate(identifier, password);
       setIsSubmitting(false);
       if (!res.success) {
         setErrorMessage(res.message);
       } else {
         setSuccessMessage(res.message);
       }
-    }, 300);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || 'Error al autenticar en Supabase.');
+    }
   };
 
   return (

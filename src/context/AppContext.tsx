@@ -34,6 +34,10 @@ import {
   fetchBusinessesFromSupabase,
   fetchProductsFromSupabase,
   fetchOrdersFromSupabase,
+  fetchUsersFromSupabase,
+  fetchClientsFromSupabase,
+  checkUserExistsInSupabase,
+  verifyUserCredentialsInSupabase,
   upsertBusinessInSupabase,
   deleteBusinessInSupabase,
   upsertProductInSupabase,
@@ -166,9 +170,9 @@ interface AppContextType {
   users: UserAccount[];
   clients: ClientProfile[];
   employees: EmployeeProfile[];
-  loginAsCorporate: (identifier: string, password: string) => { success: boolean; message: string; role?: Role; user?: UserAccount };
-  loginAsClient: (identifier: string, password: string) => { success: boolean; message: string; user?: UserAccount };
-  registerClient: (data: { name: string; username: string; email: string; password: string; phone: string; address: string }) => Promise<{ success: boolean; message: string; user?: UserAccount }> | { success: boolean; message: string; user?: UserAccount };
+  loginAsCorporate: (identifier: string, password: string) => Promise<{ success: boolean; message: string; role?: Role; user?: UserAccount }>;
+  loginAsClient: (identifier: string, password: string) => Promise<{ success: boolean; message: string; user?: UserAccount }>;
+  registerClient: (data: { name: string; username: string; email: string; password: string; phone: string; address: string }) => Promise<{ success: boolean; message: string; user?: UserAccount }>;
   registerBusiness: (data: {
     businessName: string;
     category: string;
@@ -512,7 +516,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [currentUser]);
 
   // Authentication Handlers
-  const loginAsCorporate = (identifier: string, password: string) => {
+  const loginAsCorporate = async (identifier: string, password: string) => {
     const cleanId = identifier.trim().toLowerCase();
     const cleanPass = password.trim();
 
@@ -542,16 +546,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return {
         success: true,
         message: '¡Bienvenido Superadministrador Master!',
-        role: 'admin',
+        role: 'admin' as Role,
         user: master
       };
     }
 
-    const user = users.find(
+    // 1. Search in local state
+    let user = users.find(
       (u) =>
         (u.email.toLowerCase() === cleanId || u.username.toLowerCase() === cleanId) &&
         u.password === cleanPass
     );
+
+    // 2. If not found in local memory, check live in Supabase PostgreSQL
+    if (!user) {
+      try {
+        const remoteAuth = await verifyUserCredentialsInSupabase(cleanId, cleanPass);
+        if (remoteAuth.success && remoteAuth.user) {
+          user = remoteAuth.user;
+          // Add to local state
+          setUsers((prev) => {
+            const exists = prev.some((p) => p.id === user!.id);
+            return exists ? prev : [user!, ...prev];
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase remote login check notice:', err);
+      }
+    }
 
     if (!user) {
       return {
@@ -595,15 +617,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   };
 
-  const loginAsClient = (identifier: string, password: string) => {
+  const loginAsClient = async (identifier: string, password: string) => {
     const cleanId = identifier.trim().toLowerCase();
     const cleanPass = password.trim();
 
-    const user = users.find(
+    // 1. Search in local state
+    let user = users.find(
       (u) =>
         (u.email.toLowerCase() === cleanId || u.username.toLowerCase() === cleanId) &&
         u.password === cleanPass
     );
+
+    // 2. If not found in local memory, check live in Supabase PostgreSQL
+    if (!user) {
+      try {
+        const remoteAuth = await verifyUserCredentialsInSupabase(cleanId, cleanPass);
+        if (remoteAuth.success && remoteAuth.user) {
+          user = remoteAuth.user;
+          // Add to local state
+          setUsers((prev) => {
+            const exists = prev.some((p) => p.id === user!.id);
+            return exists ? prev : [user!, ...prev];
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase remote login check notice:', err);
+      }
+    }
 
     if (!user) {
       return {
@@ -636,7 +676,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   };
 
-  const registerClient = (data: {
+  const registerClient = async (data: {
     name: string;
     username: string;
     email: string;
@@ -647,16 +687,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const cleanEmail = data.email.trim().toLowerCase();
     const cleanUsername = data.username.trim().toLowerCase();
 
-    // Check duplicate
-    const exists = users.some(
+    // 1. Local duplicate check
+    const localExists = users.some(
       (u) => u.email.toLowerCase() === cleanEmail || u.username.toLowerCase() === cleanUsername
     );
 
-    if (exists) {
+    if (localExists) {
       return {
         success: false,
-        message: 'Ya existe una cuenta registrada con este correo o nombre de usuario.'
+        message: 'Ya existe una cuenta registrada con este correo o nombre de usuario en el sistema.'
       };
+    }
+
+    // 2. Supabase duplicate pre-check
+    try {
+      const supaDup = await checkUserExistsInSupabase(cleanUsername, cleanEmail);
+      if (supaDup.exists) {
+        return {
+          success: false,
+          message: supaDup.reason || 'Ya existe un usuario con estas credenciales en Supabase.'
+        };
+      }
+    } catch (e) {
+      console.warn('Supabase duplicate pre-check notice:', e);
     }
 
     const newUserId = `usr-client-${Date.now()}`;
@@ -688,23 +741,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       registeredAt: new Date().toISOString().split('T')[0]
     };
 
+    // 3. Persist directly and strictly in Supabase FIRST
+    try {
+      const userRes = await insertUserInSupabase(newUser);
+      if (!userRes.success) {
+        return {
+          success: false,
+          message: userRes.error || 'No se pudo guardar las credenciales en Supabase. Verifica tus datos.'
+        };
+      }
+      const clientRes = await insertClientInSupabase(newClient);
+      if (!clientRes.success) {
+        console.warn('Notice saving client profile in Supabase:', clientRes.error);
+      }
+    } catch (err: any) {
+      console.error('Error insertando en Supabase:', err);
+      return {
+        success: false,
+        message: `Error al guardar en Supabase: ${err.message || String(err)}`
+      };
+    }
+
+    // 4. Update local state and persistence
     setUsers((prev) => [newUser, ...prev]);
     setClients((prev) => [newClient, ...prev]);
     setCurrentUser(newUser);
     setCurrentRole('client');
     setIsClientAuthModalOpen(false);
 
-    // Sync in background to Supabase
-    try {
-      insertUserInSupabase(newUser);
-      insertClientInSupabase(newClient);
-    } catch (e) {
-      console.warn('Sync client to Supabase warning:', e);
-    }
+    // 5. Refresh Supabase connection table counts
+    checkSupabase().catch(() => {});
 
     return {
       success: true,
-      message: '¡Tu cuenta ha sido creada exitosamente! Bienvenido a Con Force.',
+      message: '¡Tu cuenta ha sido creada y guardada exitosamente en Supabase! Bienvenido a Con Force.',
       user: newUser
     };
   };
@@ -1313,10 +1383,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (res.connected && res.hasTables) {
       try {
-        const [remoteBiz, remoteProd, remoteOrders] = await Promise.all([
+        const [remoteBiz, remoteProd, remoteOrders, remoteUsers, remoteClients] = await Promise.all([
           fetchBusinessesFromSupabase(),
           fetchProductsFromSupabase(),
-          fetchOrdersFromSupabase()
+          fetchOrdersFromSupabase(),
+          fetchUsersFromSupabase(),
+          fetchClientsFromSupabase()
         ]);
 
         const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
@@ -1341,6 +1413,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           } else if (isCleared && remoteOrders.length === 0) {
             setOrders([]);
           }
+        }
+        if (remoteUsers && remoteUsers.length > 0) {
+          setUsers((prev) => {
+            const map = new Map<string, UserAccount>();
+            // Add local users first
+            prev.forEach((u) => map.set(u.id, u));
+            // Remote Supabase users take authoritative precedence
+            remoteUsers.forEach((u) => map.set(u.id, u));
+            return Array.from(map.values());
+          });
+        }
+        if (remoteClients && remoteClients.length > 0) {
+          setClients((prev) => {
+            const map = new Map<string, ClientProfile>();
+            prev.forEach((c) => map.set(c.id, c));
+            remoteClients.forEach((c) => map.set(c.id, c));
+            return Array.from(map.values());
+          });
         }
       } catch (err) {
         console.warn('Error hydrating state from Supabase:', err);

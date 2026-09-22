@@ -31,7 +31,7 @@ export const CorporateAuthModal: React.FC = () => {
 
   if (!isCorporateAuthModalOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
@@ -42,8 +42,8 @@ export const CorporateAuthModal: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const res = loginAsCorporate(identifier, password);
+    try {
+      const res = await loginAsCorporate(identifier, password);
       setIsSubmitting(false);
 
       if (!res.success) {
@@ -52,9 +52,12 @@ export const CorporateAuthModal: React.FC = () => {
         setSuccessMessage(res.message);
         setTimeout(() => {
           setIsCorporateAuthModalOpen(false);
-        }, 800);
+        }, 600);
       }
-    }, 350);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || 'Error al autenticar en Supabase.');
+    }
   };
 
   return (

@@ -22,7 +22,8 @@ export const ClientAuthModal: React.FC = () => {
     setIsCorporateAuthModalOpen,
     clientAuthIntent,
     loginAsClient,
-    registerClient
+    registerClient,
+    openBusinessRegistration
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(
@@ -47,7 +48,7 @@ export const ClientAuthModal: React.FC = () => {
 
   if (!isClientAuthModalOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
@@ -58,8 +59,8 @@ export const ClientAuthModal: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const res = loginAsClient(loginIdentifier, loginPassword);
+    try {
+      const res = await loginAsClient(loginIdentifier, loginPassword);
       setIsSubmitting(false);
       if (!res.success) {
         setErrorMessage(res.message);
@@ -67,12 +68,15 @@ export const ClientAuthModal: React.FC = () => {
         setSuccessMessage(res.message);
         setTimeout(() => {
           setIsClientAuthModalOpen(false);
-        }, 800);
+        }, 600);
       }
-    }, 300);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || 'Error al iniciar sesión.');
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
@@ -88,8 +92,8 @@ export const ClientAuthModal: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const res = registerClient({
+    try {
+      const res = await registerClient({
         name: regName,
         username: regUsername,
         email: regEmail,
@@ -104,9 +108,12 @@ export const ClientAuthModal: React.FC = () => {
         setSuccessMessage(res.message);
         setTimeout(() => {
           setIsClientAuthModalOpen(false);
-        }, 800);
+        }, 1000);
       }
-    }, 400);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMessage(err.message || 'Error al guardar credenciales en Supabase.');
+    }
   };
 
   return (
@@ -365,7 +372,7 @@ export const ClientAuthModal: React.FC = () => {
               type="button"
               onClick={() => {
                 setIsClientAuthModalOpen(false);
-                useApp().openBusinessRegistration(false);
+                openBusinessRegistration(false);
               }}
               className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] rounded-lg transition-colors shrink-0 cursor-pointer"
             >
