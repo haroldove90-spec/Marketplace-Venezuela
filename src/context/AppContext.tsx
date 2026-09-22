@@ -220,6 +220,9 @@ interface AppContextType {
   isMarketplaceRoute: boolean;
   currentRoute: 'marketplace' | 'corporate';
   navigateToRoute: (route: 'marketplace' | 'corporate') => void;
+  navigateToHome: () => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
   getMarketplaceShareUrl: () => string;
   getCorporateShareUrl: () => string;
 
@@ -433,6 +436,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isRegisterBusinessModalOpen, setIsRegisterBusinessModalOpen] = useState(false);
   const [isRegisteringAsSponsor, setIsRegisteringAsSponsor] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [clientAuthIntent, setClientAuthIntent] = useState<'login' | 'register' | 'order_checkout'>('login');
 
   const openBusinessRegistration = (forClientUpgrade = false, asSponsor = false) => {
@@ -483,6 +487,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else {
         setCurrentRole('client');
       }
+    }
+  };
+
+  const navigateToHome = () => {
+    setCurrentRoute('marketplace');
+    setCurrentRole('client');
+    setActiveClientTab('explore');
+    setSelectedBusinessForDetail(null);
+    setIsMobileMenuOpen(false);
+    if (typeof window !== 'undefined') {
+      try {
+        window.history.pushState({}, '', '/marketplace');
+      } catch (e) {}
     }
   };
 
@@ -2058,6 +2075,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isMarketplaceRoute,
         currentRoute,
         navigateToRoute,
+        navigateToHome,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
         getMarketplaceShareUrl,
         getCorporateShareUrl,
 

@@ -14,15 +14,20 @@ import {
   ShoppingBag,
   KeyRound,
   Eye,
-  EyeOff
+  EyeOff,
+  Home,
+  LogOut
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const CorporatePortalHome: React.FC = () => {
   const {
+    currentUser,
+    logout,
     loginAsCorporate,
     openBusinessRegistration,
     navigateToRoute,
+    navigateToHome,
     getMarketplaceShareUrl,
     getCorporateShareUrl
   } = useApp();
@@ -93,16 +98,26 @@ export const CorporatePortalHome: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => navigateToRoute('marketplace')}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold transition-all cursor-pointer shadow-xs active:scale-95"
-              title="Ir a la tienda de clientes"
+              onClick={navigateToHome}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+              title="Ir a Inicio / Marketplace"
             >
-              <ShoppingBag className="w-3.5 h-3.5 text-[#D4021D]" />
-              <span>Ir al Marketplace Global</span>
-              <ExternalLink className="w-3 h-3 text-zinc-400" />
+              <Home className="w-3.5 h-3.5 text-[#D4021D]" />
+              <span>Ir a Inicio</span>
             </button>
+
+            {currentUser && (
+              <button
+                onClick={() => logout()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-[#D4021D] text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Cerrar sesión activa"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Cerrar Sesión</span>
+              </button>
+            )}
           </div>
         </div>
       </header>

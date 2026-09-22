@@ -15,12 +15,23 @@ import {
 // Supabase Configuration from User Credentials
 const metaEnv = (typeof import.meta !== 'undefined' && (import.meta as any).env) || {};
 
-export const SUPABASE_URL: string =
-  metaEnv.VITE_SUPABASE_URL || 'https://cjoszqkgqtgfvzqxcsvi.supabase.co';
+function sanitizeSupabaseUrl(rawUrl?: string): string {
+  let cleaned = String(rawUrl || '').trim().replace(/['"]/g, '');
+  // Strip trailing slashes
+  cleaned = cleaned.replace(/\/+$/, '');
+  // Strip /rest/v1 or /rest/v1/ suffix if entered by mistake
+  cleaned = cleaned.replace(/\/rest\/v1\/?$/i, '');
+  cleaned = cleaned.replace(/\/+$/, '');
+  return cleaned || 'https://cjoszqkgqtgfvzqxcsvi.supabase.co';
+}
 
-export const SUPABASE_ANON_KEY: string =
-  metaEnv.VITE_SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqb3N6cWtncXRnZnZ6cXhjc3ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0OTA3OTksImV4cCI6MjEwNDA2Njc5OX0.L-u61LH5GKKrBWgnxThVbRWitqmdXtHJH64MhlWJqOQ';
+function sanitizeSupabaseKey(rawKey?: string): string {
+  return String(rawKey || '').trim().replace(/['"]/g, '') ||
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqb3N6cWtncXRnZnZ6cXhjc3ZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0OTA3OTksImV4cCI6MjEwNDA2Njc5OX0.L-u61LH5GKKrBWgnxThVbRWitqmdXtHJH64MhlWJqOQ';
+}
+
+export const SUPABASE_URL: string = sanitizeSupabaseUrl(metaEnv.VITE_SUPABASE_URL);
+export const SUPABASE_ANON_KEY: string = sanitizeSupabaseKey(metaEnv.VITE_SUPABASE_ANON_KEY);
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

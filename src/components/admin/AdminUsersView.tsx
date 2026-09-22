@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { UserAccount, Role } from '../../types';
+import { PasswordInput } from '../common/PasswordInput';
 import {
   Users,
   ShieldCheck,
@@ -54,7 +55,6 @@ export const AdminUsersView: React.FC = () => {
   const [editBusinessId, setEditBusinessId] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editError, setEditError] = useState('');
-  const [showEditPass, setShowEditPass] = useState(false);
 
   const filteredUsers = users.filter((u) => {
     const matchSearch =
@@ -110,7 +110,6 @@ export const AdminUsersView: React.FC = () => {
     setEditBusinessId(u.businessId || businesses[0]?.id || '');
     setEditPhone(u.phone || '');
     setEditError('');
-    setShowEditPass(false);
   };
 
   const handleSaveEdit = (e: React.FormEvent) => {
@@ -377,12 +376,12 @@ export const AdminUsersView: React.FC = () => {
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">
                     Contraseña *
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Contraseña"
-                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:border-[#D4021D] focus:outline-none"
+                    showGenerator={true}
+                    required
                   />
                 </div>
               </div>
@@ -561,31 +560,17 @@ export const AdminUsersView: React.FC = () => {
                     <Key className="w-3.5 h-3.5 text-amber-400" />
                     <span>Contraseña</span>
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowEditPass(!showEditPass)}
-                    className="text-[11px] text-[#D4021D] font-bold hover:underline cursor-pointer"
-                  >
-                    {showEditPass ? 'Ocultar' : 'Ver / Cambiar'}
-                  </button>
+                  <span className="text-[10px] text-zinc-400">
+                    Deja vacío o modifica para cambiar
+                  </span>
                 </div>
 
-                <div className="relative">
-                  <input
-                    type={showEditPass ? 'text' : 'password'}
-                    value={editPassword}
-                    onChange={(e) => setEditPassword(e.target.value)}
-                    placeholder="Escribe nueva contraseña para actualizar"
-                    className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white font-mono focus:border-[#D4021D] focus:outline-none pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowEditPass(!showEditPass)}
-                    className="absolute right-2.5 top-2.5 text-zinc-400 hover:text-white cursor-pointer"
-                  >
-                    {showEditPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
+                <PasswordInput
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  placeholder="Escribe o genera nueva contraseña"
+                  showGenerator={true}
+                />
               </div>
 
               <div>

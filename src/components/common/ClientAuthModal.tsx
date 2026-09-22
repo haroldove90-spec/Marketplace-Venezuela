@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { PasswordInput } from './PasswordInput';
 import {
   X,
   User,
   Mail,
-  Lock,
   Phone,
   MapPin,
   Sparkles,
   ArrowRight,
   CheckCircle2,
   AlertCircle,
-  ShoppingBag,
-  ShieldCheck
+  LogIn,
+  Store
 } from 'lucide-react';
 
 export const ClientAuthModal: React.FC = () => {
@@ -23,7 +23,8 @@ export const ClientAuthModal: React.FC = () => {
     clientAuthIntent,
     loginAsClient,
     registerClient,
-    openBusinessRegistration
+    openBusinessRegistration,
+    users
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'login' | 'register'>(
@@ -48,19 +49,26 @@ export const ClientAuthModal: React.FC = () => {
 
   if (!isClientAuthModalOpen) return null;
 
+  // Real-time duplicate check for user convenience
+  const existingUser = users.find(
+    (u) =>
+      (regUsername.trim() && u.username.toLowerCase() === regUsername.trim().toLowerCase()) ||
+      (regEmail.trim() && u.email.toLowerCase() === regEmail.trim().toLowerCase())
+  );
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
     if (!loginIdentifier.trim() || !loginPassword) {
-      setErrorMessage('Por favor completa todos los campos.');
+      setErrorMessage('Por favor introduce tu usuario/correo y tu contraseña.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const res = await loginAsClient(loginIdentifier, loginPassword);
+      const res = await loginAsClient(loginIdentifier.trim(), loginPassword);
       setIsSubmitting(false);
       if (!res.success) {
         setErrorMessage(res.message);
@@ -81,8 +89,12 @@ export const ClientAuthModal: React.FC = () => {
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (!regName.trim() || !regUsername.trim() || !regEmail.trim() || !regPassword || !regPhone.trim() || !regAddress.trim()) {
-      setErrorMessage('Todos los campos son obligatorios para registrar tu cuenta de entrega.');
+    const cleanName = regName.trim();
+    const cleanUsername = regUsername.trim().toLowerCase().replace(/\s+/g, '');
+    const cleanEmail = regEmail.trim().toLowerCase();
+
+    if (!cleanName || !cleanUsername || !cleanEmail || !regPassword) {
+      setErrorMessage('Por favor completa Nombre, Usuario, Correo y Contraseña.');
       return;
     }
 
@@ -91,16 +103,22 @@ export const ClientAuthModal: React.FC = () => {
       return;
     }
 
+    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      setErrorMessage('Por favor ingresa un correo electrónico válido (ej. nombre@correo.com).');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const res = await registerClient({
-        name: regName,
-        username: regUsername,
-        email: regEmail,
+        name: cleanName,
+        username: cleanUsername,
+        email: cleanEmail,
         password: regPassword,
-        phone: regPhone,
-        address: regAddress
+        phone: regPhone.trim() || '+58 412 000 0000',
+        address: regAddress.trim() || 'Dirección de Entrega Predeterminada'
       });
+
       setIsSubmitting(false);
       if (!res.success) {
         setErrorMessage(res.message);
@@ -108,7 +126,7 @@ export const ClientAuthModal: React.FC = () => {
         setSuccessMessage(res.message);
         setTimeout(() => {
           setIsClientAuthModalOpen(false);
-        }, 1000);
+        }, 1200);
       }
     } catch (err: any) {
       setIsSubmitting(false);
@@ -138,31 +156,25 @@ export const ClientAuthModal: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-red-400 bg-red-950/60 px-2.5 py-0.5 rounded-full border border-red-800/50">
-                  Portal Cliente Con Force
-                </span>
+                <h3 className="text-xl font-black text-white tracking-tight">
+                  CON FORCE MARKETPLACE
+                </h3>
               </div>
-              <h2 className="text-xl font-black text-white mt-1">
-                {activeTab === 'login' ? 'Iniciar Sesión en el Marketplace' : 'Crear Cuenta de Cliente'}
-              </h2>
+              <p className="text-xs text-zinc-400">
+                Acceso para Clientes • Compras, Pedidos y Envíos
+              </p>
             </div>
           </div>
-
-          {clientAuthIntent === 'order_checkout' && (
-            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2.5 text-xs text-red-200">
-              <ShoppingBag className="w-4 h-4 shrink-0 text-red-400" />
-              <span>Para completar tu pedido y activar el rastreo de entrega, inicia sesión o regístrate con tus datos.</span>
-            </div>
-          )}
         </div>
 
-        {/* Tab switch */}
-        <div className="flex border-b border-zinc-800 bg-black/40">
+        {/* Tab switcher: Login vs Register */}
+        <div className="flex border-b border-zinc-800 bg-zinc-950/60">
           <button
             type="button"
             onClick={() => {
               setActiveTab('login');
               setErrorMessage('');
+              setSuccessMessage('');
             }}
             className={`flex-1 py-3.5 text-sm font-bold text-center transition-all cursor-pointer border-b-2 ${
               activeTab === 'login'
@@ -170,13 +182,14 @@ export const ClientAuthModal: React.FC = () => {
                 : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Ya tengo cuenta (Ingresar)
+            Iniciar Sesión
           </button>
           <button
             type="button"
             onClick={() => {
               setActiveTab('register');
               setErrorMessage('');
+              setSuccessMessage('');
             }}
             className={`flex-1 py-3.5 text-sm font-bold text-center transition-all cursor-pointer border-b-2 ${
               activeTab === 'register'
@@ -208,7 +221,7 @@ export const ClientAuthModal: React.FC = () => {
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Correo Electrónico o Usuario
+                  Correo Electrónico o Nombre de Usuario
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
@@ -216,7 +229,7 @@ export const ClientAuthModal: React.FC = () => {
                     type="text"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="ej. marialopez o maria.lopez@gmail.com"
+                    placeholder="ej. haroldo90_cli o haroldo90@cliente.com"
                     className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
                   />
                 </div>
@@ -226,16 +239,12 @@ export const ClientAuthModal: React.FC = () => {
                 <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                   Contraseña
                 </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
-                  <input
-                    type="password"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Tu contraseña de cliente"
-                    className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
-                  />
-                </div>
+                <PasswordInput
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Tu contraseña de cliente"
+                  showGenerator={false}
+                />
               </div>
 
               <button
@@ -244,9 +253,10 @@ export const ClientAuthModal: React.FC = () => {
                 className="w-full py-3 bg-[#D4021D] hover:bg-red-700 active:scale-[0.99] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-red-900/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <span>Verificando...</span>
+                  <span>Verificando en Supabase...</span>
                 ) : (
                   <>
+                    <LogIn className="w-4 h-4" />
                     <span>Entrar a mi Cuenta de Cliente</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
@@ -263,86 +273,100 @@ export const ClientAuthModal: React.FC = () => {
                   <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
                   <input
                     type="text"
+                    required
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
-                    placeholder="ej. Harold Anguiano"
-                    className="w-full pl-10 pr-4 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
+                    placeholder="ej. Harold Anguiano Morales"
+                    className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">
-                    Usuario *
+                    Nombre de Usuario *
                   </label>
                   <input
                     type="text"
+                    required
                     value={regUsername}
                     onChange={(e) => setRegUsername(e.target.value)}
                     placeholder="ej. haroldo_cli"
-                    className="w-full px-3 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
+                    className={`w-full px-3 py-2.5 bg-black/50 border rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none transition-colors ${
+                      existingUser && existingUser.username.toLowerCase() === regUsername.trim().toLowerCase()
+                        ? 'border-amber-500 text-amber-200'
+                        : 'border-zinc-800 focus:border-[#D4021D]'
+                    }`}
                   />
+                  {existingUser && existingUser.username.toLowerCase() === regUsername.trim().toLowerCase() && (
+                    <p className="text-[10px] text-amber-400 mt-1">
+                      ⚠️ Este usuario ya existe en Supabase.
+                    </p>
+                  )}
                 </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-zinc-300 mb-1">
-                    Contraseña *
+                    Correo Electrónico *
                   </label>
                   <input
-                    type="password"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="Mínimo 5 letras"
-                    className="w-full px-3 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">
-                  Correo Electrónico *
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
-                  <input
                     type="email"
+                    required
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
-                    placeholder="tu.correo@ejemplo.com"
-                    className="w-full pl-10 pr-4 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
+                    placeholder="ej. correo@cliente.com"
+                    className="w-full px-3 py-2.5 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
                   />
                 </div>
               </div>
 
+              {/* Password with Eye and Generator */}
               <div>
                 <label className="block text-xs font-semibold text-zinc-300 mb-1">
-                  Teléfono Móvil (para confirmación y WhatsApp) *
+                  Contraseña de Acceso *
                 </label>
-                <div className="relative">
-                  <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
-                  <input
-                    type="tel"
-                    value={regPhone}
-                    onChange={(e) => setRegPhone(e.target.value)}
-                    placeholder="+52 55 1234 5678"
-                    className="w-full pl-10 pr-4 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
-                  />
-                </div>
+                <PasswordInput
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  placeholder="Introduce o genera una contraseña"
+                  showGenerator={true}
+                  required
+                />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">
-                  Dirección de Entrega Principal *
-                </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 absolute left-3.5 top-3 text-zinc-500" />
-                  <textarea
-                    rows={2}
-                    value={regAddress}
-                    onChange={(e) => setRegAddress(e.target.value)}
-                    placeholder="Calle, número exterior/interior, colonia, ciudad y referencias"
-                    className="w-full pl-10 pr-4 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors resize-none"
-                  />
+              {/* Optional Phone & Address */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                    Teléfono Móvil (Opcional)
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input
+                      type="tel"
+                      value={regPhone}
+                      onChange={(e) => setRegPhone(e.target.value)}
+                      placeholder="+58 412 1234567"
+                      className="w-full pl-10 pr-4 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                    Dirección de Entrega (Opcional)
+                  </label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input
+                      type="text"
+                      value={regAddress}
+                      onChange={(e) => setRegAddress(e.target.value)}
+                      placeholder="Caracas / Valencia / Maracay"
+                      className="w-full pl-10 pr-4 py-2 bg-black/50 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D4021D] transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -352,21 +376,21 @@ export const ClientAuthModal: React.FC = () => {
                 className="w-full py-3 bg-[#D4021D] hover:bg-red-700 active:scale-[0.99] text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-red-900/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
               >
                 {isSubmitting ? (
-                  <span>Creando cuenta...</span>
+                  <span>Registrando en Supabase...</span>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    <span>Crear mi Cuenta y Continuar</span>
+                    <span>Guardar y Crear Cuenta en Supabase</span>
                   </>
                 )}
               </button>
             </form>
           )}
 
-          {/* Business register quick link */}
+          {/* Quick link to register a business */}
           <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between gap-2 text-xs">
             <span className="text-zinc-300">
-              ¿Tienes un negocio, tienda o empresa?
+              ¿Tienes un negocio, comercio o empresa?
             </span>
             <button
               type="button"
@@ -374,24 +398,24 @@ export const ClientAuthModal: React.FC = () => {
                 setIsClientAuthModalOpen(false);
                 openBusinessRegistration(false);
               }}
-              className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] rounded-lg transition-colors shrink-0 cursor-pointer"
+              className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] rounded-lg transition-colors shrink-0 cursor-pointer flex items-center gap-1"
             >
-              Registrar Negocio
+              <Store className="w-3.5 h-3.5" />
+              <span>Registrar Negocio</span>
             </button>
           </div>
 
-          {/* Footer switch to Corporate login */}
-          <div className="pt-3 border-t border-zinc-800 text-center">
+          {/* Switch to Corporate login */}
+          <div className="pt-2 border-t border-zinc-800 text-center">
             <button
               type="button"
               onClick={() => {
                 setIsClientAuthModalOpen(false);
                 setIsCorporateAuthModalOpen(true);
               }}
-              className="text-xs text-zinc-400 hover:text-red-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer font-medium"
+              className="text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#D4021D]" />
-              <span>¿Eres Administrador o Negocio? Accede al Portal Corporativo</span>
+              ¿Eres Administrador o Vendedor de Tienda? <span className="text-[#D4021D] font-bold">Portal Corporativo</span>
             </button>
           </div>
         </div>

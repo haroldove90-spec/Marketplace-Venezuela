@@ -17,6 +17,7 @@ import {
   Crown
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { PasswordInput } from './PasswordInput';
 
 export const RegisterBusinessModal: React.FC = () => {
   const {
@@ -501,17 +502,14 @@ export const RegisterBusinessModal: React.FC = () => {
                   <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
                     Contraseña de Acceso al Portal *
                   </label>
-                  <div className="relative">
-                    <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    <input
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                    />
-                  </div>
+                  <PasswordInput
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    showGenerator={true}
+                    required
+                    inputClassName="!bg-white !text-gray-900 !border-gray-300 focus:!border-red-500"
+                  />
                 </div>
               </div>
             </div>

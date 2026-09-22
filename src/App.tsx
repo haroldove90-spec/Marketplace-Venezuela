@@ -60,7 +60,7 @@ const PulsoAppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col font-sans selection:bg-[#D4021D] selection:text-white">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-white text-slate-900 flex flex-col font-sans selection:bg-[#D4021D] selection:text-white">
       
       {/* Top PWA Install Banner */}
       <PWAInstallBanner />
@@ -72,7 +72,7 @@ const PulsoAppContent: React.FC = () => {
       />
 
       {/* Responsive Fullscreen Body Layout */}
-      <div className="flex-1 flex w-full max-w-full bg-white">
+      <div className="flex-1 flex w-full max-w-full overflow-x-hidden bg-white">
         {/* Left Sidebar on Desktop / Bottom Navigation on Mobile */}
         <Navigation
           onOpenRoleModal={() => setIsRoleModalOpen(true)}
@@ -80,7 +80,7 @@ const PulsoAppContent: React.FC = () => {
         />
 
         {/* Center Main View Area */}
-        <main className="flex-1 w-full min-w-0 overflow-y-auto pt-2 bg-white">
+        <main className="flex-1 w-full min-w-0 max-w-full overflow-y-auto overflow-x-hidden pt-2 bg-white">
           {/* CLIENT ROLE VIEWS */}
           {currentRole === 'client' && (
             <>
