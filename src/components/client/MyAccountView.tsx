@@ -18,7 +18,8 @@ import {
   ArrowRight,
   KeyRound,
   Edit3,
-  LogIn
+  LogIn,
+  LogOut
 } from 'lucide-react';
 
 interface MyAccountViewProps {
@@ -28,6 +29,7 @@ interface MyAccountViewProps {
 export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal }) => {
   const {
     currentUser,
+    logout,
     setIsProfileModalOpen,
     setIsClientAuthModalOpen,
     openBusinessRegistration,
@@ -103,13 +105,24 @@ export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal })
 
         <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
           {currentUser ? (
-            <button
-              onClick={() => setIsProfileModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>Editar Mis Datos & Clave</span>
-            </button>
+            <>
+              <button
+                onClick={() => setIsProfileModalOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Editar Mis Datos & Clave</span>
+              </button>
+
+              <button
+                onClick={() => logout()}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-[#D4021D] hover:text-red-800 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                title="Cerrar sesión activa"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Cerrar Sesión</span>
+              </button>
+            </>
           ) : (
             <button
               onClick={() => setIsClientAuthModalOpen(true)}
@@ -120,12 +133,15 @@ export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal })
             </button>
           )}
 
-          <button
-            onClick={onOpenRoleModal}
-            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
-          >
-            Cambiar Rol
-          </button>
+          {currentUser?.role === 'admin' && (
+            <button
+              onClick={onOpenRoleModal}
+              className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+              title="Superadministrador: Conmutar roles de la plataforma"
+            >
+              Cambiar Rol
+            </button>
+          )}
         </div>
       </div>
 

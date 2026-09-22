@@ -491,6 +491,7 @@ export async function updateUserInSupabase(
   updates: {
     name?: string;
     username?: string;
+    role?: string;
     email?: string;
     password?: string;
     phone?: string;
@@ -502,6 +503,7 @@ export async function updateUserInSupabase(
     const payload: any = {};
     if (updates.name !== undefined) payload.name = updates.name;
     if (updates.username !== undefined) payload.username = updates.username;
+    if (updates.role !== undefined) payload.role = updates.role;
     if (updates.email !== undefined) payload.email = updates.email;
     if (updates.password !== undefined) {
       payload.password = updates.password;
@@ -575,5 +577,89 @@ export async function insertBusinessInSupabase(biz: Business): Promise<{ success
     return { success: false, error: err.message || String(err) };
   }
 }
+
+/**
+ * Deletes all sample/mock data from Supabase tables:
+ * products, orders, businesses, whatsapp_campaigns, saved_addresses,
+ * and all users EXCEPT admin_master.
+ */
+export async function clearAllSampleDataFromSupabase(): Promise<{ success: boolean; message: string }> {
+  try {
+    const errors: string[] = [];
+
+    // 1. Delete all products
+    const { error: prodErr } = await supabase.from('products').delete().neq('id', '__keep_none__');
+    if (prodErr && !prodErr.message.includes('does not exist')) {
+      errors.push(`Productos: ${prodErr.message}`);
+    }
+
+    // 2. Delete all orders
+    const { error: ordErr } = await supabase.from('orders').delete().neq('id', '__keep_none__');
+    if (ordErr && !ordErr.message.includes('does not exist')) {
+      errors.push(`Órdenes: ${ordErr.message}`);
+    }
+
+    // 3. Delete all businesses
+    const { error: bizErr } = await supabase.from('businesses').delete().neq('id', '__keep_none__');
+    if (bizErr && !bizErr.message.includes('does not exist')) {
+      errors.push(`Comercios: ${bizErr.message}`);
+    }
+
+    // 4. Delete campaigns
+    const { error: campErr } = await supabase.from('whatsapp_campaigns').delete().neq('id', '__keep_none__');
+    if (campErr && !campErr.message.includes('does not exist')) {
+      errors.push(`Campañas: ${campErr.message}`);
+    }
+
+    // 5. Delete saved addresses
+    const { error: addrErr } = await supabase.from('saved_addresses').delete().neq('id', '__keep_none__');
+    if (addrErr && !addrErr.message.includes('does not exist')) {
+      errors.push(`Direcciones: ${addrErr.message}`);
+    }
+
+    // 6. Delete all demo users EXCEPT admin_master
+    const { error: userErr } = await supabase.from('users').delete().neq('username', 'admin_master');
+    if (userErr && !userErr.message.includes('does not exist')) {
+      errors.push(`Usuarios: ${userErr.message}`);
+    }
+
+    // 7. Ensure admin_master is guaranteed to exist
+    try {
+      await supabase.from('users').upsert({
+        id: 'usr_admin_master',
+        username: 'admin_master',
+        name: 'Administrador Maestro Con Force',
+        email: 'admin@conforce.com',
+        password: 'Chevropar#1970',
+        password_hash: 'Chevropar#1970',
+        role: 'admin',
+        phone: '+58 412 1234567',
+        address: 'Sede Central Con Force, Caracas',
+        status: 'active',
+        department: 'Dirección General'
+      }, { onConflict: 'username' });
+    } catch (e) {
+      console.warn('Upsert master admin warning:', e);
+    }
+
+    if (errors.length > 0) {
+      return {
+        success: false,
+        message: `Algunas tablas reportaron avisos: ${errors.join(', ')}`
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Tablas de productos, órdenes, comercios y usuarios demo limpiadas en Supabase (admin_master preservado).'
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: `Error al limpiar Supabase: ${err.message || String(err)}`
+    };
+  }
+}
+
 
 

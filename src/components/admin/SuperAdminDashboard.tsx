@@ -30,7 +30,10 @@ import {
   Briefcase,
   FileText,
   Download,
-  Radar
+  Radar,
+  AlertTriangle,
+  RotateCcw,
+  LogOut
 } from 'lucide-react';
 import { SupabaseAdminView } from './SupabaseAdminView';
 import { AdminUsersView } from './AdminUsersView';
@@ -57,8 +60,16 @@ export const SuperAdminDashboard: React.FC = () => {
     clients,
     employees,
     failedSearches,
-    serviceFeeRate
+    serviceFeeRate,
+    clearAllSampleData,
+    restoreSampleData,
+    isMockDataCleared,
+    isClearingData,
+    logout
   } = useApp();
+
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
+  const [clearToast, setClearToast] = useState<{ success: boolean; message: string } | null>(null);
 
   // Metrics Calculations
   const totalSales = orders.reduce((sum, o) => sum + o.total, 0);
@@ -240,16 +251,42 @@ export const SuperAdminDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Action to Wipe Sample / Mock Data across the Entire System and Supabase */}
+          {isMockDataCleared ? (
+            <button
+              onClick={() => {
+                restoreSampleData();
+                setClearToast({ success: true, message: 'Datos de prueba restaurados en el sistema.' });
+                setTimeout(() => setClearToast(null), 3500);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+              title="Restaurar comercios y productos de muestra en el sistema"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Restaurar Datos Demo</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowClearConfirmModal(true)}
+              disabled={isClearingData}
+              className="flex items-center gap-1.5 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-rose-950/20 transition-all cursor-pointer disabled:opacity-50"
+              title="Borrar todos los comercios, productos, pedidos y clientes de muestra de todo el sistema y de Supabase"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>{isClearingData ? 'Borrando...' : 'Borrar Datos de Muestra'}</span>
+            </button>
+          )}
+
           <a
             href="/Con_Force_Caracteristicas_Por_Rol.pdf"
             download="Con_Force_Caracteristicas_Por_Rol.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-red-600 to-[#D4021D] hover:from-red-700 hover:to-red-800 text-white rounded-xl text-xs font-bold shadow-sm shadow-red-950/20 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all cursor-pointer"
             title="Descargar Ficha Técnica Oficial en PDF con Características por Rol"
           >
             <FileText className="w-4 h-4" />
-            <span>Descargar PDF Roles</span>
+            <span>Ficha PDF</span>
             <Download className="w-3.5 h-3.5 opacity-80" />
           </a>
 
@@ -257,8 +294,99 @@ export const SuperAdminDashboard: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-[#D4021D] animate-pulse" />
             Meta API Online
           </span>
+
+          {/* Cerrar Sesión Button */}
+          <button
+            onClick={() => logout()}
+            className="flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-[#D4021D] hover:text-red-800 rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+            title="Cerrar sesión de Superadministrador"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Cerrar Sesión</span>
+          </button>
         </div>
       </div>
+
+      {/* Clear Sample Data Confirmation Modal */}
+      {showClearConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">
+                  ¿Borrar datos de muestra de todo el sistema?
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Acción general para producción y limpieza de base de datos
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs text-slate-600 leading-relaxed">
+              <p className="font-semibold text-slate-900">
+                Al confirmar esta acción:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-slate-700">
+                <li>Se vaciarán comercios, productos y órdenes demo del sistema.</li>
+                <li>Se borrarán los registros correspondientes en Supabase PostgreSQL.</li>
+                <li>Se bloqueará la recarga automática de prueba.</li>
+                <li>
+                  <strong className="text-emerald-700">Protección garantizada:</strong> Tu cuenta de acceso{' '}
+                  <code className="bg-slate-200 px-1 py-0.5 rounded font-mono font-bold text-slate-900">admin_master</code>{' '}
+                  y su contraseña permanecerán intactas.
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setShowClearConfirmModal(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={isClearingData}
+                onClick={async () => {
+                  setShowClearConfirmModal(false);
+                  const result = await clearAllSampleData();
+                  setClearToast(result);
+                  setTimeout(() => setClearToast(null), 5000);
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-950/20 transition-all cursor-pointer disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isClearingData ? 'Borrando...' : 'Sí, Borrar Registros de Muestra'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {clearToast && (
+        <div
+          className={`p-4 rounded-2xl text-xs font-bold shadow-md flex items-center justify-between gap-3 ${
+            clearToast.success ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4" />
+            <span>{clearToast.message}</span>
+          </div>
+          <button
+            onClick={() => setClearToast(null)}
+            className="text-white/80 hover:text-white text-xs underline cursor-pointer"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
 
       {/* Admin Module Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto no-scrollbar">

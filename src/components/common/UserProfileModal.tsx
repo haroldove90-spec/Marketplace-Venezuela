@@ -16,13 +16,15 @@ import {
   ShieldCheck,
   AlertCircle,
   Save,
-  CheckCircle2
+  CheckCircle2,
+  LogOut
 } from 'lucide-react';
 
 export const UserProfileModal: React.FC = () => {
   const {
     currentUser,
     updateUser,
+    logout,
     isProfileModalOpen,
     setIsProfileModalOpen,
     setIsCorporateAuthModalOpen,
@@ -491,31 +493,46 @@ export const UserProfileModal: React.FC = () => {
             </div>
 
             {/* Footer Buttons */}
-            <div className="pt-3 border-t border-zinc-800 flex items-center justify-end gap-2.5">
+            <div className="pt-3 border-t border-zinc-800 flex items-center justify-between gap-2.5">
               <button
                 type="button"
-                onClick={() => setIsProfileModalOpen(false)}
-                className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                onClick={() => {
+                  setIsProfileModalOpen(false);
+                  logout();
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 bg-red-950/40 hover:bg-red-900/60 border border-red-800/50 text-red-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                title="Cerrar sesión actual"
               >
-                Cancelar
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Cerrar Sesión</span>
               </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="flex items-center gap-2 px-5 py-2 bg-[#D4021D] hover:bg-red-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md shadow-[#D4021D]/20"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Guardando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-3.5 h-3.5" />
-                    <span>Guardar Cambios</span>
-                  </>
-                )}
-              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileModalOpen(false)}
+                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-5 py-2 bg-[#D4021D] hover:bg-red-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md shadow-[#D4021D]/20"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-3.5 h-3.5" />
+                      <span>Guardar Cambios</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         )}

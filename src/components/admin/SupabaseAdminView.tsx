@@ -16,17 +16,31 @@ import {
   Layers,
   Sparkles,
   Zap,
-  Info
+  Info,
+  Trash2,
+  RotateCcw
 } from 'lucide-react';
 
 export const SupabaseAdminView: React.FC = () => {
-  const { supabaseStatus, checkSupabase, syncToSupabase, businesses, products, orders } = useApp();
+  const {
+    supabaseStatus,
+    checkSupabase,
+    syncToSupabase,
+    clearAllSampleData,
+    restoreSampleData,
+    isMockDataCleared,
+    isClearingData,
+    businesses,
+    products,
+    orders
+  } = useApp();
 
   const [copiedSql, setCopiedSql] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const handleCopySql = () => {
     if (navigator.clipboard) {
@@ -161,17 +175,76 @@ export const SupabaseAdminView: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="flex items-center gap-2 self-end md:self-center">
+          <div className="flex items-center gap-2 flex-wrap self-end md:self-center">
             <button
               onClick={handleSyncData}
-              disabled={isSyncing}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold rounded-xl text-xs cursor-pointer shadow-xs disabled:opacity-50"
+              disabled={isSyncing || isClearingData}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs cursor-pointer shadow-xs disabled:opacity-50"
             >
-              <Zap className={`w-3.5 h-3.5 text-white ${isSyncing ? 'animate-bounce' : ''}`} />
-              <span>{isSyncing ? 'Sincronizando...' : 'Sembrar Datos en Supabase (1-Clic)'}</span>
+              <Zap className={`w-3.5 h-3.5 text-amber-400 ${isSyncing ? 'animate-bounce' : ''}`} />
+              <span>{isSyncing ? 'Sincronizando...' : 'Sembrar Datos en Supabase'}</span>
             </button>
+
+            {isMockDataCleared ? (
+              <button
+                onClick={() => {
+                  restoreSampleData();
+                  setSyncFeedback({ success: true, message: 'Datos de prueba restaurados en el sistema.' });
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs cursor-pointer shadow-xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Restaurar Datos Demo</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowClearConfirm(true)}
+                disabled={isClearingData}
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs cursor-pointer shadow-xs disabled:opacity-50"
+                title="Elimina todos los datos de muestra de Supabase y del sistema, bloqueando la recarga automática"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-200" />
+                <span>{isClearingData ? 'Borrando...' : 'Vaciar Registros de Muestra (Supabase y Sistema)'}</span>
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Clear Confirmation Dialog */}
+        {showClearConfirm && (
+          <div className="mt-3 p-4 bg-white rounded-2xl border-2 border-rose-400 shadow-md space-y-3">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-xs font-black text-rose-900">
+                  ¿Confirmas la eliminación permanente de todos los datos de muestra?
+                </h4>
+                <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                  Se borrarán los comercios, productos, órdenes y clientes de prueba tanto en el sistema como en las tablas de Supabase. Se bloqueará su recarga automática al reiniciar la app. Tu cuenta <strong>admin_master</strong> permanecerá segura y activa.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  setShowClearConfirm(false);
+                  const res = await clearAllSampleData();
+                  setSyncFeedback(res);
+                }}
+                disabled={isClearingData}
+                className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+              >
+                {isClearingData ? 'Borrando...' : 'Sí, Borrar Todo de Muestra'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Sync Toast Feedback */}
         {syncFeedback && (

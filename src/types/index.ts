@@ -11,6 +11,7 @@ export interface Business {
   id: string;
   name: string;
   category: BusinessCategory;
+  description?: string;
   logo: string;
   bannerImage: string;
   phone: string;

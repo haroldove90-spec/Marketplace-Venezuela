@@ -14,7 +14,9 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
     currentUser,
     switchRole,
     setIsCorporateAuthModalOpen,
-    setIsClientAuthModalOpen
+    setIsClientAuthModalOpen,
+    openBusinessRegistration,
+    logout
   } = useApp();
 
   const [restrictionError, setRestrictionError] = useState<string | null>(null);
@@ -188,31 +190,46 @@ export const RoleAccessModal: React.FC<RoleAccessModalProps> = ({ isOpen, onClos
           <button
             onClick={() => {
               onClose();
-              useApp().openBusinessRegistration(currentUser?.role === 'client');
+              openBusinessRegistration(currentUser?.role === 'client');
             }}
             className="text-amber-400 hover:text-amber-300 font-bold transition-colors cursor-pointer"
           >
             + Registrar Nuevo Negocio
           </button>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                onClose();
-                setIsCorporateAuthModalOpen(true);
-              }}
-              className="text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
-            >
-              Acceso Admin/Negocio
-            </button>
-            <button
-              onClick={() => {
-                onClose();
-                setIsClientAuthModalOpen(true);
-              }}
-              className="text-zinc-300 hover:text-white font-medium transition-colors cursor-pointer"
-            >
-              Portal Clientes
-            </button>
+            {currentUser && (
+              <button
+                onClick={() => {
+                  logout();
+                  onClose();
+                }}
+                className="text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
+              >
+                Cerrar Sesión
+              </button>
+            )}
+            {!currentUser && (
+              <>
+                <button
+                  onClick={() => {
+                    onClose();
+                    setIsCorporateAuthModalOpen(true);
+                  }}
+                  className="text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
+                >
+                  Acceso Admin/Negocio
+                </button>
+                <button
+                  onClick={() => {
+                    onClose();
+                    setIsClientAuthModalOpen(true);
+                  }}
+                  className="text-zinc-300 hover:text-white font-medium transition-colors cursor-pointer"
+                >
+                  Portal Clientes
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

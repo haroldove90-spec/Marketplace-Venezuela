@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Role,
   Business,
+  BusinessCategory,
   Product,
   Order,
   CartItem,
@@ -44,6 +45,7 @@ import {
   updateUserInSupabase,
   insertUserInSupabase,
   insertBusinessInSupabase,
+  clearAllSampleDataFromSupabase,
   SUPABASE_URL
 } from '../services/supabaseClient';
 
@@ -58,8 +60,12 @@ interface AppContextType {
   activeAdminTab: string;
   setActiveAdminTab: (tab: string) => void;
 
-  // Mock Data
+  // Mock Data & System Cleansing
   injectMockData: () => void;
+  clearAllSampleData: () => Promise<{ success: boolean; message: string }>;
+  restoreSampleData: () => void;
+  isMockDataCleared: boolean;
+  isClearingData: boolean;
 
   // Businesses
   businesses: Business[];
@@ -239,14 +245,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeSellerTab, setActiveSellerTab] = useState<string>('orders');
   const [activeAdminTab, setActiveAdminTab] = useState<string>('overview');
 
+  // Cleared Mock Data Persistent Tracking
+  const [isMockDataCleared, setIsMockDataCleared] = useState<boolean>(() => {
+    return localStorage.getItem('mk_mock_data_cleared') === 'true';
+  });
+  const [isClearingData, setIsClearingData] = useState<boolean>(false);
+
   // Business State
   const [businesses, setBusinesses] = useState<Business[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_businesses');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_businesses');
     if (savedVersion === DATA_VERSION && saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_BUSINESSES.length) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       } catch (e) {}
@@ -254,17 +277,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_BUSINESSES;
   });
 
-  const [selectedBusinessId, setSelectedBusinessId] = useState<string>(INITIAL_BUSINESSES[0].id);
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>(() => {
+    return INITIAL_BUSINESSES[0]?.id || '';
+  });
   const [selectedBusinessForDetail, setSelectedBusinessForDetail] = useState<Business | null>(null);
 
   // Products State
   const [products, setProducts] = useState<Product[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_products');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_products');
     if (savedVersion === DATA_VERSION && saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCTS.length) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       } catch (e) {}
@@ -274,18 +310,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Orders State
   const [orders, setOrders] = useState<Order[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_orders');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const saved = localStorage.getItem('mk_orders');
     return saved ? JSON.parse(saved) : INITIAL_ORDERS;
   });
 
   // Users, Employees and Clients State
   const [users, setUsers] = useState<UserAccount[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const masterAdmin = INITIAL_USERS.find(u => u.username === 'admin_master') || INITIAL_USERS[0];
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_users');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            if (!parsed.some(u => u.username === 'admin_master')) {
+              parsed.unshift(masterAdmin);
+            }
+            return parsed;
+          }
+        } catch (e) {}
+      }
+      return [masterAdmin];
+    }
     const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_users');
     if (savedVersion === DATA_VERSION && saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_USERS.length) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
       } catch (e) {}
@@ -294,12 +358,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [employees, setEmployees] = useState<EmployeeProfile[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_employees');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_employees');
     if (savedVersion === DATA_VERSION && saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_EMPLOYEES.length) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       } catch (e) {}
@@ -308,12 +383,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [clients, setClients] = useState<ClientProfile[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_clients');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_clients');
     if (savedVersion === DATA_VERSION && saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_CLIENTS.length) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       } catch (e) {}
@@ -643,7 +729,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newBusiness: Business = {
       id: newBizId,
       name: data.businessName.trim(),
-      category: data.category || 'Repuestos y Servicios',
+      category: (data.category as BusinessCategory) || 'restaurante',
       rating: 5.0,
       reviewsCount: 1,
       deliveryTime: '20-40 min',
@@ -740,7 +826,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const newBusiness: Business = {
       id: newBizId,
       name: data.businessName.trim(),
-      category: data.category || 'Repuestos y Servicios',
+      category: (data.category as BusinessCategory) || 'restaurante',
       rating: 5.0,
       reviewsCount: 1,
       deliveryTime: '20-40 min',
@@ -801,8 +887,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = () => {
     setCurrentUser(null);
+    localStorage.removeItem('mk_current_user');
     setCurrentRole('client');
     setActiveClientTab('explore');
+    setIsProfileModalOpen(false);
+    setIsCorporateAuthModalOpen(false);
+    setIsClientAuthModalOpen(false);
+    setIsRegisterBusinessModalOpen(false);
   };
 
   const switchRole = (targetRole: Role): { allowed: boolean; message?: string } => {
@@ -815,7 +906,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { allowed: true };
     }
 
-    // Seller can only enter seller role
+    // Seller is strictly restricted to seller role
     if (currentUser?.role === 'seller') {
       if (targetRole === 'seller') {
         setCurrentRole('seller');
@@ -824,35 +915,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
       return {
         allowed: false,
-        message: 'Acceso restringido: Las cuentas de Negocio solo tienen permiso para acceder a su panel de vendedor.'
+        message: 'Acceso exclusivo: Solo el Administrador Maestro puede navegar en todos los roles. Tu cuenta de Vendedor permanece en su panel de comercio.'
       };
     }
 
-    // Client can only enter client role
+    // Client is strictly restricted to client role
     if (currentUser?.role === 'client') {
       if (targetRole === 'client') {
         setCurrentRole('client');
         setActiveClientTab('explore');
         return { allowed: true };
       }
-      setIsCorporateAuthModalOpen(true);
       return {
         allowed: false,
-        message: 'Acceso restringido: Para acceder como Negocio o Administrador, ingresa tus credenciales corporativas.'
+        message: 'Acceso exclusivo: Solo el Administrador Maestro puede conmutar entre todos los roles. Tu cuenta de usuario navega en el Marketplace.'
       };
     }
 
-    // Guest / Not logged in
+    // Guest / Not logged in: only client
     if (targetRole === 'client') {
       setCurrentRole('client');
       return { allowed: true };
     }
 
-    // Prompt corporate login
+    // Prompt corporate login if guest tries to enter admin/seller
     setIsCorporateAuthModalOpen(true);
     return {
       allowed: false,
-      message: 'Debes iniciar sesión con una cuenta de Administrador o Negocio para acceder a este rol.'
+      message: 'Solo el Administrador Maestro puede navegar libremente entre todos los roles. Inicia sesión con tus credenciales de Administrador.'
     };
   };
 
@@ -1001,6 +1091,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Function to forcefully inject or restore rich test data
   const injectMockData = () => {
+    localStorage.removeItem('mk_mock_data_cleared');
+    setIsMockDataCleared(false);
     setBusinesses(INITIAL_BUSINESSES);
     setProducts(INITIAL_PRODUCTS);
     setOrders(INITIAL_ORDERS);
@@ -1020,6 +1112,86 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('mk_employees', JSON.stringify(INITIAL_EMPLOYEES));
     localStorage.setItem('mk_clients', JSON.stringify(INITIAL_CLIENTS));
     localStorage.setItem('mk_data_version', DATA_VERSION);
+  };
+
+  // Function to permanently clear all sample/mock data across the entire system and Supabase
+  const clearAllSampleData = async (): Promise<{ success: boolean; message: string }> => {
+    setIsClearingData(true);
+    try {
+      // 1. Mark persistent flag that mock data has been wiped
+      localStorage.setItem('mk_mock_data_cleared', 'true');
+      setIsMockDataCleared(true);
+
+      // 2. Clear state and localStorage
+      setBusinesses([]);
+      setProducts([]);
+      setOrders([]);
+      setCampaigns([]);
+      setCart([]);
+      setClients([]);
+      setEmployees([]);
+      setFailedSearches([]);
+
+      // Keep only admin accounts, guaranteeing admin_master
+      const preservedAdmins = users.filter((u) => u.role === 'admin');
+      const masterAdmin = preservedAdmins.find((u) => u.username === 'admin_master') || INITIAL_USERS.find((u) => u.username === 'admin_master') || {
+        id: 'usr-admin-master',
+        name: 'Administrador Master Con Force',
+        username: 'admin_master',
+        email: 'admin_master@conforce.com',
+        password: 'Chevropar#1970',
+        role: 'admin' as Role,
+        status: 'active' as const,
+        department: 'Dirección General',
+        phone: '+58 412 1234567',
+        createdAt: '2026-01-01',
+        lastLogin: '2026-09-21 18:00'
+      };
+
+      const finalAdmins = preservedAdmins.length > 0 ? preservedAdmins : [masterAdmin];
+      setUsers(finalAdmins);
+
+      localStorage.setItem('mk_businesses', JSON.stringify([]));
+      localStorage.setItem('mk_products', JSON.stringify([]));
+      localStorage.setItem('mk_orders', JSON.stringify([]));
+      localStorage.setItem('mk_campaigns', JSON.stringify([]));
+      localStorage.setItem('mk_cart', JSON.stringify([]));
+      localStorage.setItem('mk_clients', JSON.stringify([]));
+      localStorage.setItem('mk_employees', JSON.stringify([]));
+      localStorage.setItem('mk_users', JSON.stringify(finalAdmins));
+
+      // 3. Delete records from Supabase tables
+      let supaNote = '';
+      try {
+        const supaResult = await clearAllSampleDataFromSupabase();
+        supaNote = supaResult.success
+          ? ' y de Supabase PostgreSQL'
+          : ` (Supabase: ${supaResult.message})`;
+      } catch (sErr: any) {
+        supaNote = ` (Supabase: ${sErr.message || sErr})`;
+      }
+
+      // 4. Re-check Supabase to update live table counts
+      await checkSupabase();
+
+      return {
+        success: true,
+        message: `¡Registros de muestra eliminados exitosamente de todo el sistema${supaNote}! Se bloqueó la recarga automática y se preservó de forma segura la cuenta admin_master.`
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: `Error al eliminar datos de muestra: ${err.message || String(err)}`
+      };
+    } finally {
+      setIsClearingData(false);
+    }
+  };
+
+  const restoreSampleData = () => {
+    localStorage.removeItem('mk_mock_data_cleared');
+    setIsMockDataCleared(false);
+    injectMockData();
   };
 
   // Ensure current data version is registered
@@ -1105,14 +1277,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           fetchOrdersFromSupabase()
         ]);
 
-        if (remoteBiz && remoteBiz.length > 0) {
-          setBusinesses(remoteBiz);
+        const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+
+        if (remoteBiz) {
+          if (!isCleared || remoteBiz.length > 0) {
+            setBusinesses(remoteBiz);
+          } else if (isCleared && remoteBiz.length === 0) {
+            setBusinesses([]);
+          }
         }
-        if (remoteProd && remoteProd.length > 0) {
-          setProducts(remoteProd);
+        if (remoteProd) {
+          if (!isCleared || remoteProd.length > 0) {
+            setProducts(remoteProd);
+          } else if (isCleared && remoteProd.length === 0) {
+            setProducts([]);
+          }
         }
-        if (remoteOrders && remoteOrders.length > 0) {
-          setOrders(remoteOrders);
+        if (remoteOrders) {
+          if (!isCleared || remoteOrders.length > 0) {
+            setOrders(remoteOrders);
+          } else if (isCleared && remoteOrders.length === 0) {
+            setOrders([]);
+          }
         }
       } catch (err) {
         console.warn('Error hydrating state from Supabase:', err);
@@ -1609,7 +1795,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCampaigns(prev => [newCamp, ...prev]);
   };
 
-  const currentSellerBusiness = businesses.find(b => b.id === selectedBusinessId) || businesses[0];
+  const currentSellerBusiness = businesses.find(b => b.id === selectedBusinessId) || businesses[0] || undefined;
 
   return (
     <AppContext.Provider
@@ -1624,6 +1810,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveAdminTab,
 
         injectMockData,
+        clearAllSampleData,
+        restoreSampleData,
+        isMockDataCleared,
+        isClearingData,
 
         businesses,
         setBusinesses,

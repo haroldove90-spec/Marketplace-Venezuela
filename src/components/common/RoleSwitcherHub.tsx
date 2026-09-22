@@ -4,9 +4,27 @@ import { Role } from '../../types';
 import { ShoppingBag, Store, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
 
 export const RoleSwitcherHub: React.FC = () => {
-  const { currentRole, setCurrentRole, setActiveClientTab, setActiveSellerTab, setActiveAdminTab } = useApp();
+  const {
+    currentRole,
+    setCurrentRole,
+    setActiveClientTab,
+    setActiveSellerTab,
+    setActiveAdminTab,
+    currentUser,
+    openRoleModal
+  } = useApp();
+
+  const isMasterAdmin = currentUser?.role === 'admin';
 
   const handleSelectRole = (role: Role) => {
+    if (role === currentRole) return;
+    
+    // Only the Master Admin can navigate across all roles freely
+    if (!isMasterAdmin) {
+      openRoleModal();
+      return;
+    }
+
     setCurrentRole(role);
     if (role === 'client') setActiveClientTab('explore');
     if (role === 'seller') setActiveSellerTab('orders');
@@ -52,6 +70,20 @@ export const RoleSwitcherHub: React.FC = () => {
         <p className="text-slate-600 text-sm mt-1">
           Con Force · Plataforma geolocalizada en tiempo real
         </p>
+        
+        <div className="mt-3 inline-block max-w-lg mx-auto">
+          {isMasterAdmin ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+              Sesión Master Admin: Puedes navegar libremente en todos los roles
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              Navegación por rol: Solo el Administrador Maestro puede alternar entre todos los roles
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Grid: strictly 2 columns on mobile version, 3 columns on tablet/desktop */}

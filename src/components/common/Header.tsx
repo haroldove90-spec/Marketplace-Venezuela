@@ -89,16 +89,26 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
         <div className="flex items-center gap-2 md:gap-3">
           <PulsoLogo size="md" textColor="text-white" />
 
-          {/* Role Pill Button */}
-          <button
-            onClick={onOpenRoleModal}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-xs ${roleInfo.color}`}
-            title="Cambiar vista o rol"
-          >
-            {roleInfo.icon}
-            <span>{roleInfo.name}</span>
-            <ChevronDown className="w-3 h-3 opacity-70" />
-          </button>
+          {/* Role Pill: Clickable only for Admin, static badge for others */}
+          {currentUser?.role === 'admin' ? (
+            <button
+              onClick={onOpenRoleModal}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-xs ${roleInfo.color}`}
+              title="Superadministrador: Conmutador activo para todos los roles"
+            >
+              {roleInfo.icon}
+              <span>{roleInfo.name}</span>
+              <ChevronDown className="w-3 h-3 opacity-70" />
+            </button>
+          ) : (
+            <div
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-bold shadow-xs select-none ${roleInfo.color}`}
+              title={`Rol asignado: ${roleInfo.name}. Solo el Superadministrador puede navegar en todos los roles.`}
+            >
+              {roleInfo.icon}
+              <span>{roleInfo.name}</span>
+            </div>
+          )}
 
           {/* Share Marketplace Independent Link */}
           <button
@@ -232,6 +242,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
                   </div>
                 </div>
               )}
+
+              {/* Direct Cerrar Sesión Button */}
+              <button
+                onClick={() => logout()}
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 text-red-300 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                title="Cerrar Sesión Activa"
+              >
+                <LogOut className="w-3.5 h-3.5 text-red-500" />
+                <span className="hidden sm:inline">Salir</span>
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">

@@ -43,15 +43,17 @@ export const SellerDashboard: React.FC = () => {
     updateOrderStatus,
     userLocation,
     activeSellerTab,
-    setActiveSellerTab
+    setActiveSellerTab,
+    openBusinessRegistration,
+    logout
   } = useApp();
 
   // Active business
   const biz = currentSellerBusiness || businesses[0];
 
   // Seller orders filtered for this business
-  const sellerOrders = orders.filter((o) => o.businessId === biz.id);
-  const bizProducts = products.filter((p) => p.businessId === biz.id);
+  const sellerOrders = biz ? orders.filter((o) => o.businessId === biz.id) : [];
+  const bizProducts = biz ? products.filter((p) => p.businessId === biz.id) : [];
 
   // States for Product Modal
   const [showProductModal, setShowProductModal] = useState(false);
@@ -76,14 +78,14 @@ export const SellerDashboard: React.FC = () => {
   };
 
   // States for Profile Editor
-  const [bizName, setBizName] = useState(biz.name);
-  const [bizPhone, setBizPhone] = useState(biz.phone);
-  const [bizAddress, setBizAddress] = useState(biz.address);
-  const [bizLat, setBizLat] = useState<number>(biz.coordinates.lat);
-  const [bizLng, setBizLng] = useState<number>(biz.coordinates.lng);
-  const [bizHours, setBizHours] = useState(biz.openingHours);
-  const [bizLogo, setBizLogo] = useState(biz.logo);
-  const [bizPinColor, setBizPinColor] = useState(biz.customPinColor || '#2563eb');
+  const [bizName, setBizName] = useState(biz?.name || '');
+  const [bizPhone, setBizPhone] = useState(biz?.phone || '');
+  const [bizAddress, setBizAddress] = useState(biz?.address || '');
+  const [bizLat, setBizLat] = useState<number>(biz?.coordinates?.lat || 10.4806);
+  const [bizLng, setBizLng] = useState<number>(biz?.coordinates?.lng || -66.9036);
+  const [bizHours, setBizHours] = useState(biz?.openingHours || '8:00 AM - 10:00 PM');
+  const [bizLogo, setBizLogo] = useState(biz?.logo || '🏪');
+  const [bizPinColor, setBizPinColor] = useState(biz?.customPinColor || '#2563eb');
   const [profileSavedToast, setProfileSavedToast] = useState(false);
 
   // Switch store handler
@@ -103,6 +105,7 @@ export const SellerDashboard: React.FC = () => {
   };
 
   const handleSaveProfile = () => {
+    if (!biz) return;
     updateBusiness(biz.id, {
       name: bizName,
       phone: bizPhone,
@@ -130,10 +133,10 @@ export const SellerDashboard: React.FC = () => {
     setProdDesc('');
     setProdPrice(50);
     setProdOriginalPrice(undefined);
-    setProdCategory(biz.category === 'farmacia' ? 'Medicamentos' : 'Platillos');
+    setProdCategory(biz?.category === 'farmacia' ? 'Medicamentos' : 'Platillos');
     setProdImage('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&auto=format&fit=crop&q=60');
     setProdStock(25);
-    setProdTags(biz.category === 'farmacia' ? 'paracetamol, dolor, medicina' : 'combo, comida, cena');
+    setProdTags(biz?.category === 'farmacia' ? 'paracetamol, dolor, medicina' : 'combo, comida, cena');
     setProdIsOffer(false);
     setShowProductModal(true);
   };
@@ -191,6 +194,38 @@ export const SellerDashboard: React.FC = () => {
 
     setShowProductModal(false);
   };
+
+  if (!biz) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-slate-100 flex items-center justify-center text-4xl shadow-inner border border-slate-200">
+          🏪
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl md:text-2xl font-black text-slate-900">
+            No tienes comercios registrados
+          </h2>
+          <p className="text-sm text-slate-500 max-w-md mx-auto">
+            Los datos de muestra fueron eliminados o aún no has registrado tu tienda en la plataforma.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button
+            onClick={() => openBusinessRegistration(false)}
+            className="px-5 py-2.5 bg-[#D4021D] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition-all cursor-pointer"
+          >
+            + Registrar Nuevo Comercio
+          </button>
+          <button
+            onClick={() => logout()}
+            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition-all cursor-pointer"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-3 md:px-6 py-4 space-y-6 pb-24 md:pb-12 bg-white">

@@ -52,7 +52,9 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
     currentUser,
     setIsClientAuthModalOpen,
     setClientAuthIntent,
-    getMarketplaceShareUrl
+    getMarketplaceShareUrl,
+    openBusinessRegistration,
+    isMockDataCleared
   } = useApp();
 
   const [viewMode, setViewMode] = useState<'businesses' | 'products' | 'comparator'>('businesses');
@@ -431,15 +433,41 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
       ) : viewMode === 'businesses' ? (
         <div className="space-y-2.5">
           {sortedFilteredBusinesses.length === 0 ? (
-            <div className="text-center py-10 bg-slate-50 rounded-2xl border border-slate-200">
-              <Store className="w-8 h-8 text-slate-300 mx-auto mb-1.5" />
-              <p className="text-xs font-bold text-slate-700">No hay negocios con estos filtros</p>
-              <button
-                onClick={handleInjectData}
-                className="mt-2 text-xs font-bold text-[#D4021D] hover:underline inline-flex items-center gap-1"
-              >
-                <RefreshCw className="w-3 h-3" /> Cargar datos demo
-              </button>
+            <div className="text-center py-10 px-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+              <Store className="w-8 h-8 text-slate-300 mx-auto" />
+              <p className="text-xs font-bold text-slate-700">
+                {businesses.length === 0
+                  ? 'Aún no hay comercios registrados en el Marketplace'
+                  : 'No hay comercios con estos filtros o búsqueda'}
+              </p>
+              {businesses.length === 0 ? (
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                  <button
+                    onClick={() => openBusinessRegistration(true)}
+                    className="px-3 py-1.5 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                  >
+                    + Registrar Comercio
+                  </button>
+                  {currentUser?.role === 'admin' && (
+                    <button
+                      onClick={handleInjectData}
+                      className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Restaurar datos demo
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setActiveCategory('all');
+                  }}
+                  className="mt-1 text-xs font-bold text-[#D4021D] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                >
+                  Limpiar búsqueda y filtros
+                </button>
+              )}
             </div>
           ) : (
             sortedFilteredBusinesses.map((biz) => {
