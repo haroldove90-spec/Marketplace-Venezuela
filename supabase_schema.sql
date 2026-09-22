@@ -1,17 +1,17 @@
 -- ==============================================================================
--- CON FORCE MARKETPLACE - ESQUEMA COMPLETO DE BASE DE DATOS SUPABASE (POSTGRESQL)
+-- CON FORCE MARKETPLACE - ESQUEMA Y MIGRACIÓN DEFINITIVA SUPABASE (POSTGRESQL)
 -- ==============================================================================
--- Ejecuta este script en el SQL Editor de tu panel de Supabase:
--- https://supabase.com/dashboard/project/_/sql
+-- Este script es 100% seguro e idempotente. Agrega columnas faltantes si las
+-- tablas ya existían (evitando el error 42703: column does not exist) y crea
+-- las tablas e índices necesarios.
 -- ==============================================================================
 
--- 1. Habilitar extensiones necesarias
+-- 1. Extensiones necesarias
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ==============================================================================
 -- 2. TABLA DE USUARIOS (users)
--- Compatible con Clientes, Vendedores y Administradores
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.users (
     id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
@@ -23,38 +23,90 @@ CREATE TABLE IF NOT EXISTS public.users (
     phone TEXT,
     address TEXT,
     business_id TEXT,
+    status TEXT DEFAULT 'active',
+    department TEXT,
+    password_hash TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Índices para búsqueda rápida
+-- Asegurar columnas si la tabla ya existía
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS username TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS password TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'client';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS department TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
 CREATE INDEX IF NOT EXISTS idx_users_username ON public.users(username);
 CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 
 -- ==============================================================================
--- 3. TABLA DE NEGOCIOS / COMERCIOS ALIADOS (businesses)
+-- 3. TABLA DE NEGOCIOS (businesses)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.businesses (
     id TEXT PRIMARY KEY DEFAULT ('biz_' || substring(gen_random_uuid()::TEXT from 1 for 8)),
     name TEXT NOT NULL,
-    rif TEXT UNIQUE,
     category TEXT NOT NULL DEFAULT 'Repuestos',
+    logo TEXT DEFAULT '🏬',
+    banner_image TEXT,
     phone TEXT NOT NULL,
     email TEXT,
     address TEXT NOT NULL,
-    city TEXT NOT NULL DEFAULT 'Caracas',
-    state TEXT NOT NULL DEFAULT 'Distrito Capital',
-    lat DOUBLE PRECISION NOT NULL DEFAULT 10.4806,
-    lng DOUBLE PRECISION NOT NULL DEFAULT -66.9036,
-    rating NUMERIC(3,1) NOT NULL DEFAULT 5.0,
-    review_count INTEGER NOT NULL DEFAULT 0,
-    is_verified BOOLEAN NOT NULL DEFAULT true,
-    is_sponsor BOOLEAN NOT NULL DEFAULT false,
+    city TEXT DEFAULT 'Caracas',
+    state TEXT DEFAULT 'Distrito Capital',
+    rif TEXT,
+    coordinates JSONB DEFAULT '{"lat": 10.4806, "lng": -66.9036}'::JSONB,
+    opening_hours TEXT DEFAULT '08:00 AM - 06:00 PM',
+    rating NUMERIC(3,1) DEFAULT 5.0,
+    reviews_count INTEGER DEFAULT 0,
+    is_verified BOOLEAN DEFAULT true,
+    is_active BOOLEAN DEFAULT true,
+    is_sponsor BOOLEAN DEFAULT false,
+    commission_rate NUMERIC DEFAULT 10,
+    custom_pin_color TEXT DEFAULT '#D4021D',
+    delivery_time TEXT DEFAULT '30-45 min',
+    min_order NUMERIC DEFAULT 0,
+    tags JSONB DEFAULT '[]'::JSONB,
     owner_username TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Asegurar TODAS las columnas por si la tabla ya existía previamente
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Repuestos';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS logo TEXT DEFAULT '🏬';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS banner_image TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Caracas';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'Distrito Capital';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS rif TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS coordinates JSONB DEFAULT '{"lat": 10.4806, "lng": -66.9036}'::JSONB;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS opening_hours TEXT DEFAULT '08:00 AM - 06:00 PM';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS rating NUMERIC(3,1) DEFAULT 5.0;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS reviews_count INTEGER DEFAULT 0;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT true;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_sponsor BOOLEAN DEFAULT false;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS commission_rate NUMERIC DEFAULT 10;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS custom_pin_color TEXT DEFAULT '#D4021D';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS delivery_time TEXT DEFAULT '30-45 min';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS min_order NUMERIC DEFAULT 0;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS tags JSONB DEFAULT '[]'::JSONB;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS owner_username TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_businesses_owner ON public.businesses(owner_username);
 CREATE INDEX IF NOT EXISTS idx_businesses_category ON public.businesses(category);
@@ -64,17 +116,33 @@ CREATE INDEX IF NOT EXISTS idx_businesses_category ON public.businesses(category
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.products (
     id TEXT PRIMARY KEY DEFAULT ('prod_' || substring(gen_random_uuid()::TEXT from 1 for 8)),
-    business_id TEXT REFERENCES public.businesses(id) ON DELETE CASCADE,
+    business_id TEXT,
     name TEXT NOT NULL,
     description TEXT,
     price NUMERIC(12,2) NOT NULL,
-    currency TEXT NOT NULL DEFAULT 'USD',
-    stock INTEGER NOT NULL DEFAULT 1,
-    category TEXT NOT NULL,
-    vehicle_compatibility TEXT[],
-    image_url TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    original_price NUMERIC(12,2),
+    category TEXT NOT NULL DEFAULT 'Repuestos',
+    image TEXT,
+    in_stock BOOLEAN DEFAULT true,
+    stock_count INTEGER DEFAULT 10,
+    tags JSONB DEFAULT '[]'::JSONB,
+    is_offer_of_the_day BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Asegurar columnas si ya existía
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS price NUMERIC(12,2);
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS original_price NUMERIC(12,2);
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Repuestos';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS image TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS in_stock BOOLEAN DEFAULT true;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS stock_count INTEGER DEFAULT 10;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS tags JSONB DEFAULT '[]'::JSONB;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS is_offer_of_the_day BOOLEAN DEFAULT false;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_products_business ON public.products(business_id);
 CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
@@ -84,130 +152,152 @@ CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.orders (
     id TEXT PRIMARY KEY DEFAULT ('ord_' || substring(gen_random_uuid()::TEXT from 1 for 8)),
-    client_id TEXT REFERENCES public.users(id) ON DELETE SET NULL,
-    client_name TEXT NOT NULL,
-    client_phone TEXT NOT NULL,
-    client_address TEXT NOT NULL,
-    business_id TEXT REFERENCES public.businesses(id) ON DELETE SET NULL,
-    total NUMERIC(12,2) NOT NULL,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'in_route', 'delivered', 'cancelled')),
-    payment_method TEXT NOT NULL DEFAULT 'pago_movil',
+    business_id TEXT,
+    business_name TEXT,
+    business_logo TEXT,
+    customer_name TEXT NOT NULL,
+    customer_phone TEXT NOT NULL,
     items JSONB NOT NULL DEFAULT '[]'::JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    subtotal NUMERIC(12,2) NOT NULL DEFAULT 0,
+    delivery_fee NUMERIC(12,2) DEFAULT 0,
+    total NUMERIC(12,2) NOT NULL DEFAULT 0,
+    delivery_type TEXT DEFAULT 'delivery',
+    delivery_address TEXT DEFAULT '',
+    delivery_coordinates JSONB,
+    payment_method TEXT NOT NULL DEFAULT 'pago_movil',
+    order_channel TEXT DEFAULT 'app',
+    status TEXT NOT NULL DEFAULT 'pending',
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_orders_client ON public.orders(client_id);
+-- Asegurar columnas si ya existía
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS business_name TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS business_logo TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_name TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS customer_phone TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::JSONB;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS subtotal NUMERIC(12,2) DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_fee NUMERIC(12,2) DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS total NUMERIC(12,2) DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_type TEXT DEFAULT 'delivery';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_address TEXT DEFAULT '';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS delivery_coordinates JSONB;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'pago_movil';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_channel TEXT DEFAULT 'app';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending';
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 CREATE INDEX IF NOT EXISTS idx_orders_business ON public.orders(business_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
 
 -- ==============================================================================
--- 6. POLÍTICAS DE ACCESO (ROW LEVEL SECURITY - RLS)
+-- 6. TABLAS ADICIONALES (Campañas WhatsApp, Chatbot y Direcciones)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.whatsapp_campaigns (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    target_audience TEXT,
+    status TEXT,
+    sent_count INTEGER DEFAULT 0,
+    open_rate NUMERIC DEFAULT 0,
+    click_rate NUMERIC DEFAULT 0,
+    date TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.chatbot_config (
+    id TEXT PRIMARY KEY DEFAULT 'default',
+    meta_api_token TEXT,
+    phone_number_id TEXT,
+    business_account_id TEXT,
+    webhook_verify_token TEXT,
+    welcome_message TEXT,
+    featured_offer_id TEXT,
+    auto_deep_links_enabled BOOLEAN DEFAULT true,
+    gemini_smart_search BOOLEAN DEFAULT true,
+    max_distance_km NUMERIC DEFAULT 8,
+    custom_keywords JSONB DEFAULT '[]'::JSONB,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.saved_addresses (
+    id TEXT PRIMARY KEY,
+    label TEXT NOT NULL,
+    address TEXT NOT NULL,
+    coordinates JSONB,
+    is_default BOOLEAN DEFAULT false
+);
+
+-- ==============================================================================
+-- 7. POLÍTICAS DE ACCESO (ROW LEVEL SECURITY - RLS)
 -- ==============================================================================
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.whatsapp_campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chatbot_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.saved_addresses ENABLE ROW LEVEL SECURITY;
 
--- Políticas públicas permisivas para desarrollo / frontend anónimo autenticado por app:
-DROP POLICY IF EXISTS "Permitir lectura publica de negocios" ON public.businesses;
-CREATE POLICY "Permitir lectura publica de negocios" ON public.businesses FOR SELECT USING (true);
+-- Políticas de lectura y escritura públicas para la app cliente:
+DO $$
+BEGIN
+    DROP POLICY IF EXISTS "Permitir gestion de usuarios" ON public.users;
+    CREATE POLICY "Permitir gestion de usuarios" ON public.users FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Permitir insercion de negocios" ON public.businesses;
-CREATE POLICY "Permitir insercion de negocios" ON public.businesses FOR INSERT WITH CHECK (true);
+    DROP POLICY IF EXISTS "Permitir gestion de negocios" ON public.businesses;
+    CREATE POLICY "Permitir gestion de negocios" ON public.businesses FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Permitir actualizacion de negocios" ON public.businesses;
-CREATE POLICY "Permitir actualizacion de negocios" ON public.businesses FOR UPDATE USING (true);
+    DROP POLICY IF EXISTS "Permitir gestion de productos" ON public.products;
+    CREATE POLICY "Permitir gestion de productos" ON public.products FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Permitir lectura publica de productos" ON public.products;
-CREATE POLICY "Permitir lectura publica de productos" ON public.products FOR SELECT USING (true);
+    DROP POLICY IF EXISTS "Permitir gestion de pedidos" ON public.orders;
+    CREATE POLICY "Permitir gestion de pedidos" ON public.orders FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Permitir gestion de productos" ON public.products;
-CREATE POLICY "Permitir gestion de productos" ON public.products FOR ALL USING (true);
+    DROP POLICY IF EXISTS "Permitir gestion de campanas" ON public.whatsapp_campaigns;
+    CREATE POLICY "Permitir gestion de campanas" ON public.whatsapp_campaigns FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Permitir gestion de usuarios" ON public.users;
-CREATE POLICY "Permitir gestion de usuarios" ON public.users FOR ALL USING (true);
+    DROP POLICY IF EXISTS "Permitir gestion de chatbot" ON public.chatbot_config;
+    CREATE POLICY "Permitir gestion de chatbot" ON public.chatbot_config FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Permitir gestion de pedidos" ON public.orders;
-CREATE POLICY "Permitir gestion de pedidos" ON public.orders FOR ALL USING (true);
+    DROP POLICY IF EXISTS "Permitir gestion de direcciones" ON public.saved_addresses;
+    CREATE POLICY "Permitir gestion de direcciones" ON public.saved_addresses FOR ALL USING (true) WITH CHECK (true);
+EXCEPTION WHEN OTHERS THEN
+    NULL;
+END $$;
 
 -- ==============================================================================
--- 7. DATOS INICIALES SEMILLA (SEED DATA)
--- Incluye Superadmin Master y Comercios Iniciales
+-- 8. USUARIO SUPERADMIN MASTER
 -- ==============================================================================
-
--- Superadmin Master
-INSERT INTO public.users (id, username, name, email, password, role, phone, address)
+INSERT INTO public.users (
+    id,
+    username,
+    name,
+    email,
+    password,
+    password_hash,
+    role,
+    phone,
+    address,
+    status
+)
 VALUES (
     'usr_admin_master',
     'admin_master',
     'Administrador Maestro Con Force',
     'admin@conforce.com',
     'Chevropar#1970',
+    'Chevropar#1970',
     'admin',
     '+58 412 1234567',
-    'Sede Central Con Force, Caracas'
+    'Sede Central Con Force, Caracas',
+    'active'
 )
 ON CONFLICT (username) DO UPDATE 
-SET password = EXCLUDED.password, role = 'admin';
-
--- Negocio Demostración 1: Multirepuestos Caracas
-INSERT INTO public.businesses (id, name, rif, category, phone, email, address, city, state, lat, lng, rating, review_count, is_verified, is_sponsor)
-VALUES (
-    'biz_1',
-    'Multirepuestos Caracas Express',
-    'J-31415926-0',
-    'Repuestos en General',
-    '+58 412 5550199',
-    'ventas@multirepuestosccs.com',
-    'Av. Libertador, Sector Chacao, Caracas',
-    'Caracas',
-    'Distrito Capital',
-    10.4912,
-    -66.8524,
-    4.9,
-    142,
-    true,
-    true
-)
-ON CONFLICT (id) DO NOTHING;
-
--- Negocio Demostración 2: Frenos y Embragues La Concordia
-INSERT INTO public.businesses (id, name, rif, category, phone, email, address, city, state, lat, lng, rating, review_count, is_verified, is_sponsor)
-VALUES (
-    'biz_2',
-    'Frenos y Embragues La Concordia',
-    'J-20593847-1',
-    'Frenos y Suspensión',
-    '+58 414 9988771',
-    'contacto@frenoslaconcordia.com',
-    'Av. San Martín, Edif. Repuestos Centro, Caracas',
-    'Caracas',
-    'Distrito Capital',
-    10.4851,
-    -66.9205,
-    4.8,
-    89,
-    true,
-    false
-)
-ON CONFLICT (id) DO NOTHING;
-
--- Función para actualizar columna updated_at automáticamente
-CREATE OR REPLACE FUNCTION public.handle_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trigger_users_updated_at ON public.users;
-CREATE TRIGGER trigger_users_updated_at
-BEFORE UPDATE ON public.users
-FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
-
-DROP TRIGGER IF EXISTS trigger_businesses_updated_at ON public.businesses;
-CREATE TRIGGER trigger_businesses_updated_at
-BEFORE UPDATE ON public.businesses
-FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
+SET password = EXCLUDED.password,
+    password_hash = EXCLUDED.password_hash,
+    role = 'admin',
+    name = EXCLUDED.name;
