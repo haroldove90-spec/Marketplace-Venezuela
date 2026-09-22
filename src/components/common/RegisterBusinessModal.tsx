@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Building2,
   X,
@@ -12,7 +12,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Award,
+  Crown
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -20,6 +22,8 @@ export const RegisterBusinessModal: React.FC = () => {
   const {
     isRegisterBusinessModalOpen,
     setIsRegisterBusinessModalOpen,
+    isRegisteringAsSponsor,
+    setIsRegisteringAsSponsor,
     registerBusiness,
     upgradeClientToBusiness,
     currentUser
@@ -28,6 +32,7 @@ export const RegisterBusinessModal: React.FC = () => {
   const isClientLoggedIn = Boolean(currentUser && currentUser.role === 'client');
 
   // Business Form State
+  const [isSponsor, setIsSponsor] = useState(isRegisteringAsSponsor);
   const [businessName, setBusinessName] = useState('');
   const [category, setCategory] = useState('Repuestos Nuevos Chevrolet / Ford / Toyota');
   const [address, setAddress] = useState('');
@@ -47,106 +52,130 @@ export const RegisterBusinessModal: React.FC = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Sync isSponsor with isRegisteringAsSponsor when opened
+  useEffect(() => {
+    if (isRegisterBusinessModalOpen) {
+      setIsSponsor(isRegisteringAsSponsor);
+      if (isRegisteringAsSponsor) {
+        setSelectedEmoji('⭐');
+        setCategory('Marca Oficial / Patrocinador');
+      } else {
+        setSelectedEmoji('🏢');
+        setCategory('Repuestos Nuevos Chevrolet / Ford / Toyota');
+      }
+    }
+  }, [isRegisterBusinessModalOpen, isRegisteringAsSponsor]);
+
   if (!isRegisterBusinessModalOpen) return null;
 
   const handleClose = () => {
     setErrorMsg('');
     setSuccessMsg('');
     setIsRegisterBusinessModalOpen(false);
+    setIsRegisteringAsSponsor(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
 
     if (!businessName.trim()) {
-      setErrorMsg('Por favor ingresa el nombre comercial de tu negocio.');
+      setErrorMsg('Por favor ingresa el nombre comercial de tu negocio o marca.');
       return;
     }
     if (!address.trim()) {
-      setErrorMsg('Por favor especifica la dirección comercial de tu negocio.');
+      setErrorMsg('Por favor especifica la dirección o sede de la empresa.');
       return;
     }
     if (!phone.trim()) {
-      setErrorMsg('Por favor ingresa el teléfono o WhatsApp de contacto de tu negocio.');
+      setErrorMsg('Por favor ingresa el teléfono o WhatsApp de contacto.');
       return;
     }
 
     setIsSubmitting(true);
 
-    if (isClientLoggedIn) {
-      // Upgrade existing client
-      const res = upgradeClientToBusiness({
-        businessName,
-        category,
-        address,
-        phone,
-        rifOrNit,
-        description,
-        logo: selectedEmoji
-      });
+    try {
+      if (isClientLoggedIn) {
+        // Upgrade existing client
+        const res = await upgradeClientToBusiness({
+          businessName,
+          category,
+          address,
+          phone,
+          rifOrNit,
+          description,
+          logo: selectedEmoji,
+          isSponsor
+        });
 
-      setIsSubmitting(false);
-      if (res.success) {
-        setSuccessMsg(res.message);
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
+        setIsSubmitting(false);
+        if (res.success) {
+          setSuccessMsg(res.message);
+          setTimeout(() => {
+            handleClose();
+          }, 2000);
+        } else {
+          setErrorMsg(res.message);
+        }
       } else {
-        setErrorMsg(res.message);
-      }
-    } else {
-      // New business + new seller account
-      if (!ownerName.trim()) {
-        setIsSubmitting(false);
-        setErrorMsg('Por favor ingresa el nombre del encargado o dueño.');
-        return;
-      }
-      if (!username.trim()) {
-        setIsSubmitting(false);
-        setErrorMsg('Por favor define un nombre de usuario para el inicio de sesión.');
-        return;
-      }
-      if (!email.trim() || !email.includes('@')) {
-        setIsSubmitting(false);
-        setErrorMsg('Por favor ingresa un correo electrónico válido.');
-        return;
-      }
-      if (!password || password.length < 6) {
-        setIsSubmitting(false);
-        setErrorMsg('La contraseña debe tener al menos 6 caracteres.');
-        return;
-      }
+        // New business + new seller account
+        if (!ownerName.trim()) {
+          setIsSubmitting(false);
+          setErrorMsg('Por favor ingresa el nombre del encargado o representante legal.');
+          return;
+        }
+        if (!username.trim()) {
+          setIsSubmitting(false);
+          setErrorMsg('Por favor define un nombre de usuario para el inicio de sesión.');
+          return;
+        }
+        if (!email.trim() || !email.includes('@')) {
+          setIsSubmitting(false);
+          setErrorMsg('Por favor ingresa un correo electrónico válido.');
+          return;
+        }
+        if (!password || password.length < 6) {
+          setIsSubmitting(false);
+          setErrorMsg('La contraseña debe tener al menos 6 caracteres.');
+          return;
+        }
 
-      const res = registerBusiness({
-        businessName,
-        category,
-        address,
-        phone,
-        rifOrNit,
-        description,
-        logo: selectedEmoji,
-        ownerName,
-        username,
-        email,
-        password,
-        ownerPhone: phone
-      });
+        const res = await registerBusiness({
+          businessName,
+          category,
+          address,
+          phone,
+          rifOrNit,
+          description,
+          logo: selectedEmoji,
+          ownerName,
+          username,
+          email,
+          password,
+          ownerPhone: phone,
+          isSponsor
+        });
 
+        setIsSubmitting(false);
+        if (res.success) {
+          setSuccessMsg(res.message);
+          setTimeout(() => {
+            handleClose();
+          }, 2000);
+        } else {
+          setErrorMsg(res.message);
+        }
+      }
+    } catch (err: any) {
       setIsSubmitting(false);
-      if (res.success) {
-        setSuccessMsg(res.message);
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
-      } else {
-        setErrorMsg(res.message);
-      }
+      setErrorMsg(err.message || 'Error inesperado durante el registro.');
     }
   };
 
-  const EMOJI_OPTIONS = ['🏢', '🚗', '🔧', '⚙️', '🛞', '🔋', '🛡️', '📦', '🏁'];
+  const EMOJI_OPTIONS = isSponsor
+    ? ['⭐', '🏆', '🏎️', '🚗', '⚡', '🛡️', '👑', '⚙️', '🏁']
+    : ['🏢', '🚗', '🔧', '⚙️', '🛞', '🔋', '🛡️', '📦', '🏁'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -161,39 +190,86 @@ export const RegisterBusinessModal: React.FC = () => {
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 border border-red-100">
-            <Building2 className="w-6 h-6" />
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
+            isSponsor 
+              ? 'bg-amber-50 text-amber-600 border-amber-200 shadow-sm'
+              : 'bg-red-50 text-red-600 border-red-100'
+          }`}>
+            {isSponsor ? <Crown className="w-6 h-6" /> : <Building2 className="w-6 h-6" />}
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900">
-              {isClientLoggedIn ? 'Dar de Alta Mi Negocio en el Marketplace' : 'Registro de Nuevo Negocio / Comercio Aliado'}
+              {isSponsor
+                ? 'Registro de Marca / Patrocinador Oficial'
+                : isClientLoggedIn
+                  ? 'Dar de Alta Mi Negocio en el Marketplace'
+                  : 'Registro de Nuevo Negocio / Comercio Aliado'}
             </h3>
             <p className="text-sm text-gray-500">
-              Vende tus repuestos, servicios o accesorios a miles de clientes en Venezuela.
+              {isSponsor
+                ? 'Destaca tu marca automotriz en las primeras posiciones y maximiza tu visibilidad nacional.'
+                : 'Vende tus repuestos, servicios o accesorios a miles de clientes en Venezuela.'}
             </p>
           </div>
+        </div>
+
+        {/* Sponsor / Standard Switcher Tab */}
+        <div className="mb-6 p-1 bg-gray-100 rounded-xl flex items-center gap-1 border border-gray-200">
+          <button
+            type="button"
+            onClick={() => {
+              setIsSponsor(false);
+              setSelectedEmoji('🏢');
+              setCategory('Repuestos Nuevos Chevrolet / Ford / Toyota');
+            }}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              !isSponsor
+                ? 'bg-white text-gray-900 shadow-sm border border-gray-200/80'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Building2 className="w-4 h-4 text-red-600" />
+            <span>Comercio Aliado / Taller</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsSponsor(true);
+              setSelectedEmoji('⭐');
+              setCategory('Marca Oficial / Patrocinador');
+            }}
+            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+              isSponsor
+                ? 'bg-amber-500 text-white shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <Crown className="w-4 h-4 text-white" />
+            <span>Patrocinador Oficial ⭐</span>
+          </button>
         </div>
 
         {/* Existing Client Alert Banner */}
         {isClientLoggedIn && (
           <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <span className="font-semibold text-emerald-900">
-                ¡Hola {currentUser?.name}!
-              </span>
-              <p className="text-emerald-700 mt-0.5">
-                Ya tienes tu cuenta de cliente activa (<strong className="font-semibold">@{currentUser?.username}</strong>). Al completar este formulario, tu cuenta se habilitará como Comercio Aliado para gestionar tus productos y pedidos sin necesidad de crear otro usuario.
+            <div>
+              <p className="text-sm font-semibold text-emerald-900">
+                ¡Sesión iniciada como @{currentUser.username}!
+              </p>
+              <p className="text-xs text-emerald-700 mt-0.5">
+                Tu cuenta de usuario se actualizará automáticamente a Comercio Vendedor / Patrocinador para que puedas gestionar tus productos y pedidos sin crear una cuenta nueva.
               </p>
             </div>
           </div>
         )}
 
-        {/* Notification feedback */}
+        {/* Error Feedback */}
         {errorMsg && (
-          <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-red-700 text-sm">
-            <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+          <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-red-700 text-sm font-medium">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -209,16 +285,16 @@ export const RegisterBusinessModal: React.FC = () => {
           {/* SECTION: Business Info */}
           <div>
             <div className="flex items-center gap-2 mb-3 pb-1 border-b border-gray-100">
-              <Store className="w-4 h-4 text-red-600" />
+              <Store className={`w-4 h-4 ${isSponsor ? 'text-amber-500' : 'text-red-600'}`} />
               <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">
-                1. Datos Comerciales del Negocio
+                1. Datos Comerciales {isSponsor ? 'de la Marca Patrocinadora' : 'del Negocio'}
               </h4>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                  Nombre Comercial del Negocio / Taller *
+                  {isSponsor ? 'Nombre de la Marca o Empresa Patrocinadora *' : 'Nombre Comercial del Negocio / Taller *'}
                 </label>
                 <div className="relative">
                   <Store className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
@@ -227,7 +303,7 @@ export const RegisterBusinessModal: React.FC = () => {
                     required
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
-                    placeholder="Ej. Inversiones Chevropar C.A. / Taller Master Car"
+                    placeholder={isSponsor ? 'Ej. Motul Venezuela / Mobil 1 / Bosch Automotriz' : 'Ej. Inversiones Chevropar C.A. / Taller Master Car'}
                     className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   />
                 </div>
@@ -242,21 +318,34 @@ export const RegisterBusinessModal: React.FC = () => {
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full py-2 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
                 >
-                  <option value="Repuestos Nuevos Chevrolet / Ford / Toyota">Repuestos Nuevos Chevrolet / Ford / Toyota</option>
-                  <option value="Frenos y Suspensión">Frenos y Suspensión</option>
-                  <option value="Taller Mecánico & Escaneo">Taller Mecánico & Diagnóstico</option>
-                  <option value="Baterías y Sistema Eléctrico">Baterías y Sistema Eléctrico</option>
-                  <option value="Motores y Transmisión">Motores y Transmisión</option>
-                  <option value="Autoperiquitos y Accesorios">Autoperiquitos y Accesorios</option>
-                  <option value="Cauchos y Rines">Cauchos y Rines</option>
-                  <option value="Lubricantes y Filtros">Lubricantes y Filtros</option>
-                  <option value="Repuestos Multimarca">Repuestos Multimarca</option>
+                  {isSponsor ? (
+                    <>
+                      <option value="Marca Oficial / Patrocinador">Marca Oficial / Patrocinador</option>
+                      <option value="Lubricantes y Fluidos">Lubricantes y Fluidos</option>
+                      <option value="Baterías y Sistema Eléctrico">Baterías y Sistema Eléctrico</option>
+                      <option value="Frenos y Suspensión">Frenos y Suspensión</option>
+                      <option value="Cauchos y Neumáticos">Cauchos y Neumáticos</option>
+                      <option value="Repuestos Multimarca">Repuestos Multimarca</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Repuestos Nuevos Chevrolet / Ford / Toyota">Repuestos Nuevos Chevrolet / Ford / Toyota</option>
+                      <option value="Frenos y Suspensión">Frenos y Suspensión</option>
+                      <option value="Taller Mecánico & Escaneo">Taller Mecánico & Diagnóstico</option>
+                      <option value="Baterías y Sistema Eléctrico">Baterías y Sistema Eléctrico</option>
+                      <option value="Motores y Transmisión">Motores y Transmisión</option>
+                      <option value="Autoperiquitos y Accesorios">Autoperiquitos y Accesorios</option>
+                      <option value="Cauchos y Rines">Cauchos y Rines</option>
+                      <option value="Lubricantes y Filtros">Lubricantes y Filtros</option>
+                      <option value="Repuestos Multimarca">Repuestos Multimarca</option>
+                    </>
+                  )}
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                  Teléfono / WhatsApp de Ventas *
+                  Teléfono / WhatsApp de Contacto *
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
@@ -273,7 +362,7 @@ export const RegisterBusinessModal: React.FC = () => {
 
               <div className="md:col-span-2">
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                  Dirección Física de la Tienda o Taller *
+                  {isSponsor ? 'Dirección Sede o Representación Comercial *' : 'Dirección Física de la Tienda o Taller *'}
                 </label>
                 <div className="relative">
                   <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
@@ -306,7 +395,7 @@ export const RegisterBusinessModal: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1">
-                  Icono / Emoji del Negocio
+                  Insignia / Emoji Representativo
                 </label>
                 <div className="flex items-center gap-1.5 overflow-x-auto py-1">
                   {EMOJI_OPTIONS.map((emoji) => (
@@ -316,7 +405,9 @@ export const RegisterBusinessModal: React.FC = () => {
                       onClick={() => setSelectedEmoji(emoji)}
                       className={`text-xl p-1.5 rounded-lg border transition-all ${
                         selectedEmoji === emoji
-                          ? 'border-red-500 bg-red-50 scale-110 shadow-sm'
+                          ? isSponsor
+                            ? 'border-amber-500 bg-amber-50 scale-110 shadow-sm'
+                            : 'border-red-500 bg-red-50 scale-110 shadow-sm'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -334,7 +425,7 @@ export const RegisterBusinessModal: React.FC = () => {
                   rows={2}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Breve reseña de los repuestos que distribuyes, años de experiencia o servicios de taller..."
+                  placeholder={isSponsor ? 'Marca líder en soluciones automotrices, patrocinador oficial en Venezuela...' : 'Breve reseña de los repuestos que distribuyes, años de experiencia o servicios de taller...'}
                   className="w-full p-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                 />
               </div>
@@ -345,9 +436,9 @@ export const RegisterBusinessModal: React.FC = () => {
           {!isClientLoggedIn && (
             <div>
               <div className="flex items-center gap-2 mb-3 pb-1 border-b border-gray-100">
-                <User className="w-4 h-4 text-red-600" />
+                <User className={`w-4 h-4 ${isSponsor ? 'text-amber-500' : 'text-red-600'}`} />
                 <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">
-                  2. Datos del Propietario / Encargado (Para Iniciar Sesión)
+                  2. Datos del {isSponsor ? 'Representante de Marca' : 'Propietario / Encargado'} (Para Iniciar Sesión)
                 </h4>
               </div>
 
@@ -380,7 +471,7 @@ export const RegisterBusinessModal: React.FC = () => {
                       required
                       value={username}
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                      placeholder="carlos_repuestos"
+                      placeholder={isSponsor ? 'marca_oficial' : 'carlos_repuestos'}
                       className="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     />
                   </div>
@@ -435,9 +526,19 @@ export const RegisterBusinessModal: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
+              className={`px-6 py-2.5 text-white font-semibold text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 ${
+                isSponsor ? 'bg-amber-500 hover:bg-amber-600' : 'bg-red-600 hover:bg-red-700'
+              }`}
             >
-              <span>{isSubmitting ? 'Registrando...' : (isClientLoggedIn ? 'Vincular y Activar Mi Negocio' : 'Registrar Negocio en Marketplace')}</span>
+              <span>
+                {isSubmitting
+                  ? 'Guardando en Supabase...'
+                  : isSponsor
+                    ? 'Registrar Patrocinador Oficial'
+                    : isClientLoggedIn
+                      ? 'Vincular y Activar Mi Negocio'
+                      : 'Registrar Negocio en Marketplace'}
+              </span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -446,3 +547,4 @@ export const RegisterBusinessModal: React.FC = () => {
     </div>
   );
 };
+

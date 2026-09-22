@@ -213,15 +213,26 @@ export const CorporatePortalHome: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => openBusinessRegistration(false)}
-                className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-red-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <Store className="w-4 h-4" />
-                <span>Registrar Mi Negocio en el Marketplace</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => openBusinessRegistration(false, false)}
+                  className="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-red-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Store className="w-4 h-4 shrink-0" />
+                  <span>Registrar Comercio / Taller</span>
+                  <ArrowRight className="w-4 h-4 shrink-0" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => openBusinessRegistration(false, true)}
+                  className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-amber-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer border border-amber-400/30"
+                >
+                  <Sparkles className="w-4 h-4 shrink-0 text-amber-200" />
+                  <span>Registrarse como Patrocinador ⭐</span>
+                </button>
+              </div>
             </div>
           </div>
 

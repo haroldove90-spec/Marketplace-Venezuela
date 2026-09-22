@@ -44,6 +44,7 @@ import {
   seedAllDataToSupabase,
   updateUserInSupabase,
   insertUserInSupabase,
+  insertClientInSupabase,
   insertBusinessInSupabase,
   clearAllSampleDataFromSupabase,
   SUPABASE_URL
@@ -167,7 +168,7 @@ interface AppContextType {
   employees: EmployeeProfile[];
   loginAsCorporate: (identifier: string, password: string) => { success: boolean; message: string; role?: Role; user?: UserAccount };
   loginAsClient: (identifier: string, password: string) => { success: boolean; message: string; user?: UserAccount };
-  registerClient: (data: { name: string; username: string; email: string; password: string; phone: string; address: string }) => { success: boolean; message: string; user?: UserAccount };
+  registerClient: (data: { name: string; username: string; email: string; password: string; phone: string; address: string }) => Promise<{ success: boolean; message: string; user?: UserAccount }> | { success: boolean; message: string; user?: UserAccount };
   registerBusiness: (data: {
     businessName: string;
     category: string;
@@ -182,7 +183,8 @@ interface AppContextType {
     email: string;
     password: string;
     ownerPhone?: string;
-  }) => { success: boolean; message: string; business?: Business; user?: UserAccount };
+    isSponsor?: boolean;
+  }) => Promise<{ success: boolean; message: string; business?: Business; user?: UserAccount }>;
   upgradeClientToBusiness: (data: {
     businessName: string;
     category: string;
@@ -192,7 +194,8 @@ interface AppContextType {
     phone: string;
     description?: string;
     rifOrNit?: string;
-  }) => { success: boolean; message: string; business?: Business; user?: UserAccount };
+    isSponsor?: boolean;
+  }) => Promise<{ success: boolean; message: string; business?: Business; user?: UserAccount }>;
   logout: () => void;
   switchRole: (targetRole: Role) => { allowed: boolean; message?: string };
 
@@ -203,7 +206,9 @@ interface AppContextType {
   setIsCorporateAuthModalOpen: (open: boolean) => void;
   isRegisterBusinessModalOpen: boolean;
   setIsRegisterBusinessModalOpen: (open: boolean) => void;
-  openBusinessRegistration: (forClientUpgrade?: boolean) => void;
+  isRegisteringAsSponsor: boolean;
+  setIsRegisteringAsSponsor: (open: boolean) => void;
+  openBusinessRegistration: (forClientUpgrade?: boolean, asSponsor?: boolean) => void;
   isProfileModalOpen: boolean;
   setIsProfileModalOpen: (open: boolean) => void;
   clientAuthIntent: 'login' | 'register' | 'order_checkout';
@@ -422,10 +427,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isClientAuthModalOpen, setIsClientAuthModalOpen] = useState(false);
   const [isCorporateAuthModalOpen, setIsCorporateAuthModalOpen] = useState(false);
   const [isRegisterBusinessModalOpen, setIsRegisterBusinessModalOpen] = useState(false);
+  const [isRegisteringAsSponsor, setIsRegisteringAsSponsor] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [clientAuthIntent, setClientAuthIntent] = useState<'login' | 'register' | 'order_checkout'>('login');
 
-  const openBusinessRegistration = (forClientUpgrade = false) => {
+  const openBusinessRegistration = (forClientUpgrade = false, asSponsor = false) => {
+    setIsRegisteringAsSponsor(asSponsor);
     setIsRegisterBusinessModalOpen(true);
   };
 
@@ -687,6 +694,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentRole('client');
     setIsClientAuthModalOpen(false);
 
+    // Sync in background to Supabase
+    try {
+      insertUserInSupabase(newUser);
+      insertClientInSupabase(newClient);
+    } catch (e) {
+      console.warn('Sync client to Supabase warning:', e);
+    }
+
     return {
       success: true,
       message: '¡Tu cuenta ha sido creada exitosamente! Bienvenido a Con Force.',
@@ -694,7 +709,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   };
 
-  const registerBusiness = (data: {
+  const registerBusiness = async (data: {
     businessName: string;
     category: string;
     address: string;
@@ -708,6 +723,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     email: string;
     password: string;
     ownerPhone?: string;
+    isSponsor?: boolean;
   }) => {
     const cleanEmail = data.email.trim().toLowerCase();
     const cleanUsername = data.username.trim().toLowerCase();
@@ -723,8 +739,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    const newBizId = `biz-${Date.now()}`;
-    const newUserId = `usr-seller-${Date.now()}`;
+    const isSponsor = Boolean(data.isSponsor);
+    const newBizId = isSponsor ? `biz-sponsor-${Date.now()}` : `biz-${Date.now()}`;
+    const newUserId = isSponsor ? `usr-sponsor-${Date.now()}` : `usr-seller-${Date.now()}`;
 
     const newBusiness: Business = {
       id: newBizId,
@@ -736,16 +753,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       minOrder: 0,
       address: data.address.trim(),
       coordinates: DEFAULT_CENTER_COORDS,
-      logo: data.logo || '🏢',
+      logo: data.logo || (isSponsor ? '⭐' : '🏢'),
       bannerImage: data.banner || 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80',
-      description: data.description || 'Comercio oficial afiliado a Con Force Marketplace.',
+      description: data.description || (isSponsor ? 'Patrocinador oficial y aliado estratégico de Con Force.' : 'Comercio oficial afiliado a Con Force Marketplace.'),
       phone: data.phone.trim(),
-      tags: [data.category || 'Repuestos', 'Atención Directa', 'Garantía'],
+      tags: [
+        ...(isSponsor ? ['Patrocinador Oficial', 'Marca Verificada'] : []),
+        data.category || 'Repuestos',
+        'Atención Directa',
+        'Garantía'
+      ],
       isVerified: true,
       isActive: true,
       openingHours: '08:00 AM - 07:00 PM',
       commissionRate: 10,
-      customPinColor: '#D4021D'
+      customPinColor: isSponsor ? '#f59e0b' : '#D4021D',
+      isSponsor,
+      ownerUsername: cleanUsername,
+      rif: data.rifOrNit?.trim(),
+      email: cleanEmail
     };
 
     const newUser: UserAccount = {
@@ -759,9 +785,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: 'active',
       phone: (data.ownerPhone || data.phone).trim(),
       address: data.address.trim(),
-      department: 'Gerencia y Ventas',
+      department: isSponsor ? 'Patrocinador Oficial' : 'Gerencia y Ventas',
       createdAt: new Date().toISOString().split('T')[0],
-      lastLogin: 'Justo ahora'
+      lastLogin: 'Justo ahora',
+      isSponsor
     };
 
     const newEmployee: EmployeeProfile = {
@@ -771,9 +798,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       username: cleanUsername,
       email: cleanEmail,
       password: data.password,
-      roleTitle: `Gerente General - ${data.businessName.trim()}`,
+      roleTitle: isSponsor ? `Representante de Marca - ${data.businessName.trim()}` : `Gerente General - ${data.businessName.trim()}`,
       systemRole: 'seller',
-      department: 'Comercial & Negocios',
+      department: isSponsor ? 'Patrocinios & Marcas' : 'Comercial & Negocios',
       status: 'active',
       createdAt: new Date().toISOString().split('T')[0]
     };
@@ -788,23 +815,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsCorporateAuthModalOpen(false);
     setIsRegisterBusinessModalOpen(false);
 
-    // Sync in background to Supabase
+    // Sync to Supabase
+    let supabasePersisted = false;
     try {
-      insertBusinessInSupabase(newBusiness);
-      insertUserInSupabase(newUser);
+      const bizRes = await insertBusinessInSupabase(newBusiness);
+      const usrRes = await insertUserInSupabase(newUser);
+      supabasePersisted = Boolean(bizRes.success && usrRes.success);
     } catch (e) {
       console.warn('Sync to Supabase warning:', e);
     }
 
     return {
       success: true,
-      message: `¡Felicidades! Tu negocio "${newBusiness.name}" ha sido registrado exitosamente en el Marketplace.`,
+      message: isSponsor
+        ? `¡Felicidades! El Patrocinador Oficial "${newBusiness.name}" ha sido registrado exitosamente${supabasePersisted ? ' y guardado en Supabase' : ''}.`
+        : `¡Felicidades! Tu negocio "${newBusiness.name}" ha sido registrado exitosamente${supabasePersisted ? ' y guardado en Supabase' : ''}.`,
       business: newBusiness,
       user: newUser
     };
   };
 
-  const upgradeClientToBusiness = (data: {
+  const upgradeClientToBusiness = async (data: {
     businessName: string;
     category: string;
     address: string;
@@ -813,6 +844,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     phone: string;
     description?: string;
     rifOrNit?: string;
+    isSponsor?: boolean;
   }) => {
     if (!currentUser) {
       return {
@@ -821,7 +853,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    const newBizId = `biz-${Date.now()}`;
+    const isSponsor = Boolean(data.isSponsor);
+    const newBizId = isSponsor ? `biz-sponsor-${Date.now()}` : `biz-${Date.now()}`;
 
     const newBusiness: Business = {
       id: newBizId,
@@ -833,16 +866,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       minOrder: 0,
       address: data.address.trim(),
       coordinates: DEFAULT_CENTER_COORDS,
-      logo: data.logo || '🏢',
+      logo: data.logo || (isSponsor ? '⭐' : '🏢'),
       bannerImage: data.banner || 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80',
-      description: data.description || 'Comercio oficial afiliado a Con Force Marketplace.',
+      description: data.description || (isSponsor ? 'Patrocinador oficial y aliado estratégico de Con Force.' : 'Comercio oficial afiliado a Con Force Marketplace.'),
       phone: data.phone.trim(),
-      tags: [data.category || 'Repuestos', 'Comercio Aliado', 'Garantía'],
+      tags: [
+        ...(isSponsor ? ['Patrocinador Oficial', 'Marca Verificada'] : []),
+        data.category || 'Repuestos',
+        'Comercio Aliado',
+        'Garantía'
+      ],
       isVerified: true,
       isActive: true,
       openingHours: '08:00 AM - 07:00 PM',
       commissionRate: 10,
-      customPinColor: '#D4021D'
+      customPinColor: isSponsor ? '#f59e0b' : '#D4021D',
+      isSponsor,
+      ownerUsername: currentUser.username,
+      rif: data.rifOrNit?.trim(),
+      email: currentUser.email
     };
 
     // Update currentUser to seller role and attach businessId
@@ -852,7 +894,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       businessId: newBizId,
       phone: data.phone.trim() || currentUser.phone,
       address: data.address.trim() || currentUser.address,
-      department: 'Gerencia de Negocio Afiliado'
+      department: isSponsor ? 'Patrocinador Oficial' : 'Gerencia de Negocio Afiliado',
+      isSponsor
     };
 
     setBusinesses((prev) => [newBusiness, ...prev]);
@@ -864,22 +907,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsRegisterBusinessModalOpen(false);
     setIsCorporateAuthModalOpen(false);
 
-    // Sync in background to Supabase
+    // Sync to Supabase
+    let supabasePersisted = false;
     try {
-      insertBusinessInSupabase(newBusiness);
-      updateUserInSupabase(currentUser.id, {
-        role: 'seller' as any,
-        businessId: newBizId,
-        phone: updatedUser.phone,
-        address: updatedUser.address
-      });
+      const bizRes = await insertBusinessInSupabase(newBusiness);
+      const usrRes = await insertUserInSupabase(updatedUser);
+      supabasePersisted = Boolean(bizRes.success && usrRes.success);
     } catch (e) {
       console.warn('Sync to Supabase warning:', e);
     }
 
     return {
       success: true,
-      message: `¡Excelente! Tu cuenta @${currentUser.username} ha sido convertida a Comercio Aliado y tu negocio "${newBusiness.name}" está activo en el Marketplace.`,
+      message: isSponsor
+        ? `¡Excelente! Tu cuenta @${currentUser.username} ha sido vinculada como Patrocinador Oficial "${newBusiness.name}"${supabasePersisted ? ' y guardada en Supabase' : ''}.`
+        : `¡Excelente! Tu cuenta @${currentUser.username} ha sido convertida a Comercio Aliado y tu negocio "${newBusiness.name}" está activo${supabasePersisted ? ' en Supabase' : ''}.`,
       business: newBusiness,
       user: updatedUser
     };
@@ -1313,7 +1355,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       orders,
       campaigns,
       chatbotConfig,
-      savedAddresses
+      savedAddresses,
+      users,
+      clients
     });
     await checkSupabase();
     return res;
@@ -1914,6 +1958,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsCorporateAuthModalOpen,
         isRegisterBusinessModalOpen,
         setIsRegisterBusinessModalOpen,
+        isRegisteringAsSponsor,
+        setIsRegisteringAsSponsor,
         openBusinessRegistration,
         isProfileModalOpen,
         setIsProfileModalOpen,

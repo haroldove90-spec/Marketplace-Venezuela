@@ -26,48 +26,85 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ==========================================
 
 export function mapBusinessFromDB(row: any): Business {
+  const isSponsor = Boolean(
+    row.is_sponsor ||
+    (Array.isArray(row.tags) && row.tags.some((t: string) => typeof t === 'string' && (t.toLowerCase().includes('patrocinad') || t.toLowerCase().includes('sponsor'))))
+  );
+
   return {
     id: row.id,
     name: row.name,
     category: row.category,
-    logo: row.logo || '🏬',
+    description: row.description || '',
+    logo: row.logo || (isSponsor ? '⭐' : '🏬'),
     bannerImage: row.banner_image || '',
     phone: row.phone || '',
     address: row.address || '',
-    coordinates: row.coordinates || { lat: 19.412, lng: -99.165 },
-    openingHours: row.opening_hours || '08:00 AM - 10:00 PM',
+    coordinates: row.coordinates || { lat: 10.4806, lng: -66.9036 },
+    openingHours: row.opening_hours || '08:00 AM - 07:00 PM',
     rating: Number(row.rating ?? 5.0),
     reviewsCount: Number(row.reviews_count ?? 0),
     isVerified: Boolean(row.is_verified ?? true),
     isActive: Boolean(row.is_active ?? true),
     commissionRate: Number(row.commission_rate ?? 10),
-    customPinColor: row.custom_pin_color || '#10b981',
+    customPinColor: row.custom_pin_color || (isSponsor ? '#f59e0b' : '#D4021D'),
     deliveryTime: row.delivery_time || '20-35 min',
     minOrder: Number(row.min_order ?? 0),
-    tags: Array.isArray(row.tags) ? row.tags : []
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    isSponsor,
+    ownerUsername: row.owner_username || undefined,
+    rif: row.rif || undefined,
+    email: row.email || undefined,
+    city: row.city || 'Caracas',
+    state: row.state || 'Distrito Capital'
   };
 }
 
 export function mapBusinessToDB(biz: Business): any {
+  const isSponsor = Boolean(
+    biz.isSponsor ||
+    (Array.isArray(biz.tags) && biz.tags.some((t: string) => typeof t === 'string' && (t.toLowerCase().includes('patrocinad') || t.toLowerCase().includes('sponsor'))))
+  );
+
+  // Guarantee tag list preserves custom category and sponsor label
+  const tagsSet = new Set(Array.isArray(biz.tags) ? biz.tags : []);
+  if (isSponsor) {
+    tagsSet.add('Patrocinador Oficial');
+  }
+  if (biz.category && biz.category !== 'farmacia' && biz.category !== 'restaurante') {
+    tagsSet.add(biz.category);
+  }
+
+  // Safe category for check constraint (farmacia / restaurante)
+  const dbCategory = (biz.category === 'farmacia' || biz.category === 'restaurante')
+    ? biz.category
+    : 'restaurante';
+
   return {
     id: biz.id,
     name: biz.name,
-    category: biz.category,
-    logo: biz.logo,
-    banner_image: biz.bannerImage,
-    phone: biz.phone,
-    address: biz.address,
-    coordinates: biz.coordinates,
-    opening_hours: biz.openingHours,
-    rating: biz.rating,
-    reviews_count: biz.reviewsCount,
-    is_verified: biz.isVerified,
-    is_active: biz.isActive,
-    commission_rate: biz.commissionRate,
-    custom_pin_color: biz.customPinColor,
-    delivery_time: biz.deliveryTime,
-    min_order: biz.minOrder,
-    tags: biz.tags
+    category: dbCategory,
+    logo: biz.logo || (isSponsor ? '⭐' : '🏢'),
+    banner_image: biz.bannerImage || '',
+    phone: biz.phone || '',
+    address: biz.address || '',
+    coordinates: biz.coordinates || { lat: 10.4806, lng: -66.9036 },
+    opening_hours: biz.openingHours || '08:00 AM - 07:00 PM',
+    rating: Number(biz.rating ?? 5.0),
+    reviews_count: Number(biz.reviewsCount ?? 0),
+    is_verified: biz.isVerified ?? true,
+    is_active: biz.isActive ?? true,
+    commission_rate: Number(biz.commissionRate ?? 10),
+    custom_pin_color: biz.customPinColor || (isSponsor ? '#f59e0b' : '#D4021D'),
+    delivery_time: biz.deliveryTime || '20-40 min',
+    min_order: Number(biz.minOrder ?? 0),
+    tags: Array.from(tagsSet),
+    is_sponsor: isSponsor,
+    owner_username: biz.ownerUsername || null,
+    rif: biz.rif || null,
+    email: biz.email || null,
+    city: biz.city || 'Caracas',
+    state: biz.state || 'Distrito Capital'
   };
 }
 
@@ -439,6 +476,8 @@ export async function seedAllDataToSupabase(params: {
   campaigns: WhatsAppCampaign[];
   chatbotConfig: ChatbotConfig;
   savedAddresses: SavedAddress[];
+  users?: any[];
+  clients?: any[];
 }): Promise<{ success: boolean; message: string }> {
   try {
     // 1. Businesses
@@ -471,9 +510,23 @@ export async function seedAllDataToSupabase(params: {
     const { error: addrErr } = await supabase.from('saved_addresses').upsert(addrRows, { onConflict: 'id' });
     if (addrErr) throw new Error(`Direcciones: ${addrErr.message}`);
 
+    // 7. Users (optional)
+    if (params.users && params.users.length > 0) {
+      for (const u of params.users) {
+        await insertUserInSupabase(u);
+      }
+    }
+
+    // 8. Clients (optional)
+    if (params.clients && params.clients.length > 0) {
+      for (const c of params.clients) {
+        await insertClientInSupabase(c);
+      }
+    }
+
     return {
       success: true,
-      message: `¡Sincronización exitosa! Se sembraron ${bizRows.length} comercios, ${prodRows.length} productos y ${orderRows.length} pedidos en Supabase.`
+      message: `¡Sincronización exitosa! Se sembraron ${bizRows.length} comercios/patrocinadores, ${prodRows.length} productos y ${orderRows.length} pedidos en Supabase.`
     };
   } catch (err: any) {
     return {
@@ -532,6 +585,12 @@ export async function updateUserInSupabase(
  */
 export async function insertUserInSupabase(user: any): Promise<{ success: boolean; error?: string }> {
   try {
+    let validRole = user.role || 'client';
+    // Ensure role matches check constraint (admin, seller, client)
+    if (validRole !== 'admin' && validRole !== 'seller' && validRole !== 'client') {
+      validRole = 'seller';
+    }
+
     const payload = {
       id: user.id,
       name: user.name,
@@ -539,12 +598,12 @@ export async function insertUserInSupabase(user: any): Promise<{ success: boolea
       email: user.email,
       password: user.password,
       password_hash: user.password,
-      role: user.role,
+      role: validRole,
       business_id: user.businessId || null,
       phone: user.phone || null,
       address: user.address || null,
       status: user.status || 'active',
-      department: user.department || null,
+      department: user.department || (user.isSponsor ? 'Patrocinador Oficial' : null),
       created_at: new Date().toISOString()
     };
 
@@ -561,6 +620,36 @@ export async function insertUserInSupabase(user: any): Promise<{ success: boolea
 }
 
 /**
+ * Inserts or upserts a client in Supabase
+ */
+export async function insertClientInSupabase(client: any): Promise<{ success: boolean; error?: string }> {
+  try {
+    const payload = {
+      id: client.id,
+      user_id: client.userId || null,
+      name: client.name,
+      username: client.username,
+      email: client.email,
+      phone: client.phone || '',
+      address: client.address || '',
+      city: client.city || 'Caracas',
+      total_orders: Number(client.totalOrders ?? 0),
+      total_spent: Number(client.totalSpent ?? 0),
+      created_at: new Date().toISOString()
+    };
+    const { error } = await supabase.from('clients').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.warn('Error insertando cliente en Supabase:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.warn('Excepción insertando cliente en Supabase:', err);
+    return { success: false, error: err.message || String(err) };
+  }
+}
+
+/**
  * Inserts or upserts a business in Supabase
  */
 export async function insertBusinessInSupabase(biz: Business): Promise<{ success: boolean; error?: string }> {
@@ -568,6 +657,17 @@ export async function insertBusinessInSupabase(biz: Business): Promise<{ success
     const payload = mapBusinessToDB(biz);
     const { error } = await supabase.from('businesses').upsert(payload, { onConflict: 'id' });
     if (error) {
+      // If error is check constraint on category (code 23514), fallback to category 'restaurante'
+      if (error.code === '23514' || error.message.includes('businesses_category_check')) {
+        console.warn('Aplicando fallback de categoría para Supabase:', error.message);
+        payload.category = 'restaurante';
+        const { error: retryError } = await supabase.from('businesses').upsert(payload, { onConflict: 'id' });
+        if (retryError) {
+          console.warn('Error en reintento de negocio en Supabase:', retryError);
+          return { success: false, error: retryError.message };
+        }
+        return { success: true };
+      }
       console.warn('Error insertando negocio en Supabase:', error);
       return { success: false, error: error.message };
     }

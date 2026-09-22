@@ -8,8 +8,30 @@ export const SUPABASE_PROJECT_INFO = {
   tableEditorUrl: "https://supabase.com/dashboard/project/cjoszqkgqtgfvzqxcsvi/editor"
 };
 
+export const SUPABASE_SPONSOR_UNLOCK_SQL = `-- ==============================================================================
+-- 🚀 SCRIPT DE DESBLOQUEO PARA PATROCINADORES Y CATEGORÍAS AUTOMOTRICES
+-- Copia y corre esto en: https://supabase.com/dashboard/project/cjoszqkgqtgfvzqxcsvi/sql/new
+-- ==============================================================================
+
+-- 1. Eliminar restricciones antiguas de categorías (permitir repuestos, talleres, marcas)
+ALTER TABLE public.businesses DROP CONSTRAINT IF EXISTS businesses_category_check;
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
+
+-- 2. Asegurar columnas para Patrocinadores y Comercios Aliados
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_sponsor BOOLEAN DEFAULT false;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS owner_username TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS rif TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Caracas';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'Distrito Capital';
+
+-- 3. Índices para acelerar búsquedas de patrocinadores
+CREATE INDEX IF NOT EXISTS idx_businesses_is_sponsor ON public.businesses(is_sponsor);
+CREATE INDEX IF NOT EXISTS idx_businesses_owner_username ON public.businesses(owner_username);
+`;
+
 export const SUPABASE_SQL_SCHEMA = `-- ==============================================================================
--- PULSO MARKETPLACE - ESQUEMA COMPLETO Y DATOS INICIALES PARA SUPABASE
+-- CON FORCE MARKETPLACE - ESQUEMA COMPLETO Y DATOS INICIALES PARA SUPABASE
 -- Proyecto: marketplace@force-express.com's Project
 -- Project ID: cjoszqkgqtgfvzqxcsvi
 -- URL: https://cjoszqkgqtgfvzqxcsvi.supabase.co
@@ -19,29 +41,45 @@ export const SUPABASE_SQL_SCHEMA = `-- =========================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ------------------------------------------------------------------------------
--- 1. TABLA: businesses (Comercios, Farmacias y Restaurantes)
+-- 1. TABLA: businesses (Comercios, Talleres, Marcas y Patrocinadores)
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.businesses (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    category TEXT NOT NULL CHECK (category IN ('farmacia', 'restaurante')),
-    logo TEXT NOT NULL DEFAULT '🏬',
+    category TEXT NOT NULL DEFAULT 'Repuestos',
+    logo TEXT NOT NULL DEFAULT '🏢',
     banner_image TEXT NOT NULL DEFAULT '',
     phone TEXT NOT NULL DEFAULT '',
     address TEXT NOT NULL DEFAULT '',
-    coordinates JSONB NOT NULL DEFAULT '{"lat": 19.4120, "lng": -99.1650}'::jsonb,
-    opening_hours TEXT NOT NULL DEFAULT '08:00 AM - 10:00 PM',
+    coordinates JSONB NOT NULL DEFAULT '{"lat": 10.4806, "lng": -66.9036}'::jsonb,
+    opening_hours TEXT NOT NULL DEFAULT '08:00 AM - 07:00 PM',
     rating NUMERIC(3, 2) NOT NULL DEFAULT 5.0,
     reviews_count INTEGER NOT NULL DEFAULT 0,
     is_verified BOOLEAN NOT NULL DEFAULT true,
     is_active BOOLEAN NOT NULL DEFAULT true,
     commission_rate NUMERIC(5, 2) NOT NULL DEFAULT 10.0,
-    custom_pin_color TEXT NOT NULL DEFAULT '#10b981',
-    delivery_time TEXT NOT NULL DEFAULT '20-35 min',
+    custom_pin_color TEXT NOT NULL DEFAULT '#D4021D',
+    delivery_time TEXT NOT NULL DEFAULT '20-40 min',
     min_order NUMERIC(10, 2) NOT NULL DEFAULT 0.0,
     tags TEXT[] NOT NULL DEFAULT '{}',
+    is_sponsor BOOLEAN NOT NULL DEFAULT false,
+    owner_username TEXT,
+    rif TEXT,
+    email TEXT,
+    city TEXT DEFAULT 'Caracas',
+    state TEXT DEFAULT 'Distrito Capital',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Si la tabla ya existía, remover restricciones restrictivas antiguas
+ALTER TABLE public.businesses DROP CONSTRAINT IF EXISTS businesses_category_check;
+ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_sponsor BOOLEAN DEFAULT false;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS owner_username TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS rif TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS city TEXT DEFAULT 'Caracas';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS state TEXT DEFAULT 'Distrito Capital';
 
 CREATE INDEX IF NOT EXISTS idx_businesses_category ON public.businesses(category);
 CREATE INDEX IF NOT EXISTS idx_businesses_is_active ON public.businesses(is_active);

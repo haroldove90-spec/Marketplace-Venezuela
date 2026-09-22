@@ -27,6 +27,12 @@ export interface Business {
   deliveryTime: string; // e.g. '20-35 min'
   minOrder: number;
   tags: string[];
+  isSponsor?: boolean;
+  ownerUsername?: string;
+  rif?: string;
+  email?: string;
+  city?: string;
+  state?: string;
 }
 
 export interface Product {
@@ -161,6 +167,7 @@ export interface UserAccount {
   department?: string;
   createdAt: string;
   lastLogin?: string;
+  isSponsor?: boolean;
 }
 
 export interface ClientProfile {

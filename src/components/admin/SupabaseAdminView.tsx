@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { SUPABASE_PROJECT_INFO, SUPABASE_SQL_SCHEMA } from '../../data/supabaseSql';
+import { SUPABASE_PROJECT_INFO, SUPABASE_SQL_SCHEMA, SUPABASE_SPONSOR_UNLOCK_SQL } from '../../data/supabaseSql';
 import {
   Database,
   RefreshCw,
@@ -36,15 +36,18 @@ export const SupabaseAdminView: React.FC = () => {
   } = useApp();
 
   const [copiedSql, setCopiedSql] = useState(false);
+  const [selectedSqlTab, setSelectedSqlTab] = useState<'sponsor' | 'full'>('sponsor');
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<{ success?: boolean; message?: string } | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
+  const activeSqlContent = selectedSqlTab === 'sponsor' ? SUPABASE_SPONSOR_UNLOCK_SQL : SUPABASE_SQL_SCHEMA;
+
   const handleCopySql = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(SUPABASE_SQL_SCHEMA);
+      navigator.clipboard.writeText(activeSqlContent);
       setCopiedSql(true);
       setTimeout(() => setCopiedSql(false), 2500);
     }
@@ -336,12 +339,18 @@ export const SupabaseAdminView: React.FC = () => {
       <div className="p-5 bg-white border border-slate-200 rounded-3xl space-y-4 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div>
-            <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-1">
               <FileCode className="w-4 h-4 text-purple-600" />
-              <span>Script SQL de Creación y Semillero (supabase_schema.sql)</span>
-            </h3>
+              <h3 className="font-bold text-sm text-slate-900">
+                {selectedSqlTab === 'sponsor' 
+                  ? 'Desbloqueo Rápido: Soporte de Patrocinadores y Marcas' 
+                  : 'Script SQL de Creación y Semillero Completo'}
+              </h3>
+            </div>
             <p className="text-xs text-slate-500">
-              Copia y corre este script en el SQL Editor de tu consola Supabase para inicializar las tablas con seguridad y datos.
+              {selectedSqlTab === 'sponsor'
+                ? 'Ejecuta este script para remover restricciones de categoría y habilitar las columnas is_sponsor, RIF y email en Supabase.'
+                : 'Copia y corre este script en el SQL Editor de tu consola Supabase para inicializar las tablas con seguridad y datos.'}
             </p>
           </div>
 
@@ -351,7 +360,7 @@ export const SupabaseAdminView: React.FC = () => {
               className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs cursor-pointer shadow-xs active:scale-95 transition-all"
             >
               {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedSql ? '¡SQL Copiado!' : 'Copiar SQL Completo'}</span>
+              <span>{copiedSql ? '¡SQL Copiado!' : selectedSqlTab === 'sponsor' ? 'Copiar Script Desbloqueo' : 'Copiar SQL Completo'}</span>
             </button>
 
             <a
@@ -364,6 +373,32 @@ export const SupabaseAdminView: React.FC = () => {
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
+        </div>
+
+        {/* Tab selection for SQL */}
+        <div className="flex items-center gap-2 p-1 bg-slate-100 rounded-xl w-fit">
+          <button
+            type="button"
+            onClick={() => setSelectedSqlTab('sponsor')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              selectedSqlTab === 'sponsor'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            ⭐ Desbloqueo Patrocinadores (Rápido)
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedSqlTab('full')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              selectedSqlTab === 'full'
+                ? 'bg-purple-600 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            📋 Esquema Completo
+          </button>
         </div>
 
         {/* 3 Step Guide */}
@@ -384,7 +419,7 @@ export const SupabaseAdminView: React.FC = () => {
             </div>
             <h4 className="text-xs font-bold text-purple-900">Pega el Script SQL</h4>
             <p className="text-[11px] text-purple-700">
-              Crea una <strong>New Query</strong> y pega el código completo usando el botón "Copiar SQL Completo".
+              Crea una <strong>New Query</strong> y pega el código usando el botón de arriba.
             </p>
           </div>
 
@@ -394,7 +429,7 @@ export const SupabaseAdminView: React.FC = () => {
             </div>
             <h4 className="text-xs font-bold text-purple-900">Ejecuta "RUN"</h4>
             <p className="text-[11px] text-purple-700">
-              Presiona el botón <strong>RUN</strong>. Se generarán las 6 tablas, políticas de seguridad y los comercios.
+              Presiona <strong>RUN</strong>. Los cambios se aplicarán instantáneamente y permitirán guardar patrocinadores sin errores.
             </p>
           </div>
         </div>
@@ -411,7 +446,7 @@ export const SupabaseAdminView: React.FC = () => {
             </button>
           </div>
           <pre className="text-slate-300 leading-relaxed whitespace-pre font-mono">
-            {SUPABASE_SQL_SCHEMA}
+            {activeSqlContent}
           </pre>
         </div>
       </div>
