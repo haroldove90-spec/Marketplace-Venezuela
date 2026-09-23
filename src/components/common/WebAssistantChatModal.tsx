@@ -17,6 +17,7 @@ import {
   Plus
 } from 'lucide-react';
 import { Product } from '../../types';
+import { processChatbotMessage } from '../../services/geminiService';
 
 interface ChatMessage {
   id: string;
@@ -34,6 +35,7 @@ export const WebAssistantChatModal: React.FC = () => {
     webAssistantInitialPrompt,
     products,
     businesses,
+    userLocation,
     addToCart,
     setSelectedBusinessForDetail,
     openWhatsAppWithPrompt
@@ -171,7 +173,7 @@ export const WebAssistantChatModal: React.FC = () => {
     };
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputMessage).trim();
     if (!text) return;
 
@@ -186,11 +188,35 @@ export const WebAssistantChatModal: React.FC = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const botResponse = generateBotReply(text);
+    try {
+      const response = await processChatbotMessage(text, userLocation, businesses, products);
       setIsTyping(false);
+
+      const botResponse: ChatMessage = {
+        id: `msg-${Date.now()}`,
+        sender: 'bot',
+        text: response.messageText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        suggestedProducts: response.foundProducts.slice(0, 3),
+        quickActions: [
+          {
+            label: '🛒 Ver más en el catálogo',
+            action: () => setIsWebAssistantOpen(false)
+          },
+          {
+            label: '📲 Consultar por WhatsApp',
+            action: () => openWhatsAppWithPrompt(text)
+          }
+        ]
+      };
+
       setMessages((prev) => [...prev, botResponse]);
-    }, 700);
+    } catch (err) {
+      console.warn('WebAssistant Gemini error, using fallback:', err);
+      setIsTyping(false);
+      const botResponse = generateBotReply(text);
+      setMessages((prev) => [...prev, botResponse]);
+    }
   };
 
   const handleSendPreset = (presetText: string) => {

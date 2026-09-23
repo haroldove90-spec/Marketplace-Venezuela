@@ -61,45 +61,61 @@ MENSAJE DEL CLIENTE:
 
 Por favor analiza la consulta, selecciona los comercios y productos más pertinentes y genera la respuesta.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            messageText: {
-              type: Type.STRING,
-              description: 'Texto de respuesta profesional en español adaptado para WhatsApp con emojis.'
-            },
-            matchedBusinessIds: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'IDs de comercios del catálogo que tienen o atienden lo que busca el cliente.'
-            },
-            matchedProductIds: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'IDs de productos del catálogo que coinciden con la búsqueda.'
-            },
-            category: {
-              type: Type.STRING,
-              description: 'Categoría identificada (repuestos, farmacia, restaurante, tecnologia, ferreteria, supermercado) o null.'
-            }
-          },
-          required: ['messageText', 'matchedBusinessIds', 'matchedProductIds']
-        }
-      }
-    });
+    const modelsToTry = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
+    let lastError: any = null;
+    let parsed: any = null;
 
-    const text = response.text;
-    if (!text) {
-      throw new Error('Empty response from Gemini');
+    for (const model of modelsToTry) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            systemInstruction,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                messageText: {
+                  type: Type.STRING,
+                  description: 'Texto de respuesta profesional en español adaptado para WhatsApp con emojis.'
+                },
+                matchedBusinessIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: 'IDs de comercios del catálogo que tienen o atienden lo que busca el cliente.'
+                },
+                matchedProductIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: 'IDs de productos del catálogo que coinciden con la búsqueda.'
+                },
+                category: {
+                  type: Type.STRING,
+                  description: 'Categoría identificada (repuestos, farmacia, restaurante, tecnologia, ferreteria, supermercado) o null.'
+                }
+              },
+              required: ['messageText', 'matchedBusinessIds', 'matchedProductIds']
+            }
+          }
+        });
+
+        const text = response.text;
+        if (text) {
+          const cleanedText = text.replace(/```json\s*|\s*```/g, '').trim();
+          parsed = JSON.parse(cleanedText);
+          break;
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Gemini model ${model} failed, trying fallback:`, err.message || err);
+      }
     }
 
-    const parsed = JSON.parse(text);
+    if (!parsed) {
+      throw lastError || new Error('All Gemini candidate models failed to produce a valid response.');
+    }
+
     return res.status(200).json(parsed);
   } catch (error: any) {
     console.error('Gemini chatbot error in server.ts:', error);
