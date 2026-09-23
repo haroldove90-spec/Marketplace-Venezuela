@@ -151,7 +151,7 @@ export const MyOrdersView: React.FC = () => {
                           {item.product.name}
                         </span>
                         <span className="font-semibold text-slate-900">
-                          ${item.product.price * item.quantity} MXN
+                          Bs. {item.product.price * item.quantity}
                         </span>
                       </div>
                     ))}
@@ -162,7 +162,7 @@ export const MyOrdersView: React.FC = () => {
                       Modalidad: <strong className="text-slate-900 capitalize">{order.deliveryType === 'delivery' ? '🛵 A Domicilio' : '🏬 Recoger en Sucursal'}</strong>
                     </span>
                     <span className="text-sm font-black text-[#D4021D]">
-                      Total: ${order.total} MXN
+                      Total: Bs. {order.total}
                     </span>
                   </div>
 

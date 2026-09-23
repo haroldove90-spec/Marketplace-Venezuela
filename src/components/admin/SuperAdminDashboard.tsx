@@ -428,7 +428,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 Ventas Globales
               </span>
               <p className="text-xl md:text-2xl font-black text-[#D4021D]">
-                ${totalSales.toLocaleString()} MXN
+                Bs. {totalSales.toLocaleString()}
               </p>
               <span className="text-[10px] text-slate-400 block">
                 {orders.length} pedidos procesados
@@ -480,12 +480,19 @@ export const SuperAdminDashboard: React.FC = () => {
                 Oferta del Día Destacada Global
               </h3>
               {(() => {
-                const offerProd = products.find((p) => p.isOfferOfTheDay) || products[0];
+                const offerProd = products.find((p) => p.isOfferOfTheDay) || (products.length > 0 ? products[0] : null);
+                if (!offerProd) {
+                  return (
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
+                      <p className="text-xs text-slate-500 font-medium">No hay productos registrados aún.</p>
+                    </div>
+                  );
+                }
                 const offerBiz = businesses.find((b) => b.id === offerProd?.businessId);
                 return (
                   <div className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
                     <img
-                      src={offerProd.image}
+                      src={offerProd.image || 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=200'}
                       alt={offerProd.name}
                       className="w-16 h-16 rounded-xl object-cover bg-white"
                     />
@@ -495,7 +502,7 @@ export const SuperAdminDashboard: React.FC = () => {
                       </span>
                       <h4 className="font-bold text-slate-900 text-xs">{offerProd.name}</h4>
                       <p className="text-xs text-[#D4021D] font-extrabold">
-                        ${offerProd.price} MXN · {offerBiz?.name}
+                        Bs. {offerProd.price} · {offerBiz?.name || 'Comercio'}
                       </p>
                     </div>
                   </div>
@@ -732,7 +739,7 @@ export const SuperAdminDashboard: React.FC = () => {
                   >
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} - ${p.price} MXN
+                        {p.name} - Bs. {p.price}
                       </option>
                     ))}
                   </select>
@@ -949,7 +956,7 @@ export const SuperAdminDashboard: React.FC = () => {
               <span className="text-[11px] font-bold text-slate-500 uppercase">
                 Volumen Transaccionado
               </span>
-              <p className="text-2xl font-black text-slate-900">${totalSales} MXN</p>
+              <p className="text-2xl font-black text-slate-900">Bs. {totalSales.toLocaleString()}</p>
               <span className="text-[10px] text-slate-400">En {orders.length} pedidos totales</span>
             </div>
 
@@ -958,7 +965,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 Comisión Base Comercios
               </span>
               <p className="text-2xl font-black text-purple-600">
-                ${Math.round(totalSales * 0.1)} MXN
+                Bs. {Math.round(totalSales * 0.1).toLocaleString()}
               </p>
               <span className="text-[10px] text-slate-400">Promedio 10% por venta</span>
             </div>
@@ -968,7 +975,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 Tarifa Servicio Consumidor ({serviceFeeRate}%)
               </span>
               <p className="text-2xl font-black text-emerald-600">
-                ${orders.reduce((acc, o) => acc + (o.serviceFee || Math.round((o.total - (o.deliveryFee || 0)) * (serviceFeeRate / 100))), 0)} MXN
+                Bs. {orders.reduce((acc, o) => acc + (o.serviceFee || Math.round((o.total - (o.deliveryFee || 0)) * (serviceFeeRate / 100))), 0).toLocaleString()}
               </p>
               <span className="text-[10px] text-slate-400">Cobro automático en checkout</span>
             </div>
@@ -978,7 +985,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 Ingresos Ads & Boost
               </span>
               <p className="text-2xl font-black text-[#D4021D]">
-                ${products.filter((p) => p.isBoosted).length * 89} MXN
+                Bs. {(products.filter((p) => p.isBoosted).length * 89).toLocaleString()}
               </p>
               <span className="text-[10px] text-slate-400">
                 {products.filter((p) => p.isBoosted).length} productos destacados
@@ -1021,13 +1028,13 @@ export const SuperAdminDashboard: React.FC = () => {
                         <td className="py-3 font-mono font-bold text-purple-600">
                           {b.commissionRate}%
                         </td>
-                        <td className="py-3 font-bold text-slate-900">${bizSales} MXN</td>
+                        <td className="py-3 font-bold text-slate-900">Bs. {bizSales.toLocaleString()}</td>
                         <td className="py-3 font-bold text-[#D4021D]">
-                          ${commissionAmount} MXN
+                          Bs. {commissionAmount.toLocaleString()}
                         </td>
                         <td className="py-3 text-right">
                           <button
-                            onClick={() => alert(`Liquidación de $${bizSales - commissionAmount} MXN procesada para ${b.name}`)}
+                            onClick={() => alert(`Liquidación de Bs. ${(bizSales - commissionAmount).toLocaleString()} procesada para ${b.name}`)}
                             className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-[11px] cursor-pointer"
                           >
                             Liquidar

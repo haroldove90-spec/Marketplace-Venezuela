@@ -259,15 +259,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeSellerTab, setActiveSellerTab] = useState<string>('orders');
   const [activeAdminTab, setActiveAdminTab] = useState<string>('overview');
 
-  // Cleared Mock Data Persistent Tracking
+  // Cleared Mock Data Persistent Tracking - Defaults to TRUE so system starts clean for real testing
   const [isMockDataCleared, setIsMockDataCleared] = useState<boolean>(() => {
-    return localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const saved = localStorage.getItem('mk_mock_data_cleared');
+    if (saved === null) {
+      // First load: enable clean mode by default as requested by user
+      localStorage.setItem('mk_mock_data_cleared', 'true');
+      return true;
+    }
+    return saved !== 'false';
   });
   const [isClearingData, setIsClearingData] = useState<boolean>(false);
 
   // Business State
   const [businesses, setBusinesses] = useState<Business[]>(() => {
-    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
     if (isCleared) {
       const saved = localStorage.getItem('mk_businesses');
       if (saved) {
@@ -292,13 +298,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_businesses');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed[0]?.id) return parsed[0].id;
+        } catch (e) {}
+      }
+      return '';
+    }
     return INITIAL_BUSINESSES[0]?.id || '';
   });
   const [selectedBusinessForDetail, setSelectedBusinessForDetail] = useState<Business | null>(null);
 
   // Products State
   const [products, setProducts] = useState<Product[]>(() => {
-    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
     if (isCleared) {
       const saved = localStorage.getItem('mk_products');
       if (saved) {
@@ -324,7 +341,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Orders State
   const [orders, setOrders] = useState<Order[]>(() => {
-    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
     if (isCleared) {
       const saved = localStorage.getItem('mk_orders');
       if (saved) {
@@ -341,8 +358,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Users, Employees and Clients State
   const [users, setUsers] = useState<UserAccount[]>(() => {
-    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
-    const masterAdmin = INITIAL_USERS.find(u => u.username === 'admin_master') || INITIAL_USERS[0];
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
+    const masterAdmin = INITIAL_USERS.find(u => u.username === 'admin_master') || {
+      id: 'usr-admin-master',
+      name: 'Administrador Master Con Force',
+      username: 'admin_master',
+      email: 'admin_master@conforce.com',
+      password: 'Chevropar#1970',
+      role: 'admin' as Role,
+      status: 'active' as const,
+      department: 'Dirección General',
+      phone: '+58 412 1234567',
+      createdAt: '2026-01-01',
+      lastLogin: '2026-09-21 18:00'
+    };
     if (isCleared) {
       const saved = localStorage.getItem('mk_users');
       if (saved) {
@@ -372,7 +401,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [employees, setEmployees] = useState<EmployeeProfile[]>(() => {
-    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
     if (isCleared) {
       const saved = localStorage.getItem('mk_employees');
       if (saved) {
@@ -397,7 +426,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [clients, setClients] = useState<ClientProfile[]>(() => {
-    const isCleared = localStorage.getItem('mk_mock_data_cleared') === 'true';
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
     if (isCleared) {
       const saved = localStorage.getItem('mk_clients');
       if (saved) {
@@ -1439,6 +1468,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [campaigns, setCampaigns] = useState<WhatsAppCampaign[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_campaigns');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const saved = localStorage.getItem('mk_campaigns');
     return saved ? JSON.parse(saved) : INITIAL_CAMPAIGNS;
   });
@@ -1452,6 +1492,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Demand Radar (Failed Searches Tracker)
   const [failedSearches, setFailedSearches] = useState<FailedSearchRecord[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_failed_searches');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const saved = localStorage.getItem('mk_failed_searches');
     return saved ? JSON.parse(saved) : INITIAL_FAILED_SEARCHES;
   });
@@ -1467,6 +1518,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [locationPermissionStatus, setLocationPermissionStatus] = useState<'granted' | 'denied' | 'prompt' | 'unknown'>('prompt');
 
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>(() => {
+    const isCleared = localStorage.getItem('mk_mock_data_cleared') !== 'false';
+    if (isCleared) {
+      const saved = localStorage.getItem('mk_saved_addresses');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {}
+      }
+      return [];
+    }
     const saved = localStorage.getItem('mk_saved_addresses');
     return saved ? JSON.parse(saved) : INITIAL_SAVED_ADDRESSES;
   });

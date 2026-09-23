@@ -247,11 +247,11 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
                       <div className="flex items-center justify-between pt-1 border-t border-slate-100">
                         <div>
                           <span className="font-extrabold text-slate-900 text-sm">
-                            ${prod.price} <span className="text-[10px] text-slate-500 font-normal">MXN</span>
+                            Bs. {prod.price}
                           </span>
                           {prod.originalPrice && (
                             <span className="text-[10px] text-slate-400 line-through ml-1.5">
-                              ${prod.originalPrice}
+                              Bs. {prod.originalPrice}
                             </span>
                           )}
                         </div>
@@ -299,7 +299,7 @@ export const BusinessDetailModal: React.FC<BusinessDetailModalProps> = ({
             <div>
               <span className="text-xs text-slate-600 font-medium">Total en Carrito:</span>
               <p className="font-black text-slate-900 text-base">
-                ${cart.reduce((s, i) => s + i.product.price * i.quantity, 0)} MXN
+                Bs. {cart.reduce((s, i) => s + i.product.price * i.quantity, 0)}
               </p>
             </div>
             <button

@@ -49,7 +49,7 @@ const PulsoAppContent: React.FC = () => {
   // If visiting the corporate root route and not logged in as Admin or Seller, show Corporate Portal Home
   if (currentRoute === 'corporate' && (!currentUser || currentUser.role === 'client')) {
     return (
-      <div className="min-h-screen w-full bg-slate-950 font-sans selection:bg-[#D4021D] selection:text-white">
+      <div className="min-h-screen w-full bg-white font-sans selection:bg-[#D4021D] selection:text-white overflow-y-auto overflow-x-hidden">
         <CorporatePortalHome />
         <RegisterBusinessModal />
         <CorporateAuthModal />

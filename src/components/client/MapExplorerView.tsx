@@ -230,7 +230,7 @@ export const MapExplorerView: React.FC<MapExplorerViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-sm font-black text-white">${cartSubtotal} MXN</span>
+              <span className="text-sm font-black text-white">Bs. ${cartSubtotal}</span>
               <span className="text-xs bg-[#D4021D] hover:bg-[#b50218] text-white font-bold px-2.5 py-1 rounded-xl">
                 Pedir →
               </span>

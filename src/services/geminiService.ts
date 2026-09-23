@@ -115,14 +115,14 @@ function fallbackLocalMatcher(
   if (matchedProducts.length > 0) {
     const primaryProduct = matchedProducts[0];
     const biz = businesses.find(b => b.id === primaryProduct.businessId) || businesses[0];
-    const deepLink = `https://marketplace.app/?view=business&id=${biz.id}&product=${primaryProduct.id}`;
+    const deepLink = `https://marketplace.app/?view=business&id=${biz?.id || ''}&product=${primaryProduct.id}`;
 
     return {
-      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz.name}* por *$${primaryProduct.price} MXN*!\n\n✨ Stock disponible para entrega inmediata o recojo en tienda. Toca el enlace para ver en el mapa y pedir:`,
+      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio'}* por *Bs. ${primaryProduct.price}*!\n\n✨ Stock disponible para entrega inmediata o recojo en tienda. Toca el enlace para ver en el mapa y pedir:`,
       foundProducts: matchedProducts,
-      recommendedBusinesses: [biz],
+      recommendedBusinesses: biz ? [biz] : [],
       deepLink,
-      categoryDetected: biz.category
+      categoryDetected: biz?.category
     };
   }
 
@@ -135,9 +135,9 @@ function fallbackLocalMatcher(
     const biz = pharmacies[0];
     return {
       messageText: `💊 Tenemos ${pharmacies.length} farmacias activas cerca de ti con servicio express y 24 hrs. Puedes consultar catálogo y pedir directo aquí:`,
-      foundProducts: products.filter(p => p.businessId === biz.id),
+      foundProducts: biz ? products.filter(p => p.businessId === biz.id) : [],
       recommendedBusinesses: pharmacies,
-      deepLink: `https://marketplace.app/?filter=farmacia&view=business&id=${biz.id}`,
+      deepLink: biz ? `https://marketplace.app/?filter=farmacia&view=business&id=${biz.id}` : '#',
       categoryDetected: 'farmacia'
     };
   }
@@ -147,21 +147,30 @@ function fallbackLocalMatcher(
     const biz = restaurants[0];
     return {
       messageText: `🍔 ¡Hay deliciosos restaurantes abiertos en tu zona! Burgers, Pizzas, Tacos y más con entrega express:`,
-      foundProducts: products.filter(p => p.businessId === biz.id),
+      foundProducts: biz ? products.filter(p => p.businessId === biz.id) : [],
       recommendedBusinesses: restaurants,
-      deepLink: `https://marketplace.app/?filter=restaurante&view=business&id=${biz.id}`,
+      deepLink: biz ? `https://marketplace.app/?filter=restaurante&view=business&id=${biz.id}` : '#',
       categoryDetected: 'restaurante'
     };
   }
 
   // 3. General offer / welcome
-  const offerProduct = products.find(p => p.isOfferOfTheDay) || products[0];
-  const offerBiz = businesses.find(b => b.id === offerProduct.businessId) || businesses[0];
+  const offerProduct = products.find(p => p.isOfferOfTheDay) || (products.length > 0 ? products[0] : null);
+  const offerBiz = offerProduct ? (businesses.find(b => b.id === offerProduct.businessId) || businesses[0]) : null;
+
+  if (offerProduct && offerBiz) {
+    return {
+      messageText: `🔥 ¡Oferta destacada de hoy en Con Force!\n*${offerProduct.name}* a solo *Bs. ${offerProduct.price}* (Antes Bs. ${offerProduct.originalPrice || offerProduct.price + 50}) en *${offerBiz.name}*.\n\nEscribe qué necesitas o explora en el catálogo interactivo:`,
+      foundProducts: [offerProduct],
+      recommendedBusinesses: [offerBiz],
+      deepLink: `https://pulso.app/?view=business&id=${offerBiz.id}&product=${offerProduct.id}`
+    };
+  }
 
   return {
-    messageText: `🔥 ¡Oferta destacada de hoy en Pulso!\n*${offerProduct.name}* a solo *$${offerProduct.price} MXN* (Antes $${offerProduct.originalPrice || offerProduct.price + 50}) en *${offerBiz.name}*.\n\nEscribe qué necesitas o explora en el mapa interactivo:`,
-    foundProducts: [offerProduct],
-    recommendedBusinesses: [offerBiz],
-    deepLink: `https://pulso.app/?view=business&id=${offerBiz.id}&product=${offerProduct.id}`
+    messageText: `👋 ¡Hola! Bienvenido a Con Force Venezuela.\n¿En qué podemos ayudarte hoy? Escribe el repuesto, producto o servicio que estás buscando.`,
+    foundProducts: [],
+    recommendedBusinesses: [],
+    deepLink: ''
   };
 }

@@ -48,8 +48,8 @@ export const WhatsAppChatModal: React.FC = () => {
   // Initial welcome message + offer of the day on open
   useEffect(() => {
     if (isWhatsAppModalOpen && messages.length === 0) {
-      const offerProd = products.find(p => p.id === chatbotConfig.featuredOfferId || p.isOfferOfTheDay) || products[0];
-      const offerBiz = businesses.find(b => b.id === offerProd?.businessId) || businesses[0];
+      const offerProd = products.find(p => p.id === chatbotConfig.featuredOfferId || p.isOfferOfTheDay) || (products.length > 0 ? products[0] : null);
+      const offerBiz = offerProd ? (businesses.find(b => b.id === offerProd.businessId) || businesses[0]) : null;
 
       const welcomeMsg: ChatMessage = {
         id: 'msg-welcome',
@@ -58,20 +58,25 @@ export const WhatsAppChatModal: React.FC = () => {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      const offerMsg: ChatMessage = {
-        id: 'msg-offer',
-        sender: 'bot',
-        text: `🔥 *OFERTA DEL DÍA EN TU ZONA* 🔥\n*${offerProd.name}*\n🏷️ Solo *$${offerProd.price} MXN* (Antes $${offerProd.originalPrice || offerProd.price + 45})\n🏪 Disponible en *${offerBiz.name}*`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        type: 'product_card',
-        data: {
-          product: offerProd,
-          business: offerBiz,
-          deepLink: `https://pulso.app/?view=business&id=${offerBiz.id}&product=${offerProd.id}`
-        }
-      };
+      const messagesToSet: ChatMessage[] = [welcomeMsg];
 
-      setMessages([welcomeMsg, offerMsg]);
+      if (offerProd && offerBiz) {
+        const offerMsg: ChatMessage = {
+          id: 'msg-offer',
+          sender: 'bot',
+          text: `🔥 *OFERTA DEL DÍA EN TU ZONA* 🔥\n*${offerProd.name}*\n🏷️ Solo *Bs. ${offerProd.price}* (Antes Bs. ${offerProd.originalPrice || offerProd.price + 45})\n🏪 Disponible en *${offerBiz.name}*`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: 'product_card',
+          data: {
+            product: offerProd,
+            business: offerBiz,
+            deepLink: `https://marketplace.app/?view=business&id=${offerBiz.id}&product=${offerProd.id}`
+          }
+        };
+        messagesToSet.push(offerMsg);
+      }
+
+      setMessages(messagesToSet);
 
       // If an initial prompt was passed from button
       if (whatsappInitialPrompt) {
@@ -263,11 +268,11 @@ export const WhatsAppChatModal: React.FC = () => {
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="font-extrabold text-[#D4021D] text-xs">
-                              ${msg.data.product.price} MXN
+                              Bs. {msg.data.product.price}
                             </span>
                             {msg.data.product.originalPrice && (
                               <span className="text-[10px] text-slate-400 line-through">
-                                ${msg.data.product.originalPrice}
+                                Bs. {msg.data.product.originalPrice}
                               </span>
                             )}
                           </div>

@@ -932,13 +932,25 @@ export async function clearAllSampleDataFromSupabase(): Promise<{ success: boole
       errors.push(`Direcciones: ${addrErr.message}`);
     }
 
-    // 6. Delete all demo users EXCEPT admin_master
+    // 6. Delete sample clients
+    const { error: clientErr } = await supabase.from('clients').delete().neq('id', '__keep_none__');
+    if (clientErr && !clientErr.message.includes('does not exist')) {
+      errors.push(`Clientes: ${clientErr.message}`);
+    }
+
+    // 7. Delete sample employees
+    const { error: empErr } = await supabase.from('employees').delete().neq('id', '__keep_none__');
+    if (empErr && !empErr.message.includes('does not exist')) {
+      errors.push(`Empleados: ${empErr.message}`);
+    }
+
+    // 8. Delete all demo users EXCEPT admin_master
     const { error: userErr } = await supabase.from('users').delete().neq('username', 'admin_master');
     if (userErr && !userErr.message.includes('does not exist')) {
       errors.push(`Usuarios: ${userErr.message}`);
     }
 
-    // 7. Ensure admin_master is guaranteed to exist
+    // 9. Ensure admin_master is guaranteed to exist
     try {
       await supabase.from('users').upsert({
         id: 'usr_admin_master',

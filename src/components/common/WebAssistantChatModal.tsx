@@ -121,7 +121,7 @@ export const WebAssistantChatModal: React.FC = () => {
       return {
         id: `msg-${Date.now()}`,
         sender: 'bot',
-        text: '🛡️ En Con Force manejamos total transparencia:\n• **Costo de envío:** $35 MXN para entregas locales en menos de 45 minutos (o Gratis en Retiro en Tienda).\n• **Tarifa de servicio:** 5% del subtotal de tu compra para garantizar soporte prioritario, rastreo en vivo y seguro de entrega.',
+        text: '🛡️ En Con Force manejamos total transparencia:\n• **Costo de envío:** Bs. 35 para entregas locales en menos de 45 minutos (o Gratis en Retiro en Tienda).\n• **Tarifa de servicio:** 5% del subtotal de tu compra para garantizar soporte prioritario, rastreo en vivo y seguro de entrega.',
         timestamp: time
       };
     }
@@ -273,7 +273,7 @@ export const WebAssistantChatModal: React.FC = () => {
                           <div className="min-w-0 flex-1">
                             <h5 className="font-bold text-slate-900 truncate text-[11px]">{prod.name}</h5>
                             <span className="text-[#D4021D] font-extrabold text-[11px]">
-                              ${prod.price} MXN
+                              Bs. {prod.price}
                             </span>
                           </div>
                           <button

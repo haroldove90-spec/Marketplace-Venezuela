@@ -147,7 +147,7 @@ export const SellerBoostPaymentModal: React.FC<SellerBoostPaymentModalProps> = (
                     {product.name}
                   </h4>
                   <p className="text-xs text-slate-500">
-                    Precio regular: <span className="font-bold text-slate-800">${product.price} MXN</span>
+                    Precio regular: <span className="font-bold text-slate-800">Bs. {product.price}</span>
                   </p>
                 </div>
                 {product.isBoosted ? (
@@ -200,7 +200,7 @@ export const SellerBoostPaymentModal: React.FC<SellerBoostPaymentModalProps> = (
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <div className="text-base font-black text-slate-900">${plan.price} MXN</div>
+                          <div className="text-base font-black text-slate-900">Bs. {plan.price}</div>
                           <span className="text-[10px] text-slate-500 block">pago único</span>
                         </div>
                       </div>
@@ -305,10 +305,10 @@ export const SellerBoostPaymentModal: React.FC<SellerBoostPaymentModalProps> = (
                   <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
                     <div className="flex justify-between items-center">
                       <span className="text-slate-600">Saldo disponible por ventas:</span>
-                      <span className="font-bold text-emerald-600">$4,850.00 MXN</span>
+                      <span className="font-bold text-emerald-600">Bs. 4.850,00</span>
                     </div>
                     <p className="text-[10px] text-slate-500">
-                      El monto del paquete (${selectedPlan.price} MXN) se descontará automáticamente de tu próximo corte semanal.
+                      El monto del paquete (Bs. {selectedPlan.price}) se descontará automáticamente de tu próximo corte semanal.
                     </p>
                   </div>
                 )}
@@ -337,7 +337,7 @@ export const SellerBoostPaymentModal: React.FC<SellerBoostPaymentModalProps> = (
                 ) : (
                   <>
                     <Zap className="w-4 h-4 fill-white" />
-                    <span>Confirmar y Pagar ${selectedPlan.price} MXN</span>
+                    <span>Confirmar y Pagar Bs. {selectedPlan.price}</span>
                   </>
                 )}
               </button>

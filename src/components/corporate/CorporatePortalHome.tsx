@@ -76,7 +76,7 @@ export const CorporatePortalHome: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 flex flex-col">
+    <div className="min-h-screen w-full bg-white text-zinc-900 flex flex-col overflow-y-auto overflow-x-hidden">
       {/* Top Navbar */}
       <header className="border-b border-zinc-200 bg-white sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -94,7 +94,7 @@ export const CorporatePortalHome: React.FC = () => {
                   PORTAL CORPORATIVO
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 font-medium">Administración, Comercios y Patrocinadores</p>
+              <p className="text-[11px] text-zinc-500 font-medium">Administración y Comercios Afiliados</p>
             </div>
           </div>
 
@@ -123,7 +123,7 @@ export const CorporatePortalHome: React.FC = () => {
       </header>
 
       {/* Hero & Authentication Card */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 md:py-12 flex flex-col justify-center">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 pb-16 flex flex-col">
         {/* URL Separation Notification Banner */}
         <div className="mb-8 p-4 bg-red-50/50 border border-red-200/80 rounded-2xl">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -226,24 +226,15 @@ export const CorporatePortalHome: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={() => openBusinessRegistration(false, false)}
-                  className="w-full py-3 bg-[#D4021D] hover:bg-red-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-red-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                  className="w-full py-3.5 bg-[#D4021D] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md shadow-red-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
                 >
                   <Store className="w-4 h-4 shrink-0" />
                   <span>Registrar Comercio o Negocio</span>
                   <ArrowRight className="w-4 h-4 shrink-0" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => openBusinessRegistration(false, true)}
-                  className="w-full py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer border border-zinc-800 active:scale-[0.98]"
-                >
-                  <Sparkles className="w-4 h-4 shrink-0 text-amber-400" />
-                  <span>Registrarse como Patrocinador ⭐</span>
                 </button>
               </div>
             </div>
@@ -349,6 +340,28 @@ export const CorporatePortalHome: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* Bottom Footer */}
+      <footer className="border-t border-zinc-200 bg-zinc-50 py-6 text-center text-xs text-zinc-500 shrink-0 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>© {new Date().getFullYear()} CON FORCE. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-4 text-xs font-semibold">
+            <button
+              onClick={() => navigateToRoute('marketplace')}
+              className="text-zinc-600 hover:text-[#D4021D] transition-colors cursor-pointer"
+            >
+              Marketplace Clientes
+            </button>
+            <span className="text-zinc-300">•</span>
+            <button
+              onClick={() => openBusinessRegistration(false, false)}
+              className="text-[#D4021D] hover:underline transition-colors cursor-pointer"
+            >
+              Registrar Negocio
+            </button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

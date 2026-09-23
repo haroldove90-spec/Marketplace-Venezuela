@@ -146,7 +146,7 @@ export const AdminClientsView: React.FC = () => {
 
         <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
           <span className="text-[11px] font-bold text-slate-500 uppercase block">Facturación Clientes</span>
-          <p className="text-2xl font-black text-[#D4021D] mt-1">${totalClientSpent.toLocaleString()} MXN</p>
+          <p className="text-2xl font-black text-[#D4021D] mt-1">Bs. {totalClientSpent.toLocaleString()}</p>
           <span className="text-[10px] text-slate-400">Gasto total registrado</span>
         </div>
       </div>
@@ -230,7 +230,7 @@ export const AdminClientsView: React.FC = () => {
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-slate-500 block uppercase font-bold">Gasto Total</span>
-                <span className="font-bold text-[#D4021D]">${c.totalSpent.toLocaleString()} MXN</span>
+                <span className="font-bold text-[#D4021D]">Bs. {c.totalSpent.toLocaleString()}</span>
               </div>
             </div>
           </div>

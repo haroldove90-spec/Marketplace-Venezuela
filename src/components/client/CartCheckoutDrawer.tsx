@@ -117,7 +117,7 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
     const bizName = targetBusiness?.name || 'Comercio';
     const address = getResolvedAddress();
     const itemsList = cart
-      .map((item) => `• ${item.quantity}x ${item.product.name} - $${item.product.price * item.quantity} MXN`)
+      .map((item) => `• ${item.quantity}x ${item.product.name} - Bs. ${item.product.price * item.quantity}`)
       .join('\n');
 
     return `🛍️ *NUEVO PEDIDO - CON FORCE*
@@ -129,10 +129,10 @@ export const CartCheckoutDrawer: React.FC<CartCheckoutDrawerProps> = ({
 📦 *DETALLE DE PRODUCTOS:*
 ${itemsList}
 
-💵 *Subtotal:* $${cartSubtotal} MXN
-🛵 *Costo Envío:* ${deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
-🛡️ *Tarifa de Servicio (5%):* $${serviceFee} MXN
-💰 *TOTAL A PAGAR:* $${grandTotal} MXN
+💵 *Subtotal:* Bs. ${cartSubtotal}
+🛵 *Costo Envío:* ${deliveryFee === 0 ? 'Gratis' : `Bs. ${deliveryFee}`}
+🛡️ *Tarifa de Servicio (5%):* Bs. ${serviceFee}
+💰 *TOTAL A PAGAR:* Bs. ${grandTotal}
 💳 *Forma de Pago:* ${getPaymentMethodLabel(paymentMethod)}
 ${orderNotes.trim() ? `📝 *Instrucciones/Notas:* ${orderNotes.trim()}` : ''}
 
@@ -364,7 +364,7 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                         {item.product.name}
                       </h5>
                       <span className="text-xs text-[#D4021D] font-extrabold">
-                        ${item.product.price} <span className="text-[10px] text-slate-500 font-normal">MXN</span>
+                        Bs. {item.product.price}
                       </span>
                     </div>
 
@@ -406,7 +406,7 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                 >
                   <span className="text-base">🛵</span>
                   <span className="text-xs font-bold">Envío a Domicilio</span>
-                  <span className="text-[10px] text-[#D4021D] font-bold">+$35 MXN</span>
+                  <span className="text-[10px] text-[#D4021D] font-bold">+Bs. 35</span>
                 </button>
 
                 <button
@@ -621,12 +621,12 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
             <div className="space-y-1 text-xs text-slate-600">
               <div className="flex justify-between">
                 <span>Subtotal productos:</span>
-                <span className="font-semibold text-slate-900">${cartSubtotal} MXN</span>
+                <span className="font-semibold text-slate-900">Bs. ${cartSubtotal}</span>
               </div>
               <div className="flex justify-between">
                 <span>Costo de entrega:</span>
                 <span className={deliveryFee === 0 ? 'text-slate-900 font-bold' : 'font-semibold text-slate-900'}>
-                  {deliveryFee === 0 ? 'Gratis' : `$${deliveryFee} MXN`}
+                  {deliveryFee === 0 ? 'Gratis' : `Bs. ${deliveryFee}`}
                 </span>
               </div>
               <div className="flex justify-between items-center text-xs">
@@ -636,11 +636,11 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                     5% Soporte & Garantía
                   </span>
                 </span>
-                <span className="font-semibold text-slate-900">${serviceFee} MXN</span>
+                <span className="font-semibold text-slate-900">Bs. ${serviceFee}</span>
               </div>
               <div className="flex justify-between text-sm font-black text-slate-900 pt-1 border-t border-slate-200">
                 <span>Total a Pagar:</span>
-                <span className="text-[#D4021D]">${grandTotal} MXN</span>
+                <span className="text-[#D4021D]">Bs. ${grandTotal}</span>
               </div>
             </div>
 
@@ -661,7 +661,7 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                     ) : (
                       <>
                         <Smartphone className="w-4 h-4" />
-                        <span>Comprar vía App Móvil (${grandTotal} MXN)</span>
+                        <span>Comprar vía App Móvil (Bs. ${grandTotal})</span>
                       </>
                     )}
                   </button>
@@ -690,7 +690,7 @@ _Enviado desde Con Force PWA - Checkout WhatsApp_`;
                     ) : (
                       <>
                         <MessageCircle className="w-4 h-4 fill-white" />
-                        <span>Enviar Pedido por WhatsApp (${grandTotal} MXN)</span>
+                        <span>Enviar Pedido por WhatsApp (Bs. ${grandTotal})</span>
                       </>
                     )}
                   </button>

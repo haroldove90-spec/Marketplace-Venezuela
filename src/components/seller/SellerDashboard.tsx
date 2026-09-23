@@ -352,12 +352,12 @@ export const SellerDashboard: React.FC = () => {
                           <strong className="text-[#D4021D] mr-1">{i.quantity}x</strong>
                           {i.product.name}
                         </span>
-                        <span className="font-medium">${i.product.price * i.quantity} MXN</span>
+                        <span className="font-medium">Bs. {i.product.price * i.quantity}</span>
                       </div>
                     ))}
                     <div className="pt-2 border-t border-slate-200 flex justify-between font-bold text-slate-900">
                       <span>Total con entrega:</span>
-                      <span className="text-[#D4021D] font-black">${order.total} MXN</span>
+                      <span className="text-[#D4021D] font-black">Bs. {order.total}</span>
                     </div>
                   </div>
 
@@ -482,7 +482,7 @@ export const SellerDashboard: React.FC = () => {
                       {prod.name}
                     </h4>
                     <p className="text-xs font-black text-[#D4021D] mt-1">
-                      ${prod.price} MXN
+                      Bs. {prod.price}
                     </p>
 
                     {/* Stock pill */}
@@ -763,7 +763,7 @@ export const SellerDashboard: React.FC = () => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="text-slate-600 text-[10px] uppercase font-bold">
-                    Precio ($ MXN)
+                    Precio (Bs.)
                   </label>
                   <input
                     type="number"
@@ -774,7 +774,7 @@ export const SellerDashboard: React.FC = () => {
                 </div>
                 <div>
                   <label className="text-slate-600 text-[10px] uppercase font-bold">
-                    Precio Original (Tachado)
+                    Precio Original (Tachado en Bs.)
                   </label>
                   <input
                     type="number"

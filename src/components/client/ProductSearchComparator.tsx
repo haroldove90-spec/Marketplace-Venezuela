@@ -193,7 +193,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
             <span>Modalidad de Compra</span>
           </span>
           <span className="text-[10px] text-slate-500 font-medium">
-            {deliveryMode === 'pickup' ? 'Ahorras costo de envío ($0 MXN)' : 'Envío directo a tu puerta'}
+            {deliveryMode === 'pickup' ? 'Ahorras costo de envío (Bs. 0)' : 'Envío directo a tu puerta'}
           </span>
         </div>
 
@@ -210,7 +210,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
             <Truck className={`w-4 h-4 ${deliveryMode === 'delivery' ? 'text-[#D4021D]' : 'text-slate-500'}`} />
             <div className="text-left">
               <p className="text-xs font-bold leading-tight">Envío a Domicilio</p>
-              <p className="text-[10px] text-slate-500">+ $35 MXN entrega</p>
+              <p className="text-[10px] text-slate-500">+ Bs. 35 entrega</p>
             </div>
           </button>
 
@@ -476,12 +476,11 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
                         </span>
                         <div className="flex items-baseline gap-1 mt-0.5">
                           <span className="text-sm sm:text-base font-black text-slate-900">
-                            ${product.price}
+                            Bs. {product.price}
                           </span>
-                          <span className="text-[10px] text-slate-500 font-normal">MXN</span>
                           {product.originalPrice && product.originalPrice > product.price && (
                             <span className="text-[10px] text-slate-400 line-through">
-                              ${product.originalPrice}
+                              Bs. {product.originalPrice}
                             </span>
                           )}
                         </div>
@@ -516,7 +515,7 @@ export const ProductSearchComparator: React.FC<ProductSearchComparatorProps> = (
 
                       {/* WhatsApp Inquiry */}
                       <button
-                        onClick={() => openWhatsAppWithPrompt(`Hola ${business.name}, ¿tienen disponible "${product.name}" ($${product.price} MXN)?`, business.id)}
+                        onClick={() => openWhatsAppWithPrompt(`Hola ${business.name}, ¿tienen disponible "${product.name}" (Bs. ${product.price})?`, business.id)}
                         className="p-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs font-semibold shadow-2xs cursor-pointer"
                         title="Consultar por WhatsApp"
                       >

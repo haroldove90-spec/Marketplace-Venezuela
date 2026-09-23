@@ -8,6 +8,48 @@ export const SUPABASE_PROJECT_INFO = {
   tableEditorUrl: "https://supabase.com/dashboard/project/cjoszqkgqtgfvzqxcsvi/editor"
 };
 
+export const SUPABASE_PURGE_SAMPLE_DATA_SQL = `-- ==============================================================================
+-- 🧹 SCRIPT PARA LIMPIAR TODOS LOS DATOS DE MUESTRA EN SUPABASE
+-- Deja el sistema 100% limpio para pruebas y registros reales
+-- Preserva la estructura de tablas y el usuario administrador maestro (admin_master)
+-- Copia y corre esto en: https://supabase.com/dashboard/project/cjoszqkgqtgfvzqxcsvi/sql/new
+-- ==============================================================================
+
+-- 1. Eliminar datos dependientes primero (hijos)
+DELETE FROM public.orders WHERE id IS NOT NULL;
+DELETE FROM public.products WHERE id IS NOT NULL;
+DELETE FROM public.whatsapp_campaigns WHERE id IS NOT NULL;
+DELETE FROM public.saved_addresses WHERE id IS NOT NULL;
+DELETE FROM public.clients WHERE id IS NOT NULL;
+DELETE FROM public.employees WHERE id IS NOT NULL;
+
+-- 2. Eliminar comercios de prueba
+DELETE FROM public.businesses WHERE id IS NOT NULL;
+
+-- 3. Eliminar usuarios de prueba excepto admin_master
+DELETE FROM public.users WHERE username != 'admin_master';
+
+-- 4. Garantizar existencia y acceso del Administrador Maestro
+INSERT INTO public.users (
+    id, name, username, email, password, password_hash, role, status, phone, is_active
+) VALUES (
+    'usr-admin-master',
+    'Administrador Master Con Force',
+    'admin_master',
+    'admin_master@conforce.com',
+    'Chevropar#1970',
+    'Chevropar#1970',
+    'admin',
+    'active',
+    '+58 412 1234567',
+    true
+)
+ON CONFLICT (username) DO UPDATE SET
+    password = 'Chevropar#1970',
+    password_hash = 'Chevropar#1970',
+    is_active = true;
+`;
+
 export const SUPABASE_SPONSOR_UNLOCK_SQL = `-- ==============================================================================
 -- 🚀 SCRIPT DE DESBLOQUEO PARA PATROCINADORES Y CATEGORÍAS AUTOMOTRICES
 -- Copia y corre esto en: https://supabase.com/dashboard/project/cjoszqkgqtgfvzqxcsvi/sql/new
