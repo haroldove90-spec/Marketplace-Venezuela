@@ -7,6 +7,10 @@ export const VERCEL_PRODUCTION_URL = 'https://venezuela-iota.vercel.app';
 export const VERCEL_MARKETPLACE_URL = 'https://venezuela-iota.vercel.app/';
 export const VERCEL_MARKETPLACE_QUERY_URL = 'https://venezuela-iota.vercel.app/?view=marketplace';
 
+// Direct Portal Access URLs
+export const VERCEL_ADMIN_URL = 'https://venezuela-iota.vercel.app/?role=admin';
+export const VERCEL_SELLER_URL = 'https://venezuela-iota.vercel.app/?role=seller';
+
 /**
  * Gets the base URL for generating direct marketplace deep links.
  * Always resolves to the official production Vercel domain root

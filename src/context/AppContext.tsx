@@ -1718,8 +1718,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const view = params.get('view');
       const bizId = params.get('id');
       const filter = params.get('filter');
+      const roleParam = (params.get('role') || params.get('login') || params.get('portal') || '').toLowerCase();
 
-      if (isMarketplaceRoute || view === 'marketplace' || view === 'explore') {
+      if (roleParam === 'admin' || roleParam === 'superadmin') {
+        if (currentUser?.role === 'admin') {
+          setCurrentRole('admin');
+          setActiveAdminTab('overview');
+        } else {
+          setIsCorporateAuthModalOpen(true);
+        }
+      } else if (roleParam === 'seller' || roleParam === 'negocio' || roleParam === 'vendedor') {
+        if (currentUser?.role === 'seller') {
+          setCurrentRole('seller');
+          setActiveSellerTab('orders');
+        } else {
+          setIsCorporateAuthModalOpen(true);
+        }
+      } else if (isMarketplaceRoute || view === 'marketplace' || view === 'explore') {
         setCurrentRole('client');
         setActiveClientTab('explore');
       }

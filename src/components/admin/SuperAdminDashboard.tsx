@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Business, BusinessCategory, WhatsAppCampaign } from '../../types';
-import { buildDeepLink, VERCEL_PRODUCTION_URL, VERCEL_MARKETPLACE_URL, VERCEL_MARKETPLACE_QUERY_URL } from '../../utils/urlUtils';
+import {
+  buildDeepLink,
+  VERCEL_PRODUCTION_URL,
+  VERCEL_MARKETPLACE_URL,
+  VERCEL_MARKETPLACE_QUERY_URL,
+  VERCEL_ADMIN_URL,
+  VERCEL_SELLER_URL
+} from '../../utils/urlUtils';
 import {
   LayoutDashboard,
   Store,
@@ -114,6 +121,8 @@ export const SuperAdminDashboard: React.FC = () => {
   const [copiedDeepLink, setCopiedDeepLink] = useState(false);
   const [copiedMarketplaceLink, setCopiedMarketplaceLink] = useState(false);
   const [copiedMarketplaceQueryLink, setCopiedMarketplaceQueryLink] = useState(false);
+  const [copiedAdminLink, setCopiedAdminLink] = useState(false);
+  const [copiedSellerLink, setCopiedSellerLink] = useState(false);
 
   // Deep Link URL builder pointing directly to production Marketplace
   const generatedDeepLink = buildDeepLink({
@@ -131,7 +140,7 @@ export const SuperAdminDashboard: React.FC = () => {
 
   const handleCopyMarketplaceLink = () => {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(VERCEL_MARKETPLACE_URL);
+      navigator.clipboard.writeText(VERCEL_PRODUCTION_URL);
       setCopiedMarketplaceLink(true);
       setTimeout(() => setCopiedMarketplaceLink(false), 2000);
     }
@@ -142,6 +151,22 @@ export const SuperAdminDashboard: React.FC = () => {
       navigator.clipboard.writeText(VERCEL_MARKETPLACE_QUERY_URL);
       setCopiedMarketplaceQueryLink(true);
       setTimeout(() => setCopiedMarketplaceQueryLink(false), 2000);
+    }
+  };
+
+  const handleCopyAdminLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(VERCEL_ADMIN_URL);
+      setCopiedAdminLink(true);
+      setTimeout(() => setCopiedAdminLink(false), 2000);
+    }
+  };
+
+  const handleCopySellerLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(VERCEL_SELLER_URL);
+      setCopiedSellerLink(true);
+      setTimeout(() => setCopiedSellerLink(false), 2000);
     }
   };
 
@@ -835,7 +860,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 {/* Official Direct Marketplace Link (Works 100% on Vercel) */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase text-emerald-700">Enlace Directo Oficial del Marketplace</span>
+                    <span className="text-[10px] font-bold uppercase text-emerald-700">1. Enlace Directo Marketplace (Clientes)</span>
                     <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">100% Activo</span>
                   </div>
                   <div className="p-2.5 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex items-center justify-between gap-2 font-mono text-[11px] text-emerald-900">
@@ -851,9 +876,47 @@ export const SuperAdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Direct Link to Admin Panel */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase text-red-700">2. Enlace Directo Superadmin</span>
+                    <span className="text-[9px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-bold">Gestión Total</span>
+                  </div>
+                  <div className="p-2.5 bg-red-50/70 rounded-xl border border-red-200/80 flex items-center justify-between gap-2 font-mono text-[11px] text-red-900">
+                    <span className="truncate font-semibold">{VERCEL_ADMIN_URL}</span>
+                    <button
+                      onClick={handleCopyAdminLink}
+                      className="p-1.5 bg-[#D4021D] hover:bg-red-700 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs transition-colors"
+                      title="Copiar enlace directo de Superadmin"
+                    >
+                      {copiedAdminLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedAdminLink ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Direct Link to Seller / Business Panel */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase text-slate-700">3. Enlace Directo Portal Negocios</span>
+                    <span className="text-[9px] bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded font-bold">Comercios</span>
+                  </div>
+                  <div className="p-2.5 bg-slate-100/80 rounded-xl border border-slate-300 flex items-center justify-between gap-2 font-mono text-[11px] text-slate-900">
+                    <span className="truncate font-semibold">{VERCEL_SELLER_URL}</span>
+                    <button
+                      onClick={handleCopySellerLink}
+                      className="p-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs transition-colors"
+                      title="Copiar enlace directo para Negocios"
+                    >
+                      {copiedSellerLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedSellerLink ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Specific Deep Link */}
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase text-slate-500">Enlace Específico con Filtros / Producto</span>
+                  <span className="text-[10px] font-bold uppercase text-slate-500">4. Enlace Específico con Filtros / Producto</span>
                   <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 font-mono text-[11px] text-[#D4021D]">
                     <span className="truncate">{generatedDeepLink}</span>
                     <button
