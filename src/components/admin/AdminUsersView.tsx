@@ -289,16 +289,16 @@ export const AdminUsersView: React.FC = () => {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs">
-                          {u.name.charAt(0).toUpperCase()}
+                          {(u.name || u.username || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold text-slate-900 flex items-center gap-1.5">
-                            {u.name}
+                            {u.name || u.username || 'Usuario'}
                             {isSuperadminPreset && (
                               <span className="text-[10px] text-red-600 font-black">★</span>
                             )}
                           </p>
-                          <p className="text-[11px] text-slate-500 font-mono">@{u.username}</p>
+                          <p className="text-[11px] text-slate-500 font-mono">@{u.username || 'usuario'}</p>
                         </div>
                       </div>
                     </td>
@@ -530,11 +530,11 @@ export const AdminUsersView: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                  {editingUser.name.charAt(0).toUpperCase()}
+                  {(editingUser.name || editingUser.username || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-white">
-                    Editar Usuario: {editingUser.name}
+                    Editar Usuario: {editingUser.name || editingUser.username}
                   </h3>
                   <p className="text-[11px] text-zinc-400 font-mono">@{editingUser.username}</p>
                 </div>

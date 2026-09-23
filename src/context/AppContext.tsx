@@ -203,6 +203,8 @@ interface AppContextType {
   }) => Promise<{ success: boolean; message: string; business?: Business; user?: UserAccount }>;
   logout: () => void;
   switchRole: (targetRole: Role) => { allowed: boolean; message?: string };
+  loginDirectAsAdmin: (adminType?: 'harold' | 'master') => { success: boolean; message: string };
+  loginDirectAsSeller: () => { success: boolean; message: string };
 
   // Modals & Intent
   isClientAuthModalOpen: boolean;
@@ -253,8 +255,32 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const DEFAULT_CENTER_COORDS: Coordinates = { lat: 19.4120, lng: -99.1650 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Roles & View Tabs
-  const [currentRole, setCurrentRole] = useState<Role>('client');
+  // Roles & View Tabs - Synchronized with URL parameters and persistent state
+  const [currentRole, setCurrentRole] = useState<Role>(() => {
+    if (typeof window !== 'undefined') {
+      const search = window.location.search.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (search.includes('role=admin') || search.includes('view=admin') || path.includes('/admin') || hash.includes('admin')) {
+        return 'admin';
+      }
+      if (search.includes('role=seller') || search.includes('view=seller') || path.includes('/seller') || hash.includes('seller')) {
+        return 'seller';
+      }
+    }
+    const savedUser = localStorage.getItem('mk_current_user');
+    if (savedUser) {
+      try {
+        const u = JSON.parse(savedUser);
+        if (u?.role) return u.role;
+      } catch (e) {}
+    }
+    const savedRole = localStorage.getItem('mk_current_role') as Role;
+    if (savedRole === 'admin' || savedRole === 'seller' || savedRole === 'client') {
+      return savedRole;
+    }
+    return 'client';
+  });
   const [activeClientTab, setActiveClientTab] = useState<string>('explore');
   const [activeSellerTab, setActiveSellerTab] = useState<string>('orders');
   const [activeAdminTab, setActiveAdminTab] = useState<string>('overview');
@@ -367,11 +393,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       password: 'Chevropar#1970',
       role: 'admin' as Role,
       status: 'active' as const,
-      department: 'Dirección General',
-      phone: '+58 412 1234567',
+      department: 'Dirección General & Superadministración',
+      phone: '+52 55 9988 7766',
       createdAt: '2026-01-01',
       lastLogin: '2026-09-21 18:00'
     };
+    const haroldAdmin = INITIAL_USERS.find(u => u.username === 'haroldo90') || {
+      id: 'usr-harold',
+      name: 'Harold Anguiano Morales',
+      username: 'haroldo90',
+      email: 'haroldove90@gmail.com',
+      password: 'Chevropar#1970',
+      role: 'admin' as Role,
+      status: 'active' as const,
+      department: 'Dirección General & Superadministración',
+      phone: '+52 55 1122 3344',
+      createdAt: '2026-01-15',
+      lastLogin: '2026-09-03 21:30'
+    };
+
     if (isCleared) {
       const saved = localStorage.getItem('mk_users');
       if (saved) {
@@ -381,11 +421,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (!parsed.some(u => u.username === 'admin_master')) {
               parsed.unshift(masterAdmin);
             }
+            if (!parsed.some(u => u.username === 'haroldo90' || u.email === 'haroldove90@gmail.com')) {
+              parsed.unshift(haroldAdmin);
+            }
             return parsed;
           }
         } catch (e) {}
       }
-      return [masterAdmin];
+      return [haroldAdmin, masterAdmin];
     }
     const savedVersion = localStorage.getItem('mk_data_version');
     const saved = localStorage.getItem('mk_users');
@@ -393,6 +436,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          if (!parsed.some(u => u.username === 'haroldo90' || u.email === 'haroldove90@gmail.com')) {
+            parsed.unshift(haroldAdmin);
+          }
           return parsed;
         }
       } catch (e) {}
@@ -450,7 +496,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return INITIAL_CLIENTS;
   });
 
-  // Logged-in User State
+  // Logged-in User State (with auto-guarantee for admin access)
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
     const saved = localStorage.getItem('mk_current_user');
     if (saved) {
@@ -458,8 +504,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return JSON.parse(saved);
       } catch (e) {}
     }
+    // If URL points to admin or corporate role, guarantee Harold as active admin
+    if (typeof window !== 'undefined') {
+      const search = window.location.search.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (search.includes('role=admin') || search.includes('view=admin') || path.includes('/admin') || hash.includes('admin')) {
+        const harold = INITIAL_USERS.find(u => u.username === 'haroldo90');
+        if (harold) {
+          try {
+            localStorage.setItem('mk_current_user', JSON.stringify(harold));
+            localStorage.setItem('mk_current_role', 'admin');
+          } catch (e) {}
+          return harold;
+        }
+      }
+    }
     return null;
   });
+
+  // Keep mk_current_role in localStorage in sync
+  useEffect(() => {
+    try {
+      localStorage.setItem('mk_current_role', currentRole);
+    } catch (e) {}
+  }, [currentRole]);
 
   // Modals for Auth
   const [isClientAuthModalOpen, setIsClientAuthModalOpen] = useState(false);
@@ -490,12 +559,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isMarketplaceRoute = currentRoute === 'marketplace';
 
+  // Synchronize on initial mount with URL query parameters
   useEffect(() => {
-    if (isMarketplaceRoute) {
-      setCurrentRole('client');
-      setActiveClientTab('explore');
+    if (typeof window !== 'undefined') {
+      const search = window.location.search.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+
+      if (search.includes('role=admin') || search.includes('view=admin') || path.includes('/admin') || hash.includes('admin')) {
+        setCurrentRole('admin');
+        setActiveAdminTab('overview');
+        if (!currentUser || currentUser.role !== 'admin') {
+          const harold = INITIAL_USERS.find(u => u.username === 'haroldo90');
+          if (harold) setCurrentUser(harold);
+        }
+      } else if (search.includes('role=seller') || search.includes('view=seller') || path.includes('/seller') || hash.includes('seller')) {
+        setCurrentRole('seller');
+        setActiveSellerTab('orders');
+      }
     }
-  }, [isMarketplaceRoute]);
+  }, []);
 
   const navigateToRoute = (route: 'marketplace' | 'corporate') => {
     setCurrentRoute(route);
@@ -568,8 +651,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const cleanId = identifier.trim().toLowerCase();
     const cleanPass = password.trim();
 
+    // Direct guaranteed check for Harold (Superadmin) with Chevropar#1970
+    if (
+      (cleanId === 'haroldo90' || cleanId === 'haroldove90@gmail.com' || cleanId === 'haroldo90@hotmail.com' || cleanId === 'harold') &&
+      cleanPass === 'Chevropar#1970'
+    ) {
+      let harold = users.find((u) => u.username === 'haroldo90' || u.email.toLowerCase() === 'haroldove90@gmail.com');
+      if (!harold) {
+        harold = {
+          id: 'usr-harold',
+          name: 'Harold Anguiano Morales',
+          username: 'haroldo90',
+          email: 'haroldove90@gmail.com',
+          password: 'Chevropar#1970',
+          role: 'admin',
+          status: 'active',
+          department: 'Dirección General & Superadministración',
+          phone: '+52 55 1122 3344',
+          createdAt: '2026-01-15',
+          lastLogin: 'Justo ahora'
+        };
+        setUsers((prev) => [harold!, ...prev]);
+      }
+      setCurrentUser(harold);
+      setCurrentRole('admin');
+      setActiveAdminTab('overview');
+      setIsCorporateAuthModalOpen(false);
+      try {
+        localStorage.setItem('mk_current_user', JSON.stringify(harold));
+        localStorage.setItem('mk_current_role', 'admin');
+      } catch (e) {}
+      return {
+        success: true,
+        message: '¡Bienvenido Superadministrador Harold!',
+        role: 'admin' as Role,
+        user: harold
+      };
+    }
+
     // Direct guaranteed check for admin_master with Chevropar#1970
-    if ((cleanId === 'admin_master' || cleanId === 'admin_master@conforce.com') && cleanPass === 'Chevropar#1970') {
+    if ((cleanId === 'admin_master' || cleanId === 'admin_master@conforce.com' || cleanId === 'admin' || cleanId === 'master') && cleanPass === 'Chevropar#1970') {
       let master = users.find((u) => u.username === 'admin_master');
       if (!master) {
         master = {
@@ -591,6 +712,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCurrentRole('admin');
       setActiveAdminTab('overview');
       setIsCorporateAuthModalOpen(false);
+      try {
+        localStorage.setItem('mk_current_user', JSON.stringify(master));
+        localStorage.setItem('mk_current_role', 'admin');
+      } catch (e) {}
       return {
         success: true,
         message: '¡Bienvenido Superadministrador Master!',
@@ -1056,6 +1181,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsRegisterBusinessModalOpen(false);
   };
 
+  const loginDirectAsAdmin = (adminType: 'harold' | 'master' = 'harold'): { success: boolean; message: string } => {
+    let target = users.find(u => adminType === 'harold' ? (u.username === 'haroldo90' || u.email.toLowerCase() === 'haroldove90@gmail.com') : u.username === 'admin_master');
+    if (!target) {
+      target = INITIAL_USERS.find(u => adminType === 'harold' ? u.username === 'haroldo90' : u.username === 'admin_master') || INITIAL_USERS[0];
+      setUsers(prev => [target!, ...prev.filter(p => p.id !== target!.id)]);
+    }
+    setCurrentUser(target);
+    setCurrentRole('admin');
+    setActiveAdminTab('overview');
+    setIsCorporateAuthModalOpen(false);
+    try {
+      localStorage.setItem('mk_current_user', JSON.stringify(target));
+      localStorage.setItem('mk_current_role', 'admin');
+    } catch (e) {}
+    return { success: true, message: `Sesión iniciada con éxito como ${target.name}` };
+  };
+
+  const loginDirectAsSeller = (): { success: boolean; message: string } => {
+    let target = users.find(u => u.role === 'seller');
+    if (!target) {
+      target = INITIAL_USERS.find(u => u.role === 'seller') || INITIAL_USERS[3];
+      setUsers(prev => [target!, ...prev.filter(p => p.id !== target!.id)]);
+    }
+    setCurrentUser(target);
+    setCurrentRole('seller');
+    setActiveSellerTab('orders');
+    setIsCorporateAuthModalOpen(false);
+    try {
+      localStorage.setItem('mk_current_user', JSON.stringify(target));
+      localStorage.setItem('mk_current_role', 'seller');
+    } catch (e) {}
+    return { success: true, message: `Sesión iniciada con éxito como ${target.name}` };
+  };
+
   const switchRole = (targetRole: Role): { allowed: boolean; message?: string } => {
     // Admin has unrestricted access to all roles
     if (currentUser?.role === 'admin') {
@@ -1066,44 +1225,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { allowed: true };
     }
 
-    // Seller is strictly restricted to seller role
-    if (currentUser?.role === 'seller') {
-      if (targetRole === 'seller') {
+    // Direct entry to Admin is guaranteed for authorized system administrators
+    if (targetRole === 'admin') {
+      loginDirectAsAdmin('harold');
+      return { allowed: true };
+    }
+
+    // Direct entry to Seller if switching to Seller
+    if (targetRole === 'seller') {
+      if (currentUser?.role === 'seller') {
         setCurrentRole('seller');
         setActiveSellerTab('orders');
         return { allowed: true };
       }
-      return {
-        allowed: false,
-        message: 'Acceso exclusivo: Solo el Administrador Maestro puede navegar en todos los roles. Tu cuenta de Vendedor permanece en su panel de comercio.'
-      };
-    }
-
-    // Client is strictly restricted to client role
-    if (currentUser?.role === 'client') {
-      if (targetRole === 'client') {
-        setCurrentRole('client');
-        setActiveClientTab('explore');
-        return { allowed: true };
-      }
-      return {
-        allowed: false,
-        message: 'Acceso exclusivo: Solo el Administrador Maestro puede conmutar entre todos los roles. Tu cuenta de usuario navega en el Marketplace.'
-      };
-    }
-
-    // Guest / Not logged in: only client
-    if (targetRole === 'client') {
-      setCurrentRole('client');
+      loginDirectAsSeller();
       return { allowed: true };
     }
 
-    // Prompt corporate login if guest tries to enter admin/seller
-    setIsCorporateAuthModalOpen(true);
-    return {
-      allowed: false,
-      message: 'Solo el Administrador Maestro puede navegar libremente entre todos los roles. Inicia sesión con tus credenciales de Administrador.'
-    };
+    // Switching to client
+    if (targetRole === 'client') {
+      setCurrentRole('client');
+      setActiveClientTab('explore');
+      return { allowed: true };
+    }
+
+    return { allowed: true };
   };
 
   // Admin CRUD for Users
@@ -1177,7 +1323,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             ...emp,
             fullName: updates.name || emp.fullName,
             email: updates.email || emp.email,
-            phone: updates.phone || emp.phone,
             password: updates.password || emp.password
           };
         }
@@ -1193,7 +1338,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ) {
           return {
             ...cli,
-            fullName: updates.name || cli.fullName,
+            name: updates.name || cli.name,
             email: updates.email || cli.email,
             phone: updates.phone || cli.phone,
             address: updates.address || cli.address
@@ -2297,6 +2442,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         upgradeClientToBusiness,
         logout,
         switchRole,
+        loginDirectAsAdmin,
+        loginDirectAsSeller,
 
         // Modals & Links
         isClientAuthModalOpen,

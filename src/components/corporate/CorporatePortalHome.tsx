@@ -25,6 +25,8 @@ export const CorporatePortalHome: React.FC = () => {
     currentUser,
     logout,
     loginAsCorporate,
+    loginDirectAsAdmin,
+    loginDirectAsSeller,
     openBusinessRegistration,
     navigateToRoute,
     navigateToHome,
@@ -48,6 +50,16 @@ export const CorporatePortalHome: React.FC = () => {
     navigator.clipboard.writeText(url);
     setCopiedLink(type);
     setTimeout(() => setCopiedLink(null), 2000);
+  };
+
+  const handleDirectAdminLogin = (type: 'harold' | 'master') => {
+    const res = loginDirectAsAdmin(type);
+    setSuccessMessage(res.message);
+  };
+
+  const handleDirectSellerLogin = () => {
+    const res = loginDirectAsSeller();
+    setSuccessMessage(res.message);
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -324,6 +336,46 @@ export const CorporatePortalHome: React.FC = () => {
                   )}
                 </button>
               </form>
+
+              {/* Guaranteed Direct Admin Access Section */}
+              <div className="mt-5 pt-4 border-t border-zinc-100">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                    ⚡ Acceso Rápido Garantizado
+                  </span>
+                  <div className="flex-1 h-px bg-zinc-200" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDirectAdminLogin('harold')}
+                    className="p-2.5 rounded-xl bg-zinc-50 hover:bg-red-50 border border-zinc-200 hover:border-red-300 text-left flex items-center gap-2.5 transition-all cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-red-100 text-[#D4021D] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#D4021D] group-hover:text-white transition-colors">
+                      👑
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-zinc-900 truncate">Harold Anguiano</div>
+                      <div className="text-[10px] text-zinc-500 truncate">Superadmin Con Force</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDirectAdminLogin('master')}
+                    className="p-2.5 rounded-xl bg-zinc-50 hover:bg-red-50 border border-zinc-200 hover:border-red-300 text-left flex items-center gap-2.5 transition-all cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-red-100 text-[#D4021D] flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-[#D4021D] group-hover:text-white transition-colors">
+                      🛡️
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-zinc-900 truncate">Admin Master</div>
+                      <div className="text-[10px] text-zinc-500 truncate">Dirección General</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
 
               {/* Customer Link Box */}
               <div className="mt-6 pt-5 border-t border-zinc-100 text-center">

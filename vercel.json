@@ -7,10 +7,6 @@
       "dest": "/api/$1"
     },
     {
-      "src": "/marketplace(.*)",
-      "dest": "/marketplace/index.html"
-    },
-    {
       "handle": "filesystem"
     },
     {

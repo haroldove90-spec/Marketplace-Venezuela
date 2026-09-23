@@ -297,7 +297,7 @@ export const ClientExplore: React.FC<ClientExploreProps> = ({
             {!currentUser ? (
               <button
                 onClick={() => {
-                  setClientAuthIntent('general');
+                  setClientAuthIntent('login');
                   setIsClientAuthModalOpen(true);
                 }}
                 className="flex items-center gap-1.5 px-3.5 py-2 bg-[#D4021D] hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-950 cursor-pointer active:scale-95"

@@ -79,12 +79,17 @@ export const SuperAdminDashboard: React.FC = () => {
   const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
   const [clearToast, setClearToast] = useState<{ success: boolean; message: string } | null>(null);
 
-  // Metrics Calculations
-  const totalSales = orders.reduce((sum, o) => sum + o.total, 0);
-  const deliveryOrdersCount = orders.filter((o) => o.deliveryType === 'delivery').length;
-  const pickupOrdersCount = orders.filter((o) => o.deliveryType === 'pickup').length;
-  const activeSellersCount = businesses.filter((b) => b.isActive).length;
-  const totalBotInteractions = 1420 + orders.length * 12;
+  // Metrics Calculations (Defensively protected against null/empty state)
+  const safeOrders = orders || [];
+  const safeBusinesses = businesses || [];
+  const safeProducts = products || [];
+  const safeCampaigns = campaigns || [];
+
+  const totalSales = safeOrders.reduce((sum, o) => sum + (o?.total || 0), 0);
+  const deliveryOrdersCount = safeOrders.filter((o) => o?.deliveryType === 'delivery').length;
+  const pickupOrdersCount = safeOrders.filter((o) => o?.deliveryType === 'pickup').length;
+  const activeSellersCount = safeBusinesses.filter((b) => b?.isActive).length;
+  const totalBotInteractions = 1420 + safeOrders.length * 12;
 
   // Seller CRUD States
   const [showAddBizModal, setShowAddBizModal] = useState(false);
@@ -106,17 +111,17 @@ export const SuperAdminDashboard: React.FC = () => {
   const [campaignAudience, setCampaignAudience] = useState<'all' | 'farmacias_users' | 'food_users'>('all');
   const [campaignSentToast, setCampaignSentToast] = useState(false);
 
-  // Chatbot Config States
-  const [metaToken, setMetaToken] = useState(chatbotConfig.metaApiToken);
-  const [phoneId, setPhoneId] = useState(chatbotConfig.phoneNumberId);
-  const [welcomeText, setWelcomeText] = useState(chatbotConfig.welcomeMessage);
-  const [featuredOffer, setFeaturedOffer] = useState(chatbotConfig.featuredOfferId);
+  // Chatbot Config States (Safeguarded against undefined/null)
+  const [metaToken, setMetaToken] = useState(chatbotConfig?.metaApiToken || '');
+  const [phoneId, setPhoneId] = useState(chatbotConfig?.phoneNumberId || '');
+  const [welcomeText, setWelcomeText] = useState(chatbotConfig?.welcomeMessage || '');
+  const [featuredOffer, setFeaturedOffer] = useState(chatbotConfig?.featuredOfferId || '');
   const [newKeyword, setNewKeyword] = useState('');
   const [newKeywordCat, setNewKeywordCat] = useState<BusinessCategory>('farmacia');
   const [newKeywordTag, setNewKeywordTag] = useState('');
 
   // Deep Link Generator
-  const [deepLinkBizId, setDeepLinkBizId] = useState(businesses[0]?.id || '');
+  const [deepLinkBizId, setDeepLinkBizId] = useState(safeBusinesses[0]?.id || '');
   const [deepLinkProdId, setDeepLinkProdId] = useState('');
   const [copiedDeepLink, setCopiedDeepLink] = useState(false);
   const [copiedMarketplaceLink, setCopiedMarketplaceLink] = useState(false);
@@ -828,7 +833,7 @@ export const SuperAdminDashboard: React.FC = () => {
                       onChange={(e) => setDeepLinkBizId(e.target.value)}
                       className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-[#D4021D] cursor-pointer"
                     >
-                      {businesses.map((b) => (
+                      {(businesses || []).map((b) => (
                         <option key={b.id} value={b.id}>
                           {b.name}
                         </option>
@@ -846,8 +851,8 @@ export const SuperAdminDashboard: React.FC = () => {
                       className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-[#D4021D] cursor-pointer"
                     >
                       <option value="">Todo el Catálogo</option>
-                      {products
-                        .filter((p) => p.businessId === deepLinkBizId)
+                      {(products || [])
+                        .filter((p) => p && p.businessId === deepLinkBizId)
                         .map((p) => (
                           <option key={p.id} value={p.id}>
                             {p.name}
@@ -1121,21 +1126,23 @@ export const SuperAdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {businesses.map((b) => {
-                    const bizSales = orders
-                      .filter((o) => o.businessId === b.id)
-                      .reduce((sum, o) => sum + o.total, 0);
-                    const commissionAmount = Math.round((bizSales * b.commissionRate) / 100);
+                  {(businesses || []).map((b) => {
+                    if (!b) return null;
+                    const bizSales = (orders || [])
+                      .filter((o) => o && o.businessId === b.id)
+                      .reduce((sum, o) => sum + (o.total || 0), 0);
+                    const commissionRate = typeof b.commissionRate === 'number' ? b.commissionRate : 10;
+                    const commissionAmount = Math.round((bizSales * commissionRate) / 100);
 
                     return (
                       <tr key={b.id} className="text-slate-800">
                         <td className="py-3 font-bold flex items-center gap-2">
-                          <span>{b.logo}</span>
-                          <span>{b.name}</span>
+                          <span>{b.logo || '🏪'}</span>
+                          <span>{b.name || 'Comercio'}</span>
                         </td>
-                        <td className="py-3 capitalize text-slate-500">{b.category}</td>
+                        <td className="py-3 capitalize text-slate-500">{b.category || 'general'}</td>
                         <td className="py-3 font-mono font-bold text-purple-600">
-                          {b.commissionRate}%
+                          {commissionRate}%
                         </td>
                         <td className="py-3 font-bold text-slate-900">Bs. {bizSales.toLocaleString()}</td>
                         <td className="py-3 font-bold text-[#D4021D]">

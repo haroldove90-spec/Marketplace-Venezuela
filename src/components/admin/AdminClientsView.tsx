@@ -174,11 +174,11 @@ export const AdminClientsView: React.FC = () => {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-red-50 text-[#D4021D] border border-red-200 font-black text-sm flex items-center justify-center">
-                    {c.name.charAt(0).toUpperCase()}
+                    {(c.name || c.username || 'C').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-slate-900">{c.name}</h3>
-                    <p className="text-[11px] text-slate-500 font-mono">@{c.username}</p>
+                    <h3 className="font-bold text-sm text-slate-900">{c.name || c.username || 'Cliente'}</h3>
+                    <p className="text-[11px] text-slate-500 font-mono">@{c.username || 'cliente'}</p>
                   </div>
                 </div>
 

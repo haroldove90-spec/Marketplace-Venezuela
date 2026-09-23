@@ -182,7 +182,7 @@ export const UserProfileModal: React.FC = () => {
 
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-[#D4021D] flex items-center justify-center text-white text-lg font-black shadow-lg shadow-[#D4021D]/25">
-              {currentUser ? currentUser.name.charAt(0).toUpperCase() : '👤'}
+              {currentUser ? (currentUser.name || currentUser.username || 'U').charAt(0).toUpperCase() : '👤'}
             </div>
             <div>
               <div className="flex items-center gap-2">

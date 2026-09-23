@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Header } from './components/common/Header';
 import { Navigation } from './components/common/Navigation';
 import { PWAInstallBanner } from './components/common/PWAInstallBanner';
@@ -107,10 +108,18 @@ const PulsoAppContent: React.FC = () => {
           )}
 
           {/* SELLER ROLE VIEWS */}
-          {currentRole === 'seller' && <SellerDashboard />}
+          {currentRole === 'seller' && (
+            <ErrorBoundary fallbackTitle="Panel de Negocio Protegido">
+              <SellerDashboard />
+            </ErrorBoundary>
+          )}
 
           {/* SUPERADMIN ROLE VIEWS */}
-          {currentRole === 'admin' && <SuperAdminDashboard />}
+          {currentRole === 'admin' && (
+            <ErrorBoundary fallbackTitle="Panel de Superadministrador Protegido">
+              <SuperAdminDashboard />
+            </ErrorBoundary>
+          )}
         </main>
       </div>
 
@@ -155,8 +164,10 @@ const PulsoAppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AppProvider>
-      <PulsoAppContent />
-    </AppProvider>
+    <ErrorBoundary fallbackTitle="Sistema Con Force Protegido">
+      <AppProvider>
+        <PulsoAppContent />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }

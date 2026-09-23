@@ -11,24 +11,14 @@ export const RoleSwitcherHub: React.FC = () => {
     setActiveSellerTab,
     setActiveAdminTab,
     currentUser,
-    openRoleModal
+    switchRole
   } = useApp();
 
   const isMasterAdmin = currentUser?.role === 'admin';
 
   const handleSelectRole = (role: Role) => {
     if (role === currentRole) return;
-    
-    // Only the Master Admin can navigate across all roles freely
-    if (!isMasterAdmin) {
-      openRoleModal();
-      return;
-    }
-
-    setCurrentRole(role);
-    if (role === 'client') setActiveClientTab('explore');
-    if (role === 'seller') setActiveSellerTab('orders');
-    if (role === 'admin') setActiveAdminTab('overview');
+    switchRole(role);
   };
 
   const rolesConfig: { id: Role; name: string; icon: React.ReactNode; logo: string; color: string; badge: string }[] = [

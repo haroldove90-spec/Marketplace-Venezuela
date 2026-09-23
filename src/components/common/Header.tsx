@@ -141,9 +141,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
                   title="Opciones de cuenta"
                 >
                   <div className="w-5 h-5 rounded-full bg-[#D4021D] text-white flex items-center justify-center font-bold text-[10px]">
-                    {currentUser.name.charAt(0).toUpperCase()}
+                    {(currentUser.name || currentUser.username || 'U').charAt(0).toUpperCase()}
                   </div>
-                  <span className="hidden lg:inline max-w-[90px] truncate">{currentUser.name.split(' ')[0]}</span>
+                  <span className="hidden lg:inline max-w-[90px] truncate">
+                    {(currentUser.name || currentUser.username || 'Usuario').split(' ')[0]}
+                  </span>
                   <ChevronDown className="w-3 h-3 text-zinc-400" />
                 </button>
 

@@ -174,11 +174,11 @@ export const AdminEmployeesView: React.FC = () => {
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-2xl bg-zinc-950 text-white font-black text-sm flex items-center justify-center shadow-xs">
-                      {emp.fullName.charAt(0).toUpperCase()}
+                      {(emp.fullName || emp.username || 'E').charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <h3 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                        {emp.fullName}
+                        {emp.fullName || emp.username || 'Empleado'}
                         {isPresetSuperadmin && (
                           <span className="text-[10px] text-red-600 font-black">★</span>
                         )}

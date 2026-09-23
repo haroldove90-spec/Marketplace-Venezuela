@@ -354,15 +354,15 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
             <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-7 h-7 rounded-full bg-[#D4021D] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                  {currentUser.name.charAt(0).toUpperCase()}
+                  {(currentUser.name || currentUser.username || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</p>
-                  <p className="text-[10px] text-slate-500 truncate">@{currentUser.username}</p>
+                  <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name || currentUser.username || 'Usuario'}</p>
+                  <p className="text-[10px] text-slate-500 truncate">@{currentUser.username || 'usuario'}</p>
                 </div>
               </div>
               <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[9px] font-bold uppercase shrink-0">
-                {currentUser.role}
+                {currentUser.role || 'client'}
               </span>
             </div>
 

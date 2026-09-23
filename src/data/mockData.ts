@@ -74,11 +74,11 @@ export const INITIAL_USERS: UserAccount[] = [
     id: 'usr-harold',
     name: 'Harold Anguiano Morales',
     username: 'haroldo90',
-    email: 'haroldo90@hotmail.com',
+    email: 'haroldove90@gmail.com',
     password: 'Chevropar#1970',
     role: 'admin',
     status: 'active',
-    department: 'Dirección General',
+    department: 'Dirección General & Superadministración',
     phone: '+52 55 1122 3344',
     createdAt: '2026-01-15',
     lastLogin: '2026-09-03 21:30'

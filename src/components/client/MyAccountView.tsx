@@ -70,12 +70,12 @@ export const MyAccountView: React.FC<MyAccountViewProps> = ({ onOpenRoleModal })
       <div className="p-5 bg-gradient-to-r from-red-50/50 via-slate-50 to-slate-100/60 rounded-3xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-[#D4021D] flex items-center justify-center text-white text-2xl font-black shadow-md shadow-[#D4021D]/25">
-            {currentUser ? currentUser.name.charAt(0).toUpperCase() : '👤'}
+            {currentUser ? (currentUser.name || currentUser.username || 'U').charAt(0).toUpperCase() : '👤'}
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-lg md:text-xl font-black text-slate-900">
-                {currentUser ? currentUser.name : 'Usuario Invitado'}
+                {currentUser ? (currentUser.name || currentUser.username) : 'Usuario Invitado'}
               </h2>
               <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold border border-slate-200 uppercase">
                 {currentUser ? `Rol: ${currentUser.role}` : 'Sin Sesión'}

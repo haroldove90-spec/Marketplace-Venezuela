@@ -18,7 +18,10 @@ export const CorporateAuthModal: React.FC = () => {
     isCorporateAuthModalOpen,
     setIsCorporateAuthModalOpen,
     setIsClientAuthModalOpen,
-    loginAsCorporate
+    loginAsCorporate,
+    loginDirectAsAdmin,
+    loginDirectAsSeller,
+    openBusinessRegistration
   } = useApp();
 
   const [identifier, setIdentifier] = useState('');
@@ -28,6 +31,22 @@ export const CorporateAuthModal: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isCorporateAuthModalOpen) return null;
+
+  const handleDirectAdminLogin = (type: 'harold' | 'master') => {
+    const res = loginDirectAsAdmin(type);
+    setSuccessMessage(res.message);
+    setTimeout(() => {
+      setIsCorporateAuthModalOpen(false);
+    }, 400);
+  };
+
+  const handleDirectSellerLogin = () => {
+    const res = loginDirectAsSeller();
+    setSuccessMessage(res.message);
+    setTimeout(() => {
+      setIsCorporateAuthModalOpen(false);
+    }, 400);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,6 +173,46 @@ export const CorporateAuthModal: React.FC = () => {
             </button>
           </form>
 
+          {/* Guaranteed Instant Access Section for Administrators */}
+          <div className="pt-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                ⚡ Acceso Directo Garantizado (1-Clic)
+              </span>
+              <div className="flex-1 h-px bg-zinc-800" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleDirectAdminLogin('harold')}
+                className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-left flex items-center gap-2.5 transition-all cursor-pointer group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                  👑
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white truncate">Harold Anguiano</div>
+                  <div className="text-[10px] text-zinc-400 truncate">Superadmin Con Force</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDirectAdminLogin('master')}
+                className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-red-600/50 text-left flex items-center gap-2.5 transition-all cursor-pointer group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                  🛡️
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-white truncate">Admin Master</div>
+                  <div className="text-[10px] text-zinc-400 truncate">Dirección General</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
           {/* Business Registration Banner */}
           <div className="p-4 bg-gradient-to-r from-red-950/40 via-zinc-900 to-black border border-red-900/40 rounded-2xl flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -161,17 +220,17 @@ export const CorporateAuthModal: React.FC = () => {
                 <Building2 className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-white">¿Tienes un negocio automotriz?</h4>
-                <p className="text-[11px] text-zinc-400">Afíliate y vende tus repuestos en el Marketplace</p>
+                <h4 className="text-xs font-bold text-white">¿Tienes un comercio o tienda?</h4>
+                <p className="text-[11px] text-zinc-400">Afíliate y vende tus productos en el Marketplace</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => {
                 setIsCorporateAuthModalOpen(false);
-                useApp().openBusinessRegistration(false);
+                openBusinessRegistration(false);
               }}
-              className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold shrink-0 transition-colors shadow"
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold shrink-0 transition-colors shadow cursor-pointer"
             >
               Registrar Negocio
             </button>
