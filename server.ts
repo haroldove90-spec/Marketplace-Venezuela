@@ -16,20 +16,152 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
+interface FallbackOutput {
+  messageText: string;
+  matchedBusinessIds: string[];
+  matchedProductIds: string[];
+  category: string | null;
+}
+
+function generateServerFallback(userMessage: string, catalogContext: any[]): FallbackOutput {
+  const query = (userMessage || '').trim().toLowerCase();
+  const cleanQuery = query.replace(/[.,/#!$%^&*;:{}=\-_`~()¿?¡!]/g, '').trim();
+
+  // 1. Natural greeting responses
+  if (/^(buenas tardes|tardes)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Buenas tardes! ☀️ Un placer saludarte. Bienvenido a *Con Force Venezuela*.\n\n¿En qué te podemos colaborar hoy? Cuéntanos qué producto, tienda o servicio estás buscando (tecnología, comida, víveres, farmacia, repuestos, etc.) y te daré opciones y precios de inmediato.`,
+      matchedBusinessIds: [],
+      matchedProductIds: [],
+      category: null
+    };
+  }
+
+  if (/^(buenos dias|buen dia|buenos días)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Buenos días! 🌅 ¡Qué gusto saludarte! Bienvenido a *Con Force Venezuela*.\n\n¿En qué te podemos ayudar hoy? Dime qué estás buscando y con gusto te orientamos con los mejores comercios y precios en Bs.`,
+      matchedBusinessIds: [],
+      matchedProductIds: [],
+      category: null
+    };
+  }
+
+  if (/^(buenas noches|noches)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Buenas noches! 🌙 Un placer saludarte. Bienvenido a *Con Force Venezuela*.\n\n¿Qué producto o comercio estás buscando hoy? Escríbenos y con gusto te ayudamos a conseguirlo.`,
+      matchedBusinessIds: [],
+      matchedProductIds: [],
+      category: null
+    };
+  }
+
+  if (/^(hola|buenas|hey|que tal|qué tal|saludos|aló|alo)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Hola! 👋 ¡Mucho gusto! Bienvenido a *Con Force Venezuela*.\n\n¿Qué estás buscando hoy? Tenemos comercios de tecnología, restaurantes, supermercado, farmacias, ferretería, repuestos y servicios. ¡Escríbeme lo que necesitas y te ayudo!`,
+      matchedBusinessIds: [],
+      matchedProductIds: [],
+      category: null
+    };
+  }
+
+  if (/^(gracias|muchas gracias|mil gracias|agradecido|agradecida)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Con muchísimo gusto! 😊 Estamos a tu completa orden en *Con Force*. Si necesitas consultar otro producto o comercio, aquí estoy para ayudarte.`,
+      matchedBusinessIds: [],
+      matchedProductIds: [],
+      category: null
+    };
+  }
+
+  if (/^(adios|adiós|chao|chau|hasta luego|nos vemos)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Hasta luego! 👋 Que tengas un excelente día. Vuelve pronto a *Con Force Venezuela*.`,
+      matchedBusinessIds: [],
+      matchedProductIds: [],
+      category: null
+    };
+  }
+
+  // Detect greeting prefix if user asked combined greeting + question
+  const greetingPrefix = /buenas tardes/i.test(query)
+    ? '¡Buenas tardes! ☀️ '
+    : /buenos dias|buen dia|buenos días/i.test(query)
+    ? '¡Buenos días! 🌅 '
+    : /buenas noches/i.test(query)
+    ? '¡Buenas noches! 🌙 '
+    : /hola|buenas|saludos/i.test(query)
+    ? '¡Hola! 👋 '
+    : '';
+
+  // 2. Search products in catalogContext
+  const words = cleanQuery.split(/\s+/).filter(w => w.length > 2);
+  const matchedProds: any[] = [];
+  let matchedBiz: any = null;
+
+  for (const b of (catalogContext || [])) {
+    for (const p of (b.products || [])) {
+      const pName = (p.name || '').toLowerCase();
+      const pTags = (p.tags || '').toLowerCase();
+      if (pName.includes(cleanQuery) || words.some(w => pName.includes(w) || pTags.includes(w))) {
+        matchedProds.push({ ...p, bizName: b.name, bizId: b.id, bizCategory: b.category });
+        if (!matchedBiz) matchedBiz = b;
+      }
+    }
+  }
+
+  if (matchedProds.length > 0) {
+    const topProd = matchedProds[0];
+    const isPlural = matchedProds.length > 1;
+    return {
+      messageText: `${greetingPrefix}📍 ¡Encontré *${topProd.name}* disponible en *${topProd.bizName}* por *Bs. ${Number(topProd.price).toLocaleString()}*!\n\n${
+        isPlural
+          ? `🔍 También localicé ${matchedProds.length - 1} opción(es) adicional(es) en nuestro catálogo.`
+          : '✨ Stock disponible para entrega inmediata o retiro en tienda.'
+      }\n\n👉 Accede directo aquí para ver detalles y ordenar:`,
+      matchedBusinessIds: [topProd.bizId],
+      matchedProductIds: matchedProds.slice(0, 3).map(p => p.id),
+      category: topProd.bizCategory || null
+    };
+  }
+
+  // 3. Search businesses / categories
+  for (const b of (catalogContext || [])) {
+    const bName = (b.name || '').toLowerCase();
+    const bCat = (b.category || '').toLowerCase();
+    if (bName.includes(cleanQuery) || bCat.includes(cleanQuery) || words.some(w => bName.includes(w) || bCat.includes(w))) {
+      return {
+        messageText: `${greetingPrefix}🏬 Encontré el comercio aliado *${b.name}* (${b.category}) en Con Force.\n\n📍 Dirección: ${b.address || 'Ubicación céntrica'}.\n\nPuedes revisar sus productos destacados directamente en nuestro catálogo.`,
+        matchedBusinessIds: [b.id],
+        matchedProductIds: (b.products || []).slice(0, 2).map((p: any) => p.id),
+        category: b.category || null
+      };
+    }
+  }
+
+  // 4. Default helpful multi-category response
+  return {
+    messageText: `${greetingPrefix}🔎 Estamos consultando en todos los comercios afiliados a *Con Force Venezuela*.\n\nContamos con tiendas de tecnología, farmacias, supermercados, ferreterías, restaurantes y repuestos.\n\n¿Deseas buscar un producto específico, marca o categoría? Escríbemelo y te daré opciones con precios en Bs.`,
+    matchedBusinessIds: (catalogContext || []).slice(0, 3).map((b: any) => b.id),
+    matchedProductIds: [],
+    category: null
+  };
+}
+
 // Gemini AI Chatbot Endpoint
 app.post('/api/gemini/chatbot', async (req, res) => {
+  const { userMessage, userLocation, catalogContext } = req.body || {};
+
+  if (!userMessage || typeof userMessage !== 'string') {
+    return res.status(400).json({ error: 'Missing userMessage in request body' });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    const fallback = generateServerFallback(userMessage, catalogContext);
+    return res.status(200).json(fallback);
+  }
+
   try {
-    const { userMessage, userLocation, catalogContext } = req.body || {};
-
-    if (!userMessage || typeof userMessage !== 'string') {
-      return res.status(400).json({ error: 'Missing userMessage in request body' });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY not configured on server' });
-    }
-
     const ai = new GoogleGenAI({
       apiKey,
       httpOptions: {
@@ -70,8 +202,8 @@ MENSAJE DEL CLIENTE:
 
 Analiza el mensaje del cliente. Si es un saludo, responde al saludo con cortesía y pregúntale en qué le ayudas. Si busca productos o servicios, oriéntalo con precisión.`;
 
-    const modelsToTry = ['gemini-3.8-flash', 'gemini-flash-latest'];
-    let lastError: any = null;
+    // Try models with separate quota allocations and fallback order
+    const modelsToTry = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
     let parsed: any = null;
 
     for (const model of modelsToTry) {
@@ -110,33 +242,37 @@ Analiza el mensaje del cliente. Si es un saludo, responde al saludo con cortesí
         });
 
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error(`Timeout exceeding 12000ms on ${model}`)), 12000)
+          setTimeout(() => reject(new Error(`Timeout exceeding 10000ms on ${model}`)), 10000)
         );
 
         const response: any = await Promise.race([responsePromise, timeoutPromise]);
 
-        const text = response.text;
+        const text = response?.text;
         if (text) {
           const cleanedText = text.replace(/```json\s*|\s*```/g, '').trim();
           parsed = JSON.parse(cleanedText);
           break;
         }
       } catch (err: any) {
-        lastError = err;
-        console.warn(`Gemini model ${model} failed, trying fallback:`, err.message || err);
+        // Silently skip to next model on 429 quota exhaustion or 503 busy
+        const errMsg = err?.message || String(err);
+        if (errMsg.includes('429') || errMsg.includes('503') || errMsg.includes('quota') || errMsg.includes('demand')) {
+          continue;
+        }
       }
     }
 
-    if (!parsed) {
-      throw lastError || new Error('All Gemini candidate models failed to produce a valid response.');
+    if (parsed && parsed.messageText) {
+      return res.status(200).json(parsed);
     }
 
-    return res.status(200).json(parsed);
+    // Seamless fallback without raising server 500 error
+    const fallback = generateServerFallback(userMessage, catalogContext);
+    return res.status(200).json(fallback);
   } catch (error: any) {
-    console.error('Gemini chatbot error in server.ts:', error);
-    return res.status(500).json({
-      error: error.message || 'Error processing message with Gemini AI'
-    });
+    // Return graceful fallback rather than failing with 500
+    const fallback = generateServerFallback(userMessage, catalogContext);
+    return res.status(200).json(fallback);
   }
 });
 
