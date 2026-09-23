@@ -106,19 +106,73 @@ function fallbackIntelligentMatcher(
   products: Product[],
   _userLocation: { lat: number; lng: number } | null
 ): ChatbotResponse {
-  const isGreetingOnly = /^(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|que tal|saludos|aló|alo)$/i.test(
-    query.replace(/[.,/#!$%^&*;:{}=\-_`~()¿?¡!]/g, '').trim()
-  );
+  const cleanQuery = query.replace(/[.,/#!$%^&*;:{}=\-_`~()¿?¡!]/g, '').trim().toLowerCase();
 
-  if (isGreetingOnly) {
-    const defaultDeepLink = buildDeepLink();
+  // Natural conversational greeting replies
+  if (/^(buenas tardes|tardes)$/i.test(cleanQuery)) {
     return {
-      messageText: `👋 ¡Hola! Bienvenido al asistente oficial de *Con Force Venezuela*. 🛒\n\nSomos un Marketplace integral donde encuentras de todo: tecnología, víveres, restaurantes, farmacia, ferretería, repuestos, moda y servicios.\n\n¿Qué producto o comercio estás buscando hoy? Escríbenos lo que necesitas y te daré opciones y precios en Bs.`,
+      messageText: `¡Buenas tardes! ☀️ Un placer saludarte. Bienvenido a *Con Force Venezuela*.\n\n¿En qué te podemos colaborar hoy? Cuéntanos qué producto, tienda o servicio estás buscando (tecnología, comida, víveres, farmacia, repuestos, etc.) y te daré opciones y precios de inmediato.`,
       foundProducts: [],
-      recommendedBusinesses: businesses.slice(0, 4),
-      deepLink: defaultDeepLink
+      recommendedBusinesses: businesses.slice(0, 3),
+      deepLink: buildDeepLink()
     };
   }
+
+  if (/^(buenos dias|buen dia|buenos días)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Buenos días! 🌅 ¡Qué gusto saludarte! Bienvenido a *Con Force Venezuela*.\n\n¿En qué te podemos ayudar hoy? Dime qué estás buscando y con gusto te orientamos con los mejores comercios y precios en Bs.`,
+      foundProducts: [],
+      recommendedBusinesses: businesses.slice(0, 3),
+      deepLink: buildDeepLink()
+    };
+  }
+
+  if (/^(buenas noches|noches)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Buenas noches! 🌙 Un placer saludarte. Bienvenido a *Con Force Venezuela*.\n\n¿Qué producto o comercio estás buscando hoy? Escríbenos y con gusto te ayudamos a conseguirlo.`,
+      foundProducts: [],
+      recommendedBusinesses: businesses.slice(0, 3),
+      deepLink: buildDeepLink()
+    };
+  }
+
+  if (/^(hola|buenas|hey|que tal|qué tal|saludos|aló|alo)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Hola! 👋 ¡Mucho gusto! Bienvenido a *Con Force Venezuela*.\n\n¿Qué estás buscando hoy? Tenemos comercios de tecnología, restaurantes, supermercado, farmacias, ferretería, repuestos y servicios. ¡Escríbeme lo que necesitas y te ayudo!`,
+      foundProducts: [],
+      recommendedBusinesses: businesses.slice(0, 3),
+      deepLink: buildDeepLink()
+    };
+  }
+
+  if (/^(gracias|muchas gracias|mil gracias|agradecido|agradecida)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Con muchísimo gusto! 😊 Estamos a tu completa orden en *Con Force*. Si necesitas consultar otro producto o comercio, aquí estoy para ayudarte.`,
+      foundProducts: [],
+      recommendedBusinesses: businesses.slice(0, 3),
+      deepLink: buildDeepLink()
+    };
+  }
+
+  if (/^(adios|adiós|chao|chau|hasta luego|nos vemos)$/i.test(cleanQuery)) {
+    return {
+      messageText: `¡Hasta luego! 👋 Que tengas un excelente día. Vuelve pronto a *Con Force Venezuela*.`,
+      foundProducts: [],
+      recommendedBusinesses: businesses.slice(0, 3),
+      deepLink: buildDeepLink()
+    };
+  }
+
+  // Detect if user included a greeting with their query
+  const greetingPrefix = /buenas tardes/i.test(query)
+    ? '¡Buenas tardes! ☀️ '
+    : /buenos dias|buen dia|buenos días/i.test(query)
+    ? '¡Buenos días! 🌅 '
+    : /buenas noches/i.test(query)
+    ? '¡Buenas noches! 🌙 '
+    : /hola|buenas|saludos/i.test(query)
+    ? '¡Hola! 👋 '
+    : '';
 
   // Normalize query words
   const words = query
@@ -156,7 +210,7 @@ function fallbackIntelligentMatcher(
 
     const isPlural = matchedProducts.length > 1;
     return {
-      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio Afiliado'}* por *Bs. ${primaryProduct.price.toLocaleString()}*!\n\n${
+      messageText: `${greetingPrefix}📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio Afiliado'}* por *Bs. ${primaryProduct.price.toLocaleString()}*!\n\n${
         isPlural
           ? `🔍 También localicé ${matchedProducts.length - 1} opción(es) adicional(es) en nuestro catálogo.`
           : '✨ Stock disponible para entrega inmediata o retiro en tienda.'
