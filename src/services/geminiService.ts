@@ -1,5 +1,5 @@
-import { GoogleGenAI } from '@google/genai';
 import { Business, Product, BusinessCategory } from '../types';
+import { buildDeepLink } from '../utils/urlUtils';
 
 export interface ChatbotResponse {
   messageText: string;
@@ -9,6 +9,8 @@ export interface ChatbotResponse {
   categoryDetected?: BusinessCategory;
 }
 
+type ProductsDirectory = Product[];
+
 export async function processChatbotMessage(
   userMessage: string,
   userLocation: { lat: number; lng: number } | null,
@@ -17,16 +19,16 @@ export async function processChatbotMessage(
 ): Promise<ChatbotResponse> {
   const queryLower = userMessage.toLowerCase().trim();
 
-  // Extract catalog knowledge for context
-  const catalogContext = businesses.map(b => {
-    const bizProducts = products.filter(p => p.businessId === b.id);
+  // Prepare catalog context for server-side Gemini AI
+  const catalogContext = businesses.map((b) => {
+    const bizProducts = products.filter((p) => p.businessId === b.id);
     return {
       id: b.id,
       name: b.name,
       category: b.category,
       address: b.address,
       coords: b.coordinates,
-      products: bizProducts.map(p => ({
+      products: bizProducts.map((p) => ({
         id: p.id,
         name: p.name,
         price: p.price,
@@ -37,88 +39,108 @@ export async function processChatbotMessage(
     };
   });
 
-  // Try using Gemini API if key is available
+  // Call Server-Side Gemini API endpoint
   try {
-    const ai = new GoogleGenAI({});
-    const prompt = `Eres el asistente inteligente oficial de WhatsApp para la plataforma móvil "Con Force" (Marketplace Global de comercios, tiendas, farmacias, restaurantes, tecnología y repuestos).
-Tu objetivo es responder de manera ultra concisa, cordial y directa como en WhatsApp.
-
-UBICACIÓN DEL USUARIO: ${userLocation ? `Lat: ${userLocation.lat}, Lng: ${userLocation.lng}` : 'Ubicación no proporcionada aún'}
-
-CATÁLOGO Y NEGOCIOS DISPONIBLES:
-${JSON.stringify(catalogContext, null, 2)}
-
-MENSAJE DEL CLIENTE: "${userMessage}"
-
-INSTRUCCIONES DE RESPUESTA:
-1. Identifica qué producto, categoría o servicio busca el cliente.
-2. Encuentra los productos o negocios más adecuados y con stock.
-3. Responde en español en tono WhatsApp (usando emojis apropiados, sin rodeos ni textos largos).
-4. Genera la respuesta en formato JSON estrictamente válido con la estructura:
-{
-  "messageText": "Texto conciso para el usuario en WhatsApp",
-  "matchedBusinessIds": ["id_del_negocio"],
-  "matchedProductIds": ["id_del_producto"],
-  "category": "nombre_categoria" o null,
-  "deepLinkSlug": "slug descriptivo para el deep link de la app"
-}
-`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json'
-      }
+    const response = await fetch('/api/gemini/chatbot', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userMessage,
+        userLocation,
+        catalogContext
+      })
     });
 
-    if (response.text) {
-      const parsed = JSON.parse(response.text);
-      const matchedBusinesses = businesses.filter(b => parsed.matchedBusinessIds?.includes(b.id));
-      const matchedProducts = products.filter(p => parsed.matchedProductIds?.includes(p.id));
+    if (response.ok) {
+      const data = await response.json();
 
-      const primaryBiz = matchedBusinesses[0] || businesses[0];
-      const deepLink = `https://marketplace.app/?view=business&id=${primaryBiz.id}${parsed.matchedProductIds?.[0] ? `&product=${parsed.matchedProductIds[0]}` : ''}`;
+      if (data && data.messageText) {
+        const matchedBusinesses = businesses.filter((b) =>
+          data.matchedBusinessIds?.includes(b.id)
+        );
+        const matchedProducts = products.filter((p) =>
+          data.matchedProductIds?.includes(p.id)
+        );
 
-      return {
-        messageText: parsed.messageText,
-        foundProducts: matchedProducts,
-        recommendedBusinesses: matchedBusinesses,
-        deepLink,
-        categoryDetected: parsed.category
-      };
+        const primaryBiz = matchedBusinesses[0] || businesses[0];
+        const primaryProd = matchedProducts[0];
+
+        const deepLink = buildDeepLink({
+          businessId: primaryBiz?.id,
+          productId: primaryProd?.id,
+          category: data.category || primaryBiz?.category
+        });
+
+        return {
+          messageText: data.messageText,
+          foundProducts: matchedProducts,
+          recommendedBusinesses: matchedBusinesses.length > 0 ? matchedBusinesses : (primaryBiz ? [primaryBiz] : []),
+          deepLink,
+          categoryDetected: data.category as BusinessCategory
+        };
+      }
     }
   } catch (error) {
-    console.warn('Gemini API call fallback to local rule-based engine:', error);
+    console.warn('Chatbot server API route not reachable, transitioning smoothly to smart local assistant engine:', error);
   }
 
-  // Fallback intelligent local matcher
-  return fallbackLocalMatcher(queryLower, businesses, products, userLocation);
+  // Advanced domain-aware automotive & Venezuelan commerce fallback engine
+  return fallbackIntelligentMatcher(queryLower, businesses, products, userLocation);
 }
 
-type ProductsDirectory = Product[];
-
-function fallbackLocalMatcher(
+/**
+ * Intelligent Venezuelan Automotive, Spare Parts & Retail Matching Engine
+ */
+function fallbackIntelligentMatcher(
   query: string,
   businesses: Business[],
   products: Product[],
-  userLocation: { lat: number; lng: number } | null
+  _userLocation: { lat: number; lng: number } | null
 ): ChatbotResponse {
-  // 1. Search products by tag or name
-  const matchedProducts = products.filter(p => {
-    const inName = p.name.toLowerCase().includes(query);
-    const inDesc = p.description.toLowerCase().includes(query);
-    const inTags = p.tags.some(t => query.includes(t) || t.includes(query));
-    return inName || inDesc || inTags;
+  // Normalize query words
+  const words = query
+    .replace(/[.,/#!$%^&*;:{}=\-_`~()¿?¡!]/g, '')
+    .split(/\s+/)
+    .filter((w) => w.length > 1);
+
+  // 1. Exact or partial product tag/name search
+  const matchedProducts = products.filter((p) => {
+    const nameLower = p.name.toLowerCase();
+    const descLower = (p.description || '').toLowerCase();
+    const tagsLower = p.tags.map((t) => t.toLowerCase());
+
+    // Check full query
+    if (nameLower.includes(query) || descLower.includes(query)) return true;
+
+    // Check individual keywords
+    const matchCount = words.filter((w) => {
+      return (
+        nameLower.includes(w) ||
+        descLower.includes(w) ||
+        tagsLower.some((t) => t.includes(w) || w.includes(t))
+      );
+    }).length;
+
+    return matchCount >= 1;
   });
 
   if (matchedProducts.length > 0) {
     const primaryProduct = matchedProducts[0];
-    const biz = businesses.find(b => b.id === primaryProduct.businessId) || businesses[0];
-    const deepLink = `https://marketplace.app/?view=business&id=${biz?.id || ''}&product=${primaryProduct.id}`;
+    const biz = businesses.find((b) => b.id === primaryProduct.businessId) || businesses[0];
+    const deepLink = buildDeepLink({
+      businessId: biz?.id,
+      productId: primaryProduct.id
+    });
 
+    const isPlural = matchedProducts.length > 1;
     return {
-      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio'}* por *Bs. ${primaryProduct.price}*!\n\n✨ Stock disponible para entrega inmediata o recojo en tienda. Toca el enlace para ver en el mapa y pedir:`,
+      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio'}* por *Bs. ${primaryProduct.price.toLocaleString()}*!\n\n${
+        isPlural
+          ? `🔍 También localicé ${matchedProducts.length - 1} opción(es) adicional(es) en catálogo.`
+          : '✨ Stock disponible para entrega inmediata o retiro en tienda.'
+      }\n\n👉 Accede directo al Marketplace para pedir:`,
       foundProducts: matchedProducts,
       recommendedBusinesses: biz ? [biz] : [],
       deepLink,
@@ -126,51 +148,126 @@ function fallbackLocalMatcher(
     };
   }
 
-  // 2. Search category or pharmacy keywords
-  const isPharmacyQuery = query.includes('farmacia') || query.includes('medicina') || query.includes('salud') || query.includes('pastilla') || query.includes('dolor') || query.includes('remedio');
-  const isFoodQuery = query.includes('comida') || query.includes('hambre') || query.includes('restaurante') || query.includes('comer') || query.includes('tacos') || query.includes('burger') || query.includes('pizza');
+  // 2. Automotive knowledge & auto parts analysis
+  const autoPartsKeywords = [
+    'repuesto', 'repuestos', 'bomba', 'pastilla', 'freno', 'amortiguador', 'bujia', 'bujía',
+    'bobina', 'filtro', 'aceite', 'correa', 'tiempo', 'croche', 'embrague', 'empacadura',
+    'alternador', 'arranque', 'tripoide', 'terminal', 'rotula', 'muñon', 'muñón', 'radiador',
+    'termostato', 'bateria', 'batería', 'refrigerante', 'aveo', 'optra', 'corsa', 'spark',
+    'cruze', 'silverado', 'tahoe', 'fiesta', 'focus', 'explorer', 'hilux', 'corolla', 'yaris',
+    'fortuner', 'palio', 'siena', 'chevrolet', 'toyota', 'ford', 'fiat', 'chery'
+  ];
+
+  const isAutoQuery = autoPartsKeywords.some((k) => query.includes(k));
+  if (isAutoQuery) {
+    // Find businesses specialized in repuestos or automotive
+    const autoBiz = businesses.filter(
+      (b) =>
+        b.category === 'repuestos' ||
+        b.name.toLowerCase().includes('repuesto') ||
+        b.name.toLowerCase().includes('auto') ||
+        b.name.toLowerCase().includes('motor') ||
+        b.name.toLowerCase().includes('force')
+    );
+
+    const targetBiz = autoBiz[0] || businesses[0];
+    const bizProds = targetBiz ? products.filter((p) => p.businessId === targetBiz.id) : [];
+
+    const deepLink = buildDeepLink({
+      businessId: targetBiz?.id,
+      category: 'repuestos'
+    });
+
+    return {
+      messageText: `🚗 *Especialistas en Repuestos y Autopartes Con Force*\n\nDetectamos tu búsqueda automotriz. Contamos con repuestos para las principales marcas de Venezuela (Chevrolet, Ford, Toyota, Fiat y más).\n\nPuedes consultar stock inmediato con nuestros asesores o explorar el catálogo aquí:`,
+      foundProducts: bizProds.slice(0, 3),
+      recommendedBusinesses: autoBiz.length > 0 ? autoBiz : (targetBiz ? [targetBiz] : []),
+      deepLink,
+      categoryDetected: 'repuestos'
+    };
+  }
+
+  // 3. Pharmacy search
+  const isPharmacyQuery =
+    query.includes('farmacia') ||
+    query.includes('medicina') ||
+    query.includes('salud') ||
+    query.includes('pastilla') ||
+    query.includes('dolor') ||
+    query.includes('jarabe') ||
+    query.includes('paracetamol') ||
+    query.includes('acetaminofen') ||
+    query.includes('remedio');
 
   if (isPharmacyQuery) {
-    const pharmacies = businesses.filter(b => b.category === 'farmacia');
+    const pharmacies = businesses.filter((b) => b.category === 'farmacia');
     const biz = pharmacies[0];
+    const deepLink = buildDeepLink({
+      businessId: biz?.id,
+      category: 'farmacia'
+    });
+
     return {
-      messageText: `💊 Tenemos ${pharmacies.length} farmacias activas cerca de ti con servicio express y 24 hrs. Puedes consultar catálogo y pedir directo aquí:`,
-      foundProducts: biz ? products.filter(p => p.businessId === biz.id) : [],
+      messageText: `💊 *Farmacias Con Force en tu zona*\n\nTenemos ${pharmacies.length > 0 ? pharmacies.length : 'varias'} farmacias activas con medicinas, artículos de cuidado y entrega a domicilio express en Bolívares.\n\nRevisa el catálogo completo aquí:`,
+      foundProducts: biz ? products.filter((p) => p.businessId === biz.id) : [],
       recommendedBusinesses: pharmacies,
-      deepLink: biz ? `https://marketplace.app/?filter=farmacia&view=business&id=${biz.id}` : '#',
+      deepLink,
       categoryDetected: 'farmacia'
     };
   }
 
+  // 4. Food & restaurants
+  const isFoodQuery =
+    query.includes('comida') ||
+    query.includes('hambre') ||
+    query.includes('restaurante') ||
+    query.includes('comer') ||
+    query.includes('tacos') ||
+    query.includes('burger') ||
+    query.includes('pizza') ||
+    query.includes('almuerzo') ||
+    query.includes('cena');
+
   if (isFoodQuery) {
-    const restaurants = businesses.filter(b => b.category === 'restaurante');
+    const restaurants = businesses.filter((b) => b.category === 'restaurante');
     const biz = restaurants[0];
+    const deepLink = buildDeepLink({
+      businessId: biz?.id,
+      category: 'restaurante'
+    });
+
     return {
-      messageText: `🍔 ¡Hay deliciosos restaurantes abiertos en tu zona! Burgers, Pizzas, Tacos y más con entrega express:`,
-      foundProducts: biz ? products.filter(p => p.businessId === biz.id) : [],
+      messageText: `🍔 *Restaurantes y Delivery Con Force*\n\n¡Hay locales con opciones listas para ti! Hamburguesas, pizzas, platos típicos y bebidas con entrega rápida.\n\nOrdena directo aquí:`,
+      foundProducts: biz ? products.filter((p) => p.businessId === biz.id) : [],
       recommendedBusinesses: restaurants,
-      deepLink: biz ? `https://marketplace.app/?filter=restaurante&view=business&id=${biz.id}` : '#',
+      deepLink,
       categoryDetected: 'restaurante'
     };
   }
 
-  // 3. General offer / welcome
-  const offerProduct = products.find(p => p.isOfferOfTheDay) || (products.length > 0 ? products[0] : null);
-  const offerBiz = offerProduct ? (businesses.find(b => b.id === offerProduct.businessId) || businesses[0]) : null;
+  // 5. Featured Offer of the Day or Welcome
+  const offerProduct = products.find((p) => p.isOfferOfTheDay) || (products.length > 0 ? products[0] : null);
+  const offerBiz = offerProduct ? businesses.find((b) => b.id === offerProduct.businessId) || businesses[0] : null;
 
   if (offerProduct && offerBiz) {
+    const deepLink = buildDeepLink({
+      businessId: offerBiz.id,
+      productId: offerProduct.id
+    });
+
     return {
-      messageText: `🔥 ¡Oferta destacada de hoy en Con Force!\n*${offerProduct.name}* a solo *Bs. ${offerProduct.price}* (Antes Bs. ${offerProduct.originalPrice || offerProduct.price + 50}) en *${offerBiz.name}*.\n\nEscribe qué necesitas o explora en el catálogo interactivo:`,
+      messageText: `🔥 *¡Bienvenido a Con Force Venezuela!*\n\n*Oferta destacada de hoy:*\n🚗 *${offerProduct.name}* a solo *Bs. ${offerProduct.price.toLocaleString()}* en *${offerBiz.name}*.\n\nEscribe el repuesto, artículo o comercio que buscas para asistirte de inmediato:`,
       foundProducts: [offerProduct],
       recommendedBusinesses: [offerBiz],
-      deepLink: `https://pulso.app/?view=business&id=${offerBiz.id}&product=${offerProduct.id}`
+      deepLink
     };
   }
 
+  const defaultDeepLink = buildDeepLink();
   return {
-    messageText: `👋 ¡Hola! Bienvenido a Con Force Venezuela.\n¿En qué podemos ayudarte hoy? Escribe el repuesto, producto o servicio que estás buscando.`,
+    messageText: `👋 ¡Hola! Soy el asistente inteligente de *Con Force Venezuela*.\n\n¿En qué podemos ayudarte hoy? Escribe qué repuesto, marca de vehículo o servicio necesitas y te daré opciones en tiempo real con precios en Bs.`,
     foundProducts: [],
-    recommendedBusinesses: [],
-    deepLink: ''
+    recommendedBusinesses: businesses.slice(0, 3),
+    deepLink: defaultDeepLink
   };
 }

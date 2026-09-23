@@ -1091,7 +1091,7 @@ export const INITIAL_CAMPAIGNS: WhatsAppCampaign[] = [
   {
     id: 'camp-1',
     title: '🔥 Fin de Semana de Pizzas & Burgers 30% OFF',
-    message: '¡Hola! 🎉 Este fin de semana disfruta 30% de descuento en tus restaurantes favoritos en Pulso. Ordena directo en: https://pulso.app/?filter=offers',
+    message: '¡Hola! 🎉 Este fin de semana disfruta 30% de descuento en tus restaurantes favoritos en Con Force. Ordena directo en: https://venezuela-iota.vercel.app/?filter=offers',
     targetAudience: 'all',
     status: 'sent',
     sentCount: 1420,
@@ -1102,7 +1102,7 @@ export const INITIAL_CAMPAIGNS: WhatsAppCampaign[] = [
   {
     id: 'camp-2',
     title: '💊 Farmacias Express: Medicamentos y Antigripales 24 Horas',
-    message: '¿Te sientes indispuesto? Recibe medicamentos y sueros en menos de 25 minutos directo a tu puerta con Pulso: https://pulso.app/?filter=farmacia',
+    message: '¿Te sientes indispuesto? Recibe medicamentos y sueros en menos de 25 minutos directo a tu puerta con Con Force: https://venezuela-iota.vercel.app/?filter=farmacia',
     targetAudience: 'farmacias_users',
     status: 'sent',
     sentCount: 890,

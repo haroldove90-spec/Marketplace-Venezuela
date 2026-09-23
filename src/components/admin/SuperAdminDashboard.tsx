@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Business, BusinessCategory, WhatsAppCampaign } from '../../types';
+import { buildDeepLink, VERCEL_PRODUCTION_URL } from '../../utils/urlUtils';
 import {
   LayoutDashboard,
   Store,
@@ -112,8 +113,11 @@ export const SuperAdminDashboard: React.FC = () => {
   const [deepLinkProdId, setDeepLinkProdId] = useState('');
   const [copiedDeepLink, setCopiedDeepLink] = useState(false);
 
-  // Deep Link URL builder
-  const generatedDeepLink = `${window.location.origin}/?view=business&id=${deepLinkBizId}${deepLinkProdId ? `&product=${deepLinkProdId}` : ''}`;
+  // Deep Link URL builder pointing directly to production Marketplace
+  const generatedDeepLink = buildDeepLink({
+    businessId: deepLinkBizId,
+    productId: deepLinkProdId || undefined
+  });
 
   const handleCopyDeepLink = () => {
     if (navigator.clipboard) {

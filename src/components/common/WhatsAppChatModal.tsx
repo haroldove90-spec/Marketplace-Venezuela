@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ChatMessage, Product, Business } from '../../types';
 import { processChatbotMessage } from '../../services/geminiService';
+import { buildDeepLink } from '../../utils/urlUtils';
 import {
   Send,
   MapPin,
@@ -16,7 +17,9 @@ import {
   ExternalLink,
   ShoppingBag,
   Flame,
-  ArrowLeft
+  ArrowLeft,
+  Copy,
+  Check
 } from 'lucide-react';
 
 export const WhatsAppChatModal: React.FC = () => {
@@ -28,7 +31,9 @@ export const WhatsAppChatModal: React.FC = () => {
     products,
     userLocation,
     setSelectedBusinessForDetail,
-    chatbotConfig
+    chatbotConfig,
+    setCurrentRole,
+    setActiveClientTab
   } = useApp();
 
   const [inputMessage, setInputMessage] = useState('');
@@ -69,8 +74,9 @@ export const WhatsAppChatModal: React.FC = () => {
           type: 'product_card',
           data: {
             product: offerProd,
+            products: [offerProd],
             business: offerBiz,
-            deepLink: `https://marketplace.app/?view=business&id=${offerBiz.id}&product=${offerProd.id}`
+            deepLink: buildDeepLink({ businessId: offerBiz.id, productId: offerProd.id })
           }
         };
         messagesToSet.push(offerMsg);
@@ -105,6 +111,8 @@ export const WhatsAppChatModal: React.FC = () => {
     try {
       const response = await processChatbotMessage(query, userLocation, businesses, products);
 
+      const matchedBiz = response.recommendedBusinesses[0] || (response.foundProducts[0] ? businesses.find(b => b.id === response.foundProducts[0]?.businessId) : undefined);
+
       const botMsg: ChatMessage = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
@@ -112,8 +120,9 @@ export const WhatsAppChatModal: React.FC = () => {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         type: response.foundProducts.length > 0 ? 'product_card' : 'text',
         data: {
+          product: response.foundProducts[0],
           products: response.foundProducts,
-          business: response.recommendedBusinesses[0],
+          business: matchedBiz,
           deepLink: response.deepLink
         }
       };
@@ -127,7 +136,7 @@ export const WhatsAppChatModal: React.FC = () => {
         {
           id: `bot-${Date.now()}`,
           sender: 'bot',
-          text: 'Entendido. Puedes explorar todo nuestro catálogo de Farmacias y Restaurantes en el mapa interactivo.',
+          text: 'Entendido. Puedes explorar todo nuestro catálogo y comercios en el mapa interactivo de Con Force.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
@@ -163,12 +172,31 @@ export const WhatsAppChatModal: React.FC = () => {
     }, 700);
   };
 
+  const [copiedLinkIndex, setCopiedLinkIndex] = useState<number | null>(null);
+
   const handleOpenDeepLink = (businessId?: string) => {
     if (businessId) {
       const biz = businesses.find(b => b.id === businessId);
       if (biz) {
         setSelectedBusinessForDetail(biz);
+        setCurrentRole('client');
+        setActiveClientTab('explore');
         setIsWhatsAppModalOpen(false);
+        return;
+      }
+    }
+    setCurrentRole('client');
+    setActiveClientTab('explore');
+    setIsWhatsAppModalOpen(false);
+  };
+
+  const handleCopyLink = (link?: string, index?: number) => {
+    if (!link) return;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(link);
+      if (index !== undefined) {
+        setCopiedLinkIndex(index);
+        setTimeout(() => setCopiedLinkIndex(null), 2000);
       }
     }
   };
@@ -233,7 +261,7 @@ export const WhatsAppChatModal: React.FC = () => {
 
         {/* WhatsApp Chat Messages Canvas with subtle wallpaper pattern */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0b141a] bg-[radial-gradient(#1f2c34_1px,transparent_1px)] [background-size:16px_16px]">
-          {messages.map((msg) => {
+          {messages.map((msg, idx) => {
             const isUser = msg.sender === 'user';
             return (
               <div
@@ -252,42 +280,80 @@ export const WhatsAppChatModal: React.FC = () => {
 
                   {/* Product Rich Deep Link Card inside WhatsApp */}
                   {msg.data?.product && (
-                    <div className="mt-2.5 p-2 bg-[#111b21] rounded-xl border border-slate-700/60 overflow-hidden">
+                    <div className="mt-2.5 p-2.5 bg-[#111b21] rounded-xl border border-slate-700/60 overflow-hidden space-y-2">
                       <div className="flex gap-2.5 items-center">
                         <img
-                          src={msg.data.product.image}
+                          src={msg.data.product.image || 'https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=200'}
                           alt={msg.data.product.name}
-                          className="w-14 h-14 object-cover rounded-lg shrink-0"
+                          className="w-14 h-14 object-cover rounded-lg shrink-0 bg-slate-800"
                         />
                         <div className="min-w-0 flex-1">
                           <span className="text-[10px] font-bold text-amber-400 uppercase">
-                            Oferta Exclusiva
+                            {msg.data.business?.name || 'Comercio Afiliado'}
                           </span>
                           <h4 className="font-bold text-white text-xs truncate">
                             {msg.data.product.name}
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="font-extrabold text-[#D4021D] text-xs">
-                              Bs. {msg.data.product.price}
+                              Bs. {msg.data.product.price.toLocaleString()}
                             </span>
-                            {msg.data.product.originalPrice && (
+                            {msg.data.product.originalPrice && msg.data.product.originalPrice > msg.data.product.price && (
                               <span className="text-[10px] text-slate-400 line-through">
-                                Bs. {msg.data.product.originalPrice}
+                                Bs. {msg.data.product.originalPrice.toLocaleString()}
                               </span>
                             )}
                           </div>
                         </div>
                       </div>
 
-                      {/* Deep link button */}
-                      <button
-                        onClick={() => handleOpenDeepLink(msg.data?.business?.id || msg.data?.product?.businessId)}
-                        className="w-full mt-2 flex items-center justify-center gap-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all shadow"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Abrir en Con Force PWA</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
+                      {/* Multiple products note if applicable */}
+                      {msg.data.products && msg.data.products.length > 1 && (
+                        <div className="text-[10px] text-slate-400 bg-slate-800/60 px-2 py-1 rounded">
+                          ✨ {msg.data.products.length} opciones coincidentes en catálogo
+                        </div>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className="grid grid-cols-2 gap-1.5 pt-1">
+                        <button
+                          onClick={() => handleOpenDeepLink(msg.data?.business?.id || msg.data?.product?.businessId)}
+                          className="flex items-center justify-center gap-1 bg-[#D4021D] hover:bg-[#b50218] text-white font-bold py-1.5 px-2 rounded-lg text-[11px] transition-all shadow cursor-pointer"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>Abrir en App</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleCopyLink(msg.data?.deepLink, idx)}
+                          className="flex items-center justify-center gap-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-1.5 px-2 rounded-lg text-[11px] transition-all border border-slate-700 cursor-pointer"
+                          title="Copiar enlace directo para compartir"
+                        >
+                          {copiedLinkIndex === idx ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="text-emerald-400">¡Copiado!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copiar Link</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Direct URL preview */}
+                      {msg.data.deepLink && (
+                        <a
+                          href={msg.data.deepLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-[10px] text-cyan-400 hover:underline truncate"
+                        >
+                          🔗 {msg.data.deepLink}
+                        </a>
+                      )}
                     </div>
                   )}
 
@@ -315,20 +381,32 @@ export const WhatsAppChatModal: React.FC = () => {
         {/* Quick prompt suggestions */}
         <div className="bg-[#111b21] px-3 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar border-t border-slate-800">
           <button
+            onClick={() => handleSendMessage('¿Tienen pastillas de freno para Aveo?')}
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
+          >
+            🚗 Pastillas Aveo
+          </button>
+          <button
+            onClick={() => handleSendMessage('Busco bomba de gasolina o repuestos para Corsa')}
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
+          >
+            🔧 Repuestos Corsa
+          </button>
+          <button
             onClick={() => handleSendMessage('¿Tienen paracetamol o analgésico cerca?')}
-            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap"
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
-            💊 Paracetamol cerca
+            💊 Farmacia express
           </button>
           <button
-            onClick={() => handleSendMessage('Quiero ver hamburguesas y pizzas')}
-            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap"
+            onClick={() => handleSendMessage('Quiero ver hamburguesas y delivery')}
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
-            🍔 Burgers y Pizzas
+            🍔 Comida rápida
           </button>
           <button
-            onClick={() => handleSendMessage('¿Cuál es la oferta del día?')}
-            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap"
+            onClick={() => handleSendMessage('¿Cuál es la oferta destacada de hoy?')}
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
             🔥 Oferta del día
           </button>
