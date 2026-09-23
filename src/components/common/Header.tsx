@@ -30,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
     detectUserLocation,
     isLocating,
     setIsClientAuthModalOpen,
+    setIsCorporateAuthModalOpen,
     setIsProfileModalOpen,
     navigateToHome,
     isMobileMenuOpen,
@@ -211,16 +212,28 @@ export const Header: React.FC<HeaderProps> = ({ onOpenCart, onOpenRoleModal }) =
               </button>
             </div>
           ) : (
-            /* Login / Register Button when not logged in */
-            <button
-              onClick={() => setIsClientAuthModalOpen(true)}
-              className="flex items-center gap-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
-              title="Iniciar Sesión o Crear Cuenta"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Entrar / Registro</span>
-              <span className="sm:hidden">Entrar</span>
-            </button>
+            /* Login / Register Buttons when not logged in */
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsClientAuthModalOpen(true)}
+                className="flex items-center gap-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Iniciar Sesión o Registrarse como Cliente"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Entrar Cliente</span>
+                <span className="sm:hidden">Cliente</span>
+              </button>
+
+              <button
+                onClick={() => setIsCorporateAuthModalOpen(true)}
+                className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-red-600/60 text-zinc-200 hover:text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Formulario de Acceso para Administradores y Negocios"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#D4021D]" />
+                <span className="hidden sm:inline">Acceso Admin</span>
+                <span className="sm:hidden">Admin</span>
+              </button>
+            </div>
           )}
 
           {/* Cart Button with Count Badge (Client role only) */}

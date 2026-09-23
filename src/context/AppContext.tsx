@@ -832,10 +832,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
     }
 
-    if (user.role !== 'client') {
+    if (user.role === 'admin') {
+      setCurrentUser(user);
+      setCurrentRole('admin');
+      setActiveAdminTab('overview');
+      setIsClientAuthModalOpen(false);
+      try {
+        localStorage.setItem('mk_current_user', JSON.stringify(user));
+        localStorage.setItem('mk_current_role', 'admin');
+      } catch (e) {}
       return {
-        success: false,
-        message: 'Esta es una cuenta administrativa o de negocio. Usa el Acceso Corporativo.'
+        success: true,
+        message: `¡Bienvenido Superadministrador ${user.name}! Redirigiendo a tu Dashboard...`,
+        user
+      };
+    }
+
+    if (user.role === 'seller') {
+      setCurrentUser(user);
+      setCurrentRole('seller');
+      setActiveSellerTab('orders');
+      setIsClientAuthModalOpen(false);
+      try {
+        localStorage.setItem('mk_current_user', JSON.stringify(user));
+        localStorage.setItem('mk_current_role', 'seller');
+      } catch (e) {}
+      return {
+        success: true,
+        message: `¡Bienvenido ${user.name}! Redirigiendo al Portal de Negocios...`,
+        user
       };
     }
 

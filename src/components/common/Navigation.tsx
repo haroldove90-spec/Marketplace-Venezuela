@@ -380,16 +380,29 @@ export const Navigation: React.FC<NavigationProps> = ({ onOpenRoleModal, onOpenC
             </button>
           </>
         ) : (
-          <button
-            onClick={() => {
-              setIsClientAuthModalOpen(true);
-              if (isDrawer) setIsMobileMenuOpen(false);
-            }}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#D4021D] hover:bg-[#b50218] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
-          >
-            <LogIn className="w-4 h-4" />
-            <span>Entrar / Registro</span>
-          </button>
+          <div className="space-y-1.5">
+            <button
+              onClick={() => {
+                setIsClientAuthModalOpen(true);
+                if (isDrawer) setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[#D4021D] hover:bg-[#b50218] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Entrar como Cliente</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsCorporateAuthModalOpen(true);
+                if (isDrawer) setIsMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-red-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            >
+              <KeyRound className="w-4 h-4 text-[#D4021D]" />
+              <span>Formulario Admin / Negocio 🛡️</span>
+            </button>
+          </div>
         )}
 
         {/* Connectivity Status Indicator */}

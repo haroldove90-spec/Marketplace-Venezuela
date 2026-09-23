@@ -99,16 +99,39 @@ export const CorporateAuthModal: React.FC = () => {
             </div>
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-red-950/80 border border-red-800/50 text-[11px] font-bold text-red-300 uppercase tracking-wider">
-                Acceso Unificado
+                Acceso Administrativo
               </div>
               <h2 className="text-xl font-black text-white mt-1">
-                Portal Corporativo Con Force
+                Formulario de Acceso Administrador & Negocios
               </h2>
               <p className="text-xs text-zinc-400">
-                Acceso exclusivo para Administradores de Sistema y Comercios Afiliados
+                Superadministrador Harold Anguiano, Dirección General y Comercios Aliados
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Selector Primario: Formulario Cliente vs Formulario Administrador */}
+        <div className="p-3 bg-zinc-950 border-b border-zinc-800 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setIsCorporateAuthModalOpen(false);
+              setIsClientAuthModalOpen(true);
+            }}
+            className="py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-500 transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Ir a Formulario de Acceso para Clientes"
+          >
+            <User className="w-4 h-4" />
+            <span>Formulario Cliente</span>
+          </button>
+          <button
+            type="button"
+            className="py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 bg-[#D4021D] text-white shadow-xs"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Formulario Admin 🛡️</span>
+          </button>
         </div>
 
         {/* Content */}

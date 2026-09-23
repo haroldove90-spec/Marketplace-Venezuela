@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   LogIn,
-  Store
+  Store,
+  ShieldCheck
 } from 'lucide-react';
 
 export const ClientAuthModal: React.FC = () => {
@@ -167,6 +168,29 @@ export const ClientAuthModal: React.FC = () => {
           </div>
         </div>
 
+        {/* Selector Primario: Formulario Cliente vs Formulario Administrador */}
+        <div className="p-3 bg-zinc-950 border-b border-zinc-800 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            className="py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 bg-[#D4021D] text-white shadow-xs"
+          >
+            <User className="w-4 h-4" />
+            <span>Formulario Cliente</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsClientAuthModalOpen(false);
+              setIsCorporateAuthModalOpen(true);
+            }}
+            className="py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 hover:border-red-500 transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Abrir Formulario de Acceso para Administrador / Negocio"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#D4021D]" />
+            <span>Formulario Admin 🛡️</span>
+          </button>
+        </div>
+
         {/* Tab switcher: Login vs Register */}
         <div className="flex border-b border-zinc-800 bg-zinc-950/60">
           <button
@@ -203,6 +227,28 @@ export const ClientAuthModal: React.FC = () => {
 
         {/* Form Body */}
         <div className="p-6 overflow-y-auto space-y-4">
+          {/* Banner destacado para Administradores */}
+          <div className="p-3 bg-gradient-to-r from-red-950/70 via-zinc-900 to-black border border-red-800/60 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-[#D4021D] text-white flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-white truncate">¿Buscas entrar como Administrador?</p>
+                <p className="text-[10px] text-zinc-400 truncate">Superadmin Harold Anguiano o Dueño de Negocio</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsClientAuthModalOpen(false);
+                setIsCorporateAuthModalOpen(true);
+              }}
+              className="px-3 py-1.5 bg-[#D4021D] hover:bg-red-700 text-white font-bold text-xs rounded-xl transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
+            >
+              Abrir Admin
+            </button>
+          </div>
           {errorMessage && (
             <div className="p-3 bg-red-950/70 border border-red-700/50 rounded-xl flex items-center gap-2.5 text-xs text-red-200 animate-shake">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
