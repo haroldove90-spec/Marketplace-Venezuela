@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Business, BusinessCategory, WhatsAppCampaign } from '../../types';
-import { buildDeepLink, VERCEL_PRODUCTION_URL } from '../../utils/urlUtils';
+import { buildDeepLink, VERCEL_PRODUCTION_URL, VERCEL_MARKETPLACE_URL, VERCEL_MARKETPLACE_QUERY_URL } from '../../utils/urlUtils';
 import {
   LayoutDashboard,
   Store,
@@ -112,6 +112,8 @@ export const SuperAdminDashboard: React.FC = () => {
   const [deepLinkBizId, setDeepLinkBizId] = useState(businesses[0]?.id || '');
   const [deepLinkProdId, setDeepLinkProdId] = useState('');
   const [copiedDeepLink, setCopiedDeepLink] = useState(false);
+  const [copiedMarketplaceLink, setCopiedMarketplaceLink] = useState(false);
+  const [copiedMarketplaceQueryLink, setCopiedMarketplaceQueryLink] = useState(false);
 
   // Deep Link URL builder pointing directly to production Marketplace
   const generatedDeepLink = buildDeepLink({
@@ -124,6 +126,22 @@ export const SuperAdminDashboard: React.FC = () => {
       navigator.clipboard.writeText(generatedDeepLink);
       setCopiedDeepLink(true);
       setTimeout(() => setCopiedDeepLink(false), 2000);
+    }
+  };
+
+  const handleCopyMarketplaceLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(VERCEL_MARKETPLACE_URL);
+      setCopiedMarketplaceLink(true);
+      setTimeout(() => setCopiedMarketplaceLink(false), 2000);
+    }
+  };
+
+  const handleCopyMarketplaceQueryLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(VERCEL_MARKETPLACE_QUERY_URL);
+      setCopiedMarketplaceQueryLink(true);
+      setTimeout(() => setCopiedMarketplaceQueryLink(false), 2000);
     }
   };
 
@@ -814,15 +832,39 @@ export const SuperAdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 font-mono text-[11px] text-[#D4021D]">
-                  <span className="truncate">{generatedDeepLink}</span>
-                  <button
-                    onClick={handleCopyDeepLink}
-                    className="p-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
-                  >
-                    {copiedDeepLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedDeepLink ? 'Copiado' : 'Copiar'}</span>
-                  </button>
+                {/* Official Direct Marketplace Link (Works 100% on Vercel) */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase text-emerald-700">Enlace Directo Oficial del Marketplace</span>
+                    <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">100% Activo</span>
+                  </div>
+                  <div className="p-2.5 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex items-center justify-between gap-2 font-mono text-[11px] text-emerald-900">
+                    <span className="truncate font-semibold">{VERCEL_PRODUCTION_URL}</span>
+                    <button
+                      onClick={handleCopyMarketplaceLink}
+                      className="p-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs transition-colors"
+                      title="Copiar enlace directo al Marketplace"
+                    >
+                      {copiedMarketplaceLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedMarketplaceLink ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Specific Deep Link */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase text-slate-500">Enlace Específico con Filtros / Producto</span>
+                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-2 font-mono text-[11px] text-[#D4021D]">
+                    <span className="truncate">{generatedDeepLink}</span>
+                    <button
+                      onClick={handleCopyDeepLink}
+                      className="p-1.5 bg-[#D4021D] hover:bg-[#b50218] text-white rounded-lg font-sans text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer shadow-xs transition-colors"
+                      title="Copiar enlace específico"
+                    >
+                      {copiedDeepLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedDeepLink ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

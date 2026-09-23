@@ -475,17 +475,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsRegisterBusinessModalOpen(true);
   };
 
-  // Route Detection for Independent Marketplace Link vs Corporate Portal
+  // Route Detection: Default to 'marketplace' so https://venezuela-iota.vercel.app/ opens the Marketplace directly!
   const [currentRoute, setCurrentRoute] = useState<'marketplace' | 'corporate'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase();
       const search = window.location.search.toLowerCase();
       const hash = window.location.hash.toLowerCase();
-      if (path.includes('/marketplace') || search.includes('marketplace') || hash.includes('marketplace')) {
-        return 'marketplace';
+      if (path.includes('/corporate') || search.includes('corporate') || hash.includes('corporate')) {
+        return 'corporate';
       }
     }
-    return 'corporate';
+    return 'marketplace';
   });
 
   const isMarketplaceRoute = currentRoute === 'marketplace';
@@ -1708,13 +1708,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('mk_saved_addresses', JSON.stringify(savedAddresses));
   }, [savedAddresses]);
 
-  // Deep Link URL Query Param Parser
+  // Deep Link URL & /marketplace Route Parser
   useEffect(() => {
     try {
+      const pathname = (window.location.pathname || '').toLowerCase();
+      const isMarketplaceRoute = pathname === '/marketplace' || pathname.startsWith('/marketplace');
+
       const params = new URLSearchParams(window.location.search);
       const view = params.get('view');
       const bizId = params.get('id');
       const filter = params.get('filter');
+
+      if (isMarketplaceRoute || view === 'marketplace' || view === 'explore') {
+        setCurrentRole('client');
+        setActiveClientTab('explore');
+      }
 
       if (view === 'business' && bizId) {
         const found = businesses.find(b => b.id === bizId);

@@ -4,16 +4,18 @@
  */
 
 export const VERCEL_PRODUCTION_URL = 'https://venezuela-iota.vercel.app';
+export const VERCEL_MARKETPLACE_URL = 'https://venezuela-iota.vercel.app/';
+export const VERCEL_MARKETPLACE_QUERY_URL = 'https://venezuela-iota.vercel.app/?view=marketplace';
 
 /**
- * Gets the base URL for generating deep links.
- * Prefers the official production Vercel domain so links shared across
- * WhatsApp, chats, SMS or bookmarks always resolve cleanly.
+ * Gets the base URL for generating direct marketplace deep links.
+ * Always resolves to the official production Vercel domain root
+ * so that any user or client opening the link goes straight to the Marketplace
+ * without risking any 404 error on Vercel.
  */
 export function getMarketplaceBaseUrl(forceProduction: boolean = false): string {
   if (!forceProduction && typeof window !== 'undefined' && window.location?.origin) {
     const origin = window.location.origin;
-    // If running in development or preview, or if on vercel
     if (origin.includes('vercel.app')) {
       return origin;
     }
