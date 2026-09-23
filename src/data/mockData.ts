@@ -1117,7 +1117,7 @@ export const INITIAL_CHATBOT_CONFIG: ChatbotConfig = {
   phoneNumberId: '10982348572194',
   businessAccountId: 'WABA_992817264819',
   webhookVerifyToken: 'pulso_secure_webhook_token_2026',
-  welcomeMessage: '👋 ¡Hola! Bienvenido al asistente oficial de Pulso. ¿Qué estás buscando hoy? (Ejemplo: "paracetamol cerca", "hamburguesas", "farmacia 24h", "pizza", "sushi")',
+  welcomeMessage: '👋 ¡Hola! Bienvenido al asistente inteligente de *Con Force Venezuela*. 🛒\n\nSomos tu Marketplace integral: aquí consigues de todo (tecnología, alimentos, farmacia, restaurantes, ferretería, repuestos, moda y servicios).\n\n¿Qué producto o comercio estás buscando hoy? Escribe lo que necesitas y te ayudaré con opciones y precios en Bs.',
   featuredOfferId: 'prod-7', // Monster burger
   autoDeepLinksEnabled: true,
   geminiSmartSearch: true,

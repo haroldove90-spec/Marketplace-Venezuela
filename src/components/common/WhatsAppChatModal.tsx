@@ -381,28 +381,40 @@ export const WhatsAppChatModal: React.FC = () => {
         {/* Quick prompt suggestions */}
         <div className="bg-[#111b21] px-3 py-1.5 flex gap-1.5 overflow-x-auto no-scrollbar border-t border-slate-800">
           <button
-            onClick={() => handleSendMessage('¿Tienen pastillas de freno para Aveo?')}
+            onClick={() => handleSendMessage('¿Qué comercios y productos hay disponibles en el Marketplace?')}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
-            🚗 Pastillas Aveo
+            🛒 Explorar Todo
           </button>
           <button
-            onClick={() => handleSendMessage('Busco bomba de gasolina o repuestos para Corsa')}
+            onClick={() => handleSendMessage('¿Qué opciones de celulares o tecnología tienen disponibles?')}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
-            🔧 Repuestos Corsa
+            📱 Tecnología
           </button>
           <button
-            onClick={() => handleSendMessage('¿Tienen paracetamol o analgésico cerca?')}
+            onClick={() => handleSendMessage('Quiero ver restaurantes y comida con delivery')}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
-            💊 Farmacia express
+            🍔 Restaurantes
           </button>
           <button
-            onClick={() => handleSendMessage('Quiero ver hamburguesas y delivery')}
+            onClick={() => handleSendMessage('¿Qué medicamentos o farmacias tienen disponibles?')}
             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
           >
-            🍔 Comida rápida
+            💊 Farmacia
+          </button>
+          <button
+            onClick={() => handleSendMessage('¿Tienen repuestos para vehículos?')}
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
+          >
+            🚗 Repuestos
+          </button>
+          <button
+            onClick={() => handleSendMessage('Busco herramientas o artículos de ferretería')}
+            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-[11px] whitespace-nowrap cursor-pointer transition-colors"
+          >
+            🛠️ Ferretería
           </button>
           <button
             onClick={() => handleSendMessage('¿Cuál es la oferta destacada de hoy?')}
@@ -426,7 +438,7 @@ export const WhatsAppChatModal: React.FC = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Escribe un mensaje o busca producto..."
+            placeholder="Escribe lo que buscas (tecnología, comida, repuestos, farmacia...)"
             className="flex-1 bg-[#2a3942] text-white text-xs md:text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#D4021D] placeholder-slate-400"
           />
 

@@ -19,7 +19,7 @@ export async function processChatbotMessage(
 ): Promise<ChatbotResponse> {
   const queryLower = userMessage.toLowerCase().trim();
 
-  // Prepare catalog context for server-side Gemini AI
+  // Prepare multi-category catalog context for server-side Gemini AI
   const catalogContext = businesses.map((b) => {
     const bizProducts = products.filter((p) => p.businessId === b.id);
     return {
@@ -39,8 +39,11 @@ export async function processChatbotMessage(
     };
   });
 
-  // Call Server-Side Gemini API endpoint
+  // Call Server-Side Gemini API endpoint (works on both local server and Vercel serverless)
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 14000);
+
     const response = await fetch('/api/gemini/chatbot', {
       method: 'POST',
       headers: {
@@ -50,8 +53,10 @@ export async function processChatbotMessage(
         userMessage,
         userLocation,
         catalogContext
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
 
     if (response.ok) {
       const data = await response.json();
@@ -83,15 +88,17 @@ export async function processChatbotMessage(
       }
     }
   } catch (error) {
-    console.warn('Chatbot server API route not reachable, transitioning smoothly to smart local assistant engine:', error);
+    console.warn('Chatbot server API route not reachable, transitioning to smart local engine:', error);
   }
 
-  // Advanced domain-aware automotive & Venezuelan commerce fallback engine
+  // Multi-Category Intelligent Marketplace Matching Engine
   return fallbackIntelligentMatcher(queryLower, businesses, products, userLocation);
 }
 
 /**
- * Intelligent Venezuelan Automotive, Spare Parts & Retail Matching Engine
+ * Multi-Category Venezuelan Marketplace Intelligent Matching Engine
+ * Handles ANY search (tech, groceries, food, health, hardware, clothing, auto, etc.)
+ * NEVER repeats the default welcome message when a user asks a question.
  */
 function fallbackIntelligentMatcher(
   query: string,
@@ -99,22 +106,34 @@ function fallbackIntelligentMatcher(
   products: Product[],
   _userLocation: { lat: number; lng: number } | null
 ): ChatbotResponse {
+  const isGreetingOnly = /^(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|que tal|saludos|aló|alo)$/i.test(
+    query.replace(/[.,/#!$%^&*;:{}=\-_`~()¿?¡!]/g, '').trim()
+  );
+
+  if (isGreetingOnly) {
+    const defaultDeepLink = buildDeepLink();
+    return {
+      messageText: `👋 ¡Hola! Bienvenido al asistente oficial de *Con Force Venezuela*. 🛒\n\nSomos un Marketplace integral donde encuentras de todo: tecnología, víveres, restaurantes, farmacia, ferretería, repuestos, moda y servicios.\n\n¿Qué producto o comercio estás buscando hoy? Escríbenos lo que necesitas y te daré opciones y precios en Bs.`,
+      foundProducts: [],
+      recommendedBusinesses: businesses.slice(0, 4),
+      deepLink: defaultDeepLink
+    };
+  }
+
   // Normalize query words
   const words = query
     .replace(/[.,/#!$%^&*;:{}=\-_`~()¿?¡!]/g, '')
     .split(/\s+/)
     .filter((w) => w.length > 1);
 
-  // 1. Exact or partial product tag/name search
+  // 1. Direct or partial product search across ALL categories
   const matchedProducts = products.filter((p) => {
     const nameLower = p.name.toLowerCase();
     const descLower = (p.description || '').toLowerCase();
     const tagsLower = p.tags.map((t) => t.toLowerCase());
 
-    // Check full query
     if (nameLower.includes(query) || descLower.includes(query)) return true;
 
-    // Check individual keywords
     const matchCount = words.filter((w) => {
       return (
         nameLower.includes(w) ||
@@ -131,16 +150,17 @@ function fallbackIntelligentMatcher(
     const biz = businesses.find((b) => b.id === primaryProduct.businessId) || businesses[0];
     const deepLink = buildDeepLink({
       businessId: biz?.id,
-      productId: primaryProduct.id
+      productId: primaryProduct.id,
+      category: biz?.category
     });
 
     const isPlural = matchedProducts.length > 1;
     return {
-      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio'}* por *Bs. ${primaryProduct.price.toLocaleString()}*!\n\n${
+      messageText: `📍 ¡Encontré *${primaryProduct.name}* disponible en *${biz?.name || 'Comercio Afiliado'}* por *Bs. ${primaryProduct.price.toLocaleString()}*!\n\n${
         isPlural
-          ? `🔍 También localicé ${matchedProducts.length - 1} opción(es) adicional(es) en catálogo.`
+          ? `🔍 También localicé ${matchedProducts.length - 1} opción(es) adicional(es) en nuestro catálogo.`
           : '✨ Stock disponible para entrega inmediata o retiro en tienda.'
-      }\n\n👉 Accede directo al Marketplace para pedir:`,
+      }\n\n👉 Accede directo aquí para ver detalles y ordenar:`,
       foundProducts: matchedProducts,
       recommendedBusinesses: biz ? [biz] : [],
       deepLink,
@@ -148,67 +168,43 @@ function fallbackIntelligentMatcher(
     };
   }
 
-  // 2. Automotive knowledge & auto parts analysis
-  const autoPartsKeywords = [
-    'repuesto', 'repuestos', 'bomba', 'pastilla', 'freno', 'amortiguador', 'bujia', 'bujía',
-    'bobina', 'filtro', 'aceite', 'correa', 'tiempo', 'croche', 'embrague', 'empacadura',
-    'alternador', 'arranque', 'tripoide', 'terminal', 'rotula', 'muñon', 'muñón', 'radiador',
-    'termostato', 'bateria', 'batería', 'refrigerante', 'aveo', 'optra', 'corsa', 'spark',
-    'cruze', 'silverado', 'tahoe', 'fiesta', 'focus', 'explorer', 'hilux', 'corolla', 'yaris',
-    'fortuner', 'palio', 'siena', 'chevrolet', 'toyota', 'ford', 'fiat', 'chery'
+  // 2. Multi-Category Domain Intent Detection
+
+  // A. Technology / Phones / Electronics
+  const techKeywords = [
+    'celular', 'telefono', 'teléfono', 'iphone', 'samsung', 'xiaomi', 'redmi', 'laptop', 'computadora',
+    'pc', 'tablet', 'cargador', 'cable', 'audifonos', 'audífonos', 'teclado', 'mouse', 'monitor',
+    'pantalla', 'televisor', 'tv', 'smart', 'gadget', 'tecnologia', 'tecnología'
   ];
-
-  const isAutoQuery = autoPartsKeywords.some((k) => query.includes(k));
-  if (isAutoQuery) {
-    // Find businesses specialized in repuestos or automotive
-    const autoBiz = businesses.filter(
-      (b) =>
-        b.category === 'repuestos' ||
-        b.name.toLowerCase().includes('repuesto') ||
-        b.name.toLowerCase().includes('auto') ||
-        b.name.toLowerCase().includes('motor') ||
-        b.name.toLowerCase().includes('force')
+  if (techKeywords.some((k) => query.includes(k))) {
+    const techBiz = businesses.filter(
+      (b) => b.category === 'tecnologia' || b.name.toLowerCase().includes('tec') || b.tags.some(t => t.toLowerCase().includes('tec'))
     );
-
-    const targetBiz = autoBiz[0] || businesses[0];
+    const targetBiz = techBiz[0] || businesses[0];
     const bizProds = targetBiz ? products.filter((p) => p.businessId === targetBiz.id) : [];
-
-    const deepLink = buildDeepLink({
-      businessId: targetBiz?.id,
-      category: 'repuestos'
-    });
+    const deepLink = buildDeepLink({ businessId: targetBiz?.id, category: 'tecnologia' });
 
     return {
-      messageText: `🚗 *Especialistas en Repuestos y Autopartes Con Force*\n\nDetectamos tu búsqueda automotriz. Contamos con repuestos para las principales marcas de Venezuela (Chevrolet, Ford, Toyota, Fiat y más).\n\nPuedes consultar stock inmediato con nuestros asesores o explorar el catálogo aquí:`,
+      messageText: `📱 *Tecnología y Electrónica en Con Force*\n\nDetectamos tu búsqueda de *"${query}"*. En nuestro Marketplace contamos con tiendas especializadas en telefonía, cómputo y accesorios con garantía y precios en Bs.\n\n👉 Explora los comercios y productos tecnológicos disponibles:`,
       foundProducts: bizProds.slice(0, 3),
-      recommendedBusinesses: autoBiz.length > 0 ? autoBiz : (targetBiz ? [targetBiz] : []),
+      recommendedBusinesses: techBiz.length > 0 ? techBiz : [targetBiz],
       deepLink,
-      categoryDetected: 'repuestos'
+      categoryDetected: 'tecnologia'
     };
   }
 
-  // 3. Pharmacy search
-  const isPharmacyQuery =
-    query.includes('farmacia') ||
-    query.includes('medicina') ||
-    query.includes('salud') ||
-    query.includes('pastilla') ||
-    query.includes('dolor') ||
-    query.includes('jarabe') ||
-    query.includes('paracetamol') ||
-    query.includes('acetaminofen') ||
-    query.includes('remedio');
-
-  if (isPharmacyQuery) {
+  // B. Health / Pharmacy / Medicines
+  const pharmacyKeywords = [
+    'farmacia', 'medicina', 'medicamento', 'salud', 'pastilla', 'dolor', 'jarabe', 'paracetamol',
+    'acetaminofen', 'acetaminofén', 'ibuprofeno', 'aspirina', 'alcohol', 'remedio', 'vitamina', 'antibiotico'
+  ];
+  if (pharmacyKeywords.some((k) => query.includes(k))) {
     const pharmacies = businesses.filter((b) => b.category === 'farmacia');
-    const biz = pharmacies[0];
-    const deepLink = buildDeepLink({
-      businessId: biz?.id,
-      category: 'farmacia'
-    });
+    const biz = pharmacies[0] || businesses[0];
+    const deepLink = buildDeepLink({ businessId: biz?.id, category: 'farmacia' });
 
     return {
-      messageText: `💊 *Farmacias Con Force en tu zona*\n\nTenemos ${pharmacies.length > 0 ? pharmacies.length : 'varias'} farmacias activas con medicinas, artículos de cuidado y entrega a domicilio express en Bolívares.\n\nRevisa el catálogo completo aquí:`,
+      messageText: `💊 *Farmacias y Medicamentos en Con Force*\n\nRecibimos tu consulta para *"${query}"*. Tenemos farmacias activas con medicamentos de primera necesidad, artículos de cuidado y despacho express en Bolívares.\n\n👉 Revisa las opciones de farmacia disponibles aquí:`,
       foundProducts: biz ? products.filter((p) => p.businessId === biz.id) : [],
       recommendedBusinesses: pharmacies,
       deepLink,
@@ -216,28 +212,18 @@ function fallbackIntelligentMatcher(
     };
   }
 
-  // 4. Food & restaurants
-  const isFoodQuery =
-    query.includes('comida') ||
-    query.includes('hambre') ||
-    query.includes('restaurante') ||
-    query.includes('comer') ||
-    query.includes('tacos') ||
-    query.includes('burger') ||
-    query.includes('pizza') ||
-    query.includes('almuerzo') ||
-    query.includes('cena');
-
-  if (isFoodQuery) {
+  // C. Food / Restaurants / Delivery
+  const foodKeywords = [
+    'comida', 'hambre', 'restaurante', 'comer', 'tacos', 'burger', 'hamburguesa', 'pizza',
+    'almuerzo', 'cena', 'desayuno', 'sushi', 'empanada', 'pollo', 'arepa', 'bebida', 'postre'
+  ];
+  if (foodKeywords.some((k) => query.includes(k))) {
     const restaurants = businesses.filter((b) => b.category === 'restaurante');
-    const biz = restaurants[0];
-    const deepLink = buildDeepLink({
-      businessId: biz?.id,
-      category: 'restaurante'
-    });
+    const biz = restaurants[0] || businesses[0];
+    const deepLink = buildDeepLink({ businessId: biz?.id, category: 'restaurante' });
 
     return {
-      messageText: `🍔 *Restaurantes y Delivery Con Force*\n\n¡Hay locales con opciones listas para ti! Hamburguesas, pizzas, platos típicos y bebidas con entrega rápida.\n\nOrdena directo aquí:`,
+      messageText: `🍔 *Restaurantes y Delivery en Con Force*\n\n¡Qué rico! Detectamos tu búsqueda de *"${query}"*. Contamos con locales gastronómicos listos para despachar platos preparados, hamburguesas, pizzas y más.\n\n👉 Explora y ordena directo aquí:`,
       foundProducts: biz ? products.filter((p) => p.businessId === biz.id) : [],
       recommendedBusinesses: restaurants,
       deepLink,
@@ -245,29 +231,106 @@ function fallbackIntelligentMatcher(
     };
   }
 
-  // 5. Featured Offer of the Day or Welcome
-  const offerProduct = products.find((p) => p.isOfferOfTheDay) || (products.length > 0 ? products[0] : null);
-  const offerBiz = offerProduct ? businesses.find((b) => b.id === offerProduct.businessId) || businesses[0] : null;
-
-  if (offerProduct && offerBiz) {
-    const deepLink = buildDeepLink({
-      businessId: offerBiz.id,
-      productId: offerProduct.id
-    });
+  // D. Supermarket / Groceries / Food market
+  const groceryKeywords = [
+    'supermercado', 'mercado', 'víveres', 'viveres', 'arroz', 'harina', 'aceite', 'pasta',
+    'azucar', 'azúcar', 'leche', 'cafe', 'café', 'carne', 'charcuteria', 'queso', 'despensa'
+  ];
+  if (groceryKeywords.some((k) => query.includes(k))) {
+    const markets = businesses.filter((b) => b.category === 'supermercado');
+    const biz = markets[0] || businesses[0];
+    const deepLink = buildDeepLink({ businessId: biz?.id, category: 'supermercado' });
 
     return {
-      messageText: `🔥 *¡Bienvenido a Con Force Venezuela!*\n\n*Oferta destacada de hoy:*\n🚗 *${offerProduct.name}* a solo *Bs. ${offerProduct.price.toLocaleString()}* en *${offerBiz.name}*.\n\nEscribe el repuesto, artículo o comercio que buscas para asistirte de inmediato:`,
-      foundProducts: [offerProduct],
-      recommendedBusinesses: [offerBiz],
-      deepLink
+      messageText: `🛒 *Supermercados y Víveres en Con Force*\n\nRecibimos tu búsqueda de despensa (*"${query}"*). Conectamos comercios con víveres, alimentos frescos y productos de primera necesidad en Bolívares.\n\n👉 Consulta abastos y supermercados aquí:`,
+      foundProducts: biz ? products.filter((p) => p.businessId === biz.id) : [],
+      recommendedBusinesses: markets,
+      deepLink,
+      categoryDetected: 'supermercado'
     };
   }
 
-  const defaultDeepLink = buildDeepLink();
+  // E. Hardware / Tools / Home
+  const hardwareKeywords = [
+    'ferreteria', 'ferretería', 'herramienta', 'taladro', 'tornillo', 'pintura', 'cemento',
+    'tuberia', 'tubería', 'cableado', 'bombillo', 'candado', 'construccion', 'construcción', 'hogar'
+  ];
+  if (hardwareKeywords.some((k) => query.includes(k))) {
+    const hardwareBiz = businesses.filter(
+      (b) => b.category === 'hogar' || b.name.toLowerCase().includes('ferre') || b.tags.some(t => t.toLowerCase().includes('ferre'))
+    );
+    const targetBiz = hardwareBiz[0] || businesses[0];
+    const deepLink = buildDeepLink({ businessId: targetBiz?.id, category: targetBiz?.category });
+
+    return {
+      messageText: `🛠️ *Ferretería y Hogar en Con Force*\n\nDetectamos tu búsqueda de *"${query}"*. Tenemos comercios asociados con herramientas, materiales de construcción y artículos para el hogar.\n\n👉 Revisa las ferreterías aliadas:`,
+      foundProducts: targetBiz ? products.filter((p) => p.businessId === targetBiz.id) : [],
+      recommendedBusinesses: hardwareBiz.length > 0 ? hardwareBiz : [targetBiz],
+      deepLink,
+      categoryDetected: targetBiz?.category
+    };
+  }
+
+  // F. Fashion / Clothes / Shoes
+  const fashionKeywords = [
+    'ropa', 'camisa', 'pantalon', 'pantalón', 'zapatos', 'calzado', 'zapatillas', 'vestido',
+    'franela', 'gorra', 'bolso', 'moda', 'chaqueta', 'jeans'
+  ];
+  if (fashionKeywords.some((k) => query.includes(k))) {
+    const fashionBiz = businesses.filter((b) => b.category === 'moda');
+    const targetBiz = fashionBiz[0] || businesses[0];
+    const deepLink = buildDeepLink({ businessId: targetBiz?.id, category: 'moda' });
+
+    return {
+      messageText: `👗 *Moda y Calzado en Con Force*\n\nDetectamos tu búsqueda de *"${query}"*. En nuestro Marketplace dispones de tiendas con las últimas tendencias de ropa, calzado y accesorios.\n\n👉 Conoce las tiendas de moda aliadas:`,
+      foundProducts: targetBiz ? products.filter((p) => p.businessId === targetBiz.id) : [],
+      recommendedBusinesses: fashionBiz.length > 0 ? fashionBiz : [targetBiz],
+      deepLink,
+      categoryDetected: 'moda'
+    };
+  }
+
+  // G. Automotive / Vehicles / Auto Parts (including Seat, Ibiza, Volkswagen, etc.)
+  const autoKeywords = [
+    'repuesto', 'repuestos', 'bomba', 'pastilla', 'freno', 'amortiguador', 'bujia', 'bujía',
+    'bobina', 'filtro', 'aceite', 'correa', 'tiempo', 'croche', 'embrague', 'empacadura',
+    'alternador', 'arranque', 'tripoide', 'terminal', 'rotula', 'muñon', 'muñón', 'radiador',
+    'termostato', 'bateria', 'batería', 'refrigerante', 'aveo', 'optra', 'corsa', 'spark',
+    'cruze', 'silverado', 'tahoe', 'fiesta', 'focus', 'explorer', 'hilux', 'corolla', 'yaris',
+    'fortuner', 'palio', 'siena', 'chevrolet', 'toyota', 'ford', 'fiat', 'chery', 'seat',
+    'ibiza', 'volkswagen', 'vw', 'gol', 'polo', 'jetta', 'renault', 'clio', 'megane', 'symbol',
+    'nissan', 'sentra', 'tiida', 'hyundai', 'getz', 'elantra', 'tucson', 'kia', 'rio', 'sportage',
+    'peugeot', 'honda', 'civic', 'mitsubishi', 'lancer', 'jeep', 'cherokee', 'auto', 'carro', 'vehiculo'
+  ];
+  if (autoKeywords.some((k) => query.includes(k))) {
+    const autoBiz = businesses.filter(
+      (b) =>
+        b.category === 'repuestos' ||
+        b.category === 'automotriz' ||
+        b.name.toLowerCase().includes('repuesto') ||
+        b.name.toLowerCase().includes('auto') ||
+        b.name.toLowerCase().includes('motor') ||
+        b.name.toLowerCase().includes('force')
+    );
+    const targetBiz = autoBiz[0] || businesses[0];
+    const bizProds = targetBiz ? products.filter((p) => p.businessId === targetBiz.id) : [];
+    const deepLink = buildDeepLink({ businessId: targetBiz?.id, category: 'repuestos' });
+
+    return {
+      messageText: `🚗 *Comercios de Repuestos y Vehículos en Con Force*\n\nRecibimos tu consulta para *"${query}"*. En Con Force contamos con comercios afiliados que suministran repuestos garantizados para diversas marcas y modelos en Bolívares (Bs.).\n\n🔧 Para verificar disponibilidad inmediata: dinos qué repuesto o servicio necesitas, o explora las tiendas aliadas aquí:`,
+      foundProducts: bizProds.slice(0, 3),
+      recommendedBusinesses: autoBiz.length > 0 ? autoBiz : [targetBiz],
+      deepLink,
+      categoryDetected: 'repuestos'
+    };
+  }
+
+  // H. General Multi-Category Matcher (NEVER repeats welcome message!)
+  const generalDeepLink = buildDeepLink();
   return {
-    messageText: `👋 ¡Hola! Soy el asistente inteligente de *Con Force Venezuela*.\n\n¿En qué podemos ayudarte hoy? Escribe qué repuesto, marca de vehículo o servicio necesitas y te daré opciones en tiempo real con precios en Bs.`,
+    messageText: `🛍️ *Con Force Marketplace*\n\nRecibí tu búsqueda de *"${query}"*.\n\nEn Con Force contamos con comercios de todos los rubros (alimentos, tecnología, farmacia, ferretería, repuestos, moda y servicios). Si buscas este producto en específico, puedes explorar nuestras tiendas afiliadas o escribirnos el detalle para orientarte con la tienda más cercana con stock disponible.\n\n👉 Explora los comercios y catálogo del Marketplace:`,
     foundProducts: [],
-    recommendedBusinesses: businesses.slice(0, 3),
-    deepLink: defaultDeepLink
+    recommendedBusinesses: businesses.slice(0, 4),
+    deepLink: generalDeepLink
   };
 }

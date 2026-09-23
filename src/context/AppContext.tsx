@@ -1464,7 +1464,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // WhatsApp & Chatbot
   const [chatbotConfig, setChatbotConfig] = useState<ChatbotConfig>(() => {
     const saved = localStorage.getItem('mk_chatbot_config');
-    return saved ? JSON.parse(saved) : INITIAL_CHATBOT_CONFIG;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (
+          !parsed.welcomeMessage ||
+          parsed.welcomeMessage.includes('repuesto, marca de vehículo') ||
+          parsed.welcomeMessage.includes('Pulso')
+        ) {
+          return {
+            ...INITIAL_CHATBOT_CONFIG,
+            ...parsed,
+            welcomeMessage: INITIAL_CHATBOT_CONFIG.welcomeMessage
+          };
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return INITIAL_CHATBOT_CONFIG;
   });
 
   const [campaigns, setCampaigns] = useState<WhatsAppCampaign[]>(() => {

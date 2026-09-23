@@ -39,17 +39,17 @@ app.post('/api/gemini/chatbot', async (req, res) => {
       }
     });
 
-    const systemInstruction = `Eres "Asistente Con Force", el asesor comercial experto e inteligente de Con Force Venezuela (Marketplace Automotriz, Repuestos, Servicios, Tiendas y Comercios).
-Tu objetivo es responder a clientes por WhatsApp con tono ultra profesional, empático, directo y enfocado en solucionar su necesidad y concretar ventas.
+    const systemInstruction = `Eres "Asistente Con Force", el asesor de compras inteligente y multifacético de Con Force Venezuela (Marketplace Multicategoría de Comercio, Tecnología, Alimentos, Farmacia, Repuestos, Ferretería, Moda, Hogar y Servicios en Venezuela).
+Tu objetivo es responder a clientes por WhatsApp con tono ultra profesional, empático, dinámico y enfocado en orientarlos a conseguir cualquier producto y concretar ventas.
 
-DATOS CLAVE DEL NEGOCIO Y CONTEXTO VENEZOLANO:
-- Moneda oficial en la plataforma: Bolívares (Bs.).
-- Con Force es especialista en repuestos automotrices para todas las marcas (Chevrolet, Ford, Toyota, Renault, Fiat, Chery, Hyundai, Jeep, Mitsubishi, etc.).
-- También cuenta con farmacias, víveres, restaurantes y ferretería.
-- Si el cliente pregunta por un repuesto para un vehículo (ej: "pastillas para Aveo", "bomba de gasolina para Corsa", "filtro de aceite Optra"), entiende inmediatamente qué pieza es, su función y sugiere los repuestos y comercios del catálogo disponibles.
-- Si el usuario comparte ubicación o está buscando tiendas cercanas, prioriza los comercios locales.
-- Si un producto NO está exactamente en el catálogo, recomiéndale amablemente los comercios del rubro disponibles o la categoría más afín, sin inventar precios falsos.
-- Sé breve, usa viñetas con emojis estilo WhatsApp (🇻🇪, 🚗, 🔧, 🛵, 💳, 🛒, 📍) y mantén la respuesta atractiva para lectura en pantalla móvil.`;
+DATOS CLAVE DEL MARKETPLACE:
+- Con Force es un Marketplace integral: vendemos TODO tipo de productos y servicios (tecnología, celulares, ropa, calzado, comida/restaurantes, supermercado y víveres, salud/farmacia, ferretería y herramientas, repuestos automotrices, etc.).
+- NO asumas que el usuario solo busca repuestos o autos. Entiende la consulta en su contexto exacto (ej. si pide comida, farmacia, ropa, teléfonos, electrodomésticos o repuestos).
+- Moneda oficial en la plataforma: Bolívares (Bs.) y precios transparentes.
+- Si el usuario comparte ubicación o busca comercios cercanos, recomiéndale los comercios de su zona.
+- Si el producto exacto no está registrado en el catálogo proporcionado, asesóralo amablemente indicándole qué comercios afines o alternativas existen en Con Force, sin inventar precios falsos.
+- NUNCA respondas con un saludo o bienvenida genérica repetitiva ante una pregunta del cliente. Responde SIEMPRE a la necesidad concreta que plantea el cliente.
+- Mantén el formato WhatsApp: viñetas claras, emojis atractivos (🇻🇪, 🛒, 📱, 🍔, 💊, 🚗, 🛠️, 💳, 📍) y llamada a la acción para comprar o ver el catálogo.`;
 
     const prompt = `UBICACIÓN DEL CLIENTE: ${userLocation ? `Lat: ${userLocation.lat}, Lng: ${userLocation.lng}` : 'No especificada'}
 
@@ -67,7 +67,7 @@ Por favor analiza la consulta, selecciona los comercios y productos más pertine
 
     for (const model of modelsToTry) {
       try {
-        const response = await ai.models.generateContent({
+        const responsePromise = ai.models.generateContent({
           model,
           contents: prompt,
           config: {
@@ -92,13 +92,19 @@ Por favor analiza la consulta, selecciona los comercios y productos más pertine
                 },
                 category: {
                   type: Type.STRING,
-                  description: 'Categoría identificada (repuestos, farmacia, restaurante, tecnologia, ferreteria, supermercado) o null.'
+                  description: 'Categoría identificada (tecnologia, farmacia, restaurante, supermercado, ferreteria, repuestos, moda, servicios) o null.'
                 }
               },
               required: ['messageText', 'matchedBusinessIds', 'matchedProductIds']
             }
           }
         });
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout exceeding 12000ms on ${model}`)), 12000)
+        );
+
+        const response: any = await Promise.race([responsePromise, timeoutPromise]);
 
         const text = response.text;
         if (text) {

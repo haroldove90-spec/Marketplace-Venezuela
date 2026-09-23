@@ -64,23 +64,31 @@ export const WebAssistantChatModal: React.FC = () => {
           {
             id: 'msg-welcome',
             sender: 'bot',
-            text: '👋 ¡Hola! Soy tu Asistente Virtual en Con Force. Puedo ayudarte a encontrar productos, farmacias 24h, restaurantes cercanos o resolver tus dudas de compra.',
+            text: '👋 ¡Hola! Soy tu Asistente Virtual en Con Force Venezuela. 🛒\n\nSomos un Marketplace integral: puedo ayudarte a encontrar cualquier producto (tecnología, alimentos, farmacia, restaurantes, ferretería, repuestos, moda) o resolver tus dudas de compra.',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             quickActions: [
               {
-                label: '💊 Farmacias y medicinas',
+                label: '🛒 Explorar Catálogo',
+                action: () => handleSendPreset('¿Qué categorías y productos tienen disponibles?')
+              },
+              {
+                label: '📱 Tecnología y Celulares',
+                action: () => handleSendPreset('¿Qué celulares y artículos de tecnología tienen?')
+              },
+              {
+                label: '💊 Farmacias y Salud',
                 action: () => handleSendPreset('¿Qué farmacias o medicinas tienen disponibles?')
               },
               {
-                label: '🍔 Comida y restaurantes',
-                action: () => handleSendPreset('¿Qué opciones de comida rápida o restaurantes hay?')
+                label: '🍔 Comida y Restaurantes',
+                action: () => handleSendPreset('¿Qué opciones de comida o restaurantes hay con delivery?')
               },
               {
-                label: '🚀 Quiero vender en Con Force',
-                action: () => handleSendPreset('¿Cómo puedo vender mis productos en la plataforma?')
+                label: '🚗 Repuestos y Vehículos',
+                action: () => handleSendPreset('¿Qué repuestos para vehículos tienen en catálogo?')
               },
               {
-                label: '📦 Tarifas y envíos',
+                label: '📦 Tarifas y Envíos',
                 action: () => handleSendPreset('¿Cómo funcionan los costos de envío y la tarifa de servicio?')
               }
             ]

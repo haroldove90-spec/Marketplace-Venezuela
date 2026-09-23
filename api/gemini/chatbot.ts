@@ -40,70 +40,92 @@ export default async function handler(req: any, res: any) {
       }
     });
 
-    const systemInstruction = `Eres "Asistente Con Force", el asesor comercial experto e inteligente de Con Force Venezuela (Marketplace Automotriz, Repuestos, Servicios, Tiendas y Comercios).
-Tu objetivo es responder a clientes por WhatsApp con tono ultra profesional, empático, directo y enfocado en solucionar su necesidad y concretar ventas.
+    const systemInstruction = `Eres "Asistente Con Force", el asesor de compras experto e inteligente de Con Force Venezuela (Marketplace Multicategoría de Comercio, Tecnología, Alimentos, Farmacia, Repuestos, Ferretería, Moda, Hogar y Servicios en Venezuela).
+Tu objetivo es responder a clientes por WhatsApp con tono ultra profesional, empático, dinámico y enfocado en orientarlos a conseguir cualquier producto y concretar ventas.
 
-DATOS CLAVE DEL NEGOCIO Y CONTEXTO VENEZOLANO:
-- Moneda oficial en la plataforma: Bolívares (Bs.).
-- Con Force es especialista en repuestos automotrices para todas las marcas (Chevrolet, Ford, Toyota, Renault, Fiat, Chery, Hyundai, Jeep, Mitsubishi, etc.).
-- También cuenta con farmacias, víveres, restaurantes y ferretería.
-- Si el cliente pregunta por un repuesto para un vehículo (ej: "pastillas para Aveo", "bomba de gasolina para Corsa", "filtro de aceite Optra"), entiende inmediatamente qué pieza es, su función y sugiere los repuestos y comercios del catálogo disponibles.
-- Si el usuario comparte ubicación o está buscando tiendas cercanas, prioriza los comercios locales.
-- Si un producto NO está exactamente en el catálogo, recomiéndale amablemente los comercios del rubro disponibles o la categoría más afin, sin inventar precios falsos.
-- Sé breve, usa viñetas con emojis estilo WhatsApp (🇻🇪, 🚗, 🔧, 🛵, 💳, 🛒, 📍) y mantén la respuesta atractiva para lectura en pantalla móvil.`;
+DATOS CLAVE DEL MARKETPLACE:
+- Con Force es un Marketplace integral: vendemos TODO tipo de productos y servicios (tecnología, celulares, ropa, calzado, comida/restaurantes, supermercado y víveres, salud/farmacia, ferretería y herramientas, repuestos automotrices, etc.).
+- NO asumas que el usuario solo busca repuestos o autos. Entiende la consulta en su contexto exacto.
+- Moneda oficial en la plataforma: Bolívares (Bs.) y precios referenciales transparentes.
+- Si el usuario comparte ubicación o busca comercios cercanos, recomiéndale los comercios de su zona.
+- Si el producto exacto no está registrado en el catálogo proporcionado, asesóralo amablemente indicándole qué comercios afines o alternativas existen en Con Force, sin inventar precios falsos.
+- NUNCA respondas con un mensaje genérico de bienvenida repetitivo. Responde SIEMPRE a la necesidad concreta que plantea el cliente.
+- Mantén el formato WhatsApp: viñetas claras, emojis atractivos (🇻🇪, 🛒, 📱, 🍔, 💊, 🚗, 🛠️, 💳, 📍) y llamada a la acción para comprar o ver el catálogo.`;
 
     const prompt = `UBICACIÓN DEL CLIENTE: ${userLocation ? `Lat: ${userLocation.lat}, Lng: ${userLocation.lng}` : 'No especificada'}
 
-CATÁLOGO REAL DE NEGOCIOS Y PRODUCTOS DISPONIBLES:
+CATÁLOGO REAL DE COMERCIOS Y PRODUCTOS DISPONIBLES:
 ${JSON.stringify(catalogContext || [], null, 2)}
 
 MENSAJE DEL CLIENTE:
 "${userMessage}"
 
-Por favor analiza la consulta, selecciona los comercios y productos más pertinentes y genera la respuesta.`;
+Por favor analiza la consulta del cliente, selecciona los comercios y productos más pertinentes de cualquier rubro y genera la respuesta.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            messageText: {
-              type: Type.STRING,
-              description: 'Texto de respuesta profesional en español adaptado para WhatsApp con emojis.'
-            },
-            matchedBusinessIds: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'IDs de comercios del catálogo que tienen o atienden lo que busca el cliente.'
-            },
-            matchedProductIds: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: 'IDs de productos del catálogo que coinciden con la búsqueda.'
-            },
-            category: {
-              type: Type.STRING,
-              description: 'Categoría identificada (repuestos, farmacia, restaurante, tecnologia, ferreteria, supermercado) o null.'
+    const modelsToTry = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
+    let lastError: any = null;
+    let parsed: any = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const responsePromise = ai.models.generateContent({
+          model,
+          contents: prompt,
+          config: {
+            systemInstruction,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                messageText: {
+                  type: Type.STRING,
+                  description: 'Texto de respuesta profesional en español adaptado para WhatsApp con emojis.'
+                },
+                matchedBusinessIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: 'IDs de comercios del catálogo que tienen o atienden lo que busca el cliente.'
+                },
+                matchedProductIds: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: 'IDs de productos del catálogo que coinciden con la búsqueda.'
+                },
+                category: {
+                  type: Type.STRING,
+                  description: 'Categoría identificada (tecnologia, farmacia, restaurante, supermercado, ferreteria, repuestos, moda, servicios) o null.'
+                }
+              },
+              required: ['messageText', 'matchedBusinessIds', 'matchedProductIds']
             }
-          },
-          required: ['messageText', 'matchedBusinessIds', 'matchedProductIds']
-        }
-      }
-    });
+          }
+        });
 
-    const text = response.text;
-    if (!text) {
-      throw new Error('Empty response from Gemini');
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout exceeding 12000ms on ${model}`)), 12000)
+        );
+
+        const response: any = await Promise.race([responsePromise, timeoutPromise]);
+
+        const text = response.text;
+        if (text) {
+          const cleanedText = text.replace(/```json\s*|\s*```/g, '').trim();
+          parsed = JSON.parse(cleanedText);
+          break;
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Vercel function Gemini model ${model} failed:`, err.message || err);
+      }
     }
 
-    const parsed = JSON.parse(text);
+    if (!parsed) {
+      throw lastError || new Error('All Gemini candidate models failed to produce a valid response.');
+    }
+
     return res.status(200).json(parsed);
   } catch (error: any) {
-    console.error('Gemini chatbot error:', error);
+    console.error('Gemini chatbot error on Vercel handler:', error);
     return res.status(500).json({
       error: error.message || 'Error processing message with Gemini AI'
     });
